@@ -6,6 +6,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
+import CommandPalette from '@/Components/CommandPalette';
 
 export default function AuthenticatedLayout({ header, children }) {
     const { user } = usePage().props.auth;
@@ -16,8 +17,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+            <CommandPalette />
             <FlashMessage />
-            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+            <nav className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 dark:border-gray-700/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
