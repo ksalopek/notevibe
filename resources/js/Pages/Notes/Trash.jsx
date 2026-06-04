@@ -38,8 +38,8 @@ export default function Trash({ notes, filters }) {
         <AuthenticatedLayout
             header={
                 <div className="flex justify-between items-center">
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Trash Can</h2>
-                    <Link href={route('notes.index')} className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Trash Can</h2>
+                    <Link href={route('notes.index')} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold">
                         &larr; Back to Notes
                     </Link>
                 </div>
@@ -57,35 +57,35 @@ export default function Trash({ notes, filters }) {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search trashed notes..."
-                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         />
                     </div>
 
                     {/* --- NOTES LIST --- */}
                     <div className="space-y-4">
                         {notes.data.length === 0 ? (
-                            <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200 text-center text-gray-500">
+                            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
                                 Your trash is empty.
                             </div>
                         ) : (
                             notes.data.map((note) => (
-                                <div key={note.id} className="p-6 bg-white rounded-lg shadow-md border border-gray-200 relative group opacity-75 hover:opacity-100 transition-opacity">
+                                <div key={note.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group opacity-75 hover:opacity-100 transition-opacity">
                                     <div className="flex justify-between items-start">
-                                        <h2 className="text-xl font-semibold text-gray-900 line-through">{note.title}</h2>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 line-through">{note.title}</h2>
                                         <div className="flex gap-4">
-                                            <button onClick={() => restoreNote(note.id)} className="text-sm text-emerald-600 hover:text-emerald-800 font-bold">
+                                            <button onClick={() => restoreNote(note.id)} className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold">
                                                 Restore
                                             </button>
-                                            <button onClick={() => forceDeleteNote(note.id)} className="text-sm text-red-600 hover:text-red-800 font-bold">
+                                            <button onClick={() => forceDeleteNote(note.id)} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-bold">
                                                 Delete Forever
                                             </button>
                                         </div>
                                     </div>
                                     {/* Render content as HTML */}
-                                    <div className="prose mt-2 text-gray-600" dangerouslySetInnerHTML={{ __html: note.content }} />
+                                    <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
                                     {/* Render notes as HTML */}
-                                    <div className="prose mt-2 text-gray-600" dangerouslySetInnerHTML={{ __html: note.notes }} />
-                                    <p className="mt-4 text-xs text-red-500 font-semibold">
+                                    <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.notes }} />
+                                    <p className="mt-4 text-xs text-red-500 dark:text-red-400 font-semibold">
                                         Deleted: {new Date(note.deleted_at).toLocaleString()}
                                     </p>
                                 </div>
@@ -103,7 +103,7 @@ export default function Trash({ notes, filters }) {
                                     className={`px-4 py-2 border rounded-md text-sm ${
                                         link.active
                                             ? 'bg-indigo-600 text-white border-indigo-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
                                     } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

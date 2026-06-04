@@ -69,28 +69,28 @@ export default function Index({ notes, filters }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">My Notes</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">My Notes</h2>}
         >
             <Head title="My Notes" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* --- CREATE FORM --- */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
                                 <input
                                     type="text"
                                     value={data.title}
                                     onChange={e => setData('title', e.target.value)}
-                                    className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                     placeholder="Note title..."
                                 />
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
                                 <RichTextEditor
                                     content={data.content}
                                     onChange={newContent => setData('content', newContent)}
@@ -99,7 +99,7 @@ export default function Index({ notes, filters }) {
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                                 <RichTextEditor
                                     content={data.notes}
                                     onChange={newNotes => setData('notes', newNotes)}
@@ -108,12 +108,12 @@ export default function Index({ notes, filters }) {
                                 {errors.notes && <div className="text-red-500 text-sm mt-1">{errors.notes}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags</label>
                                 <input
                                     type="text"
                                     value={data.tags}
                                     onChange={e => setData('tags', e.target.value)}
-                                    className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                     placeholder="Comma, separated, tags..."
                                 />
                                 {errors.tags && <div className="text-red-500 text-sm mt-1">{errors.tags}</div>}
@@ -131,24 +131,24 @@ export default function Index({ notes, filters }) {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search notes..."
-                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         />
                     </div>
 
                     {/* --- NOTES LIST --- */}
                     <div className="space-y-4">
                         {notes.data.map((note) => (
-                            <div key={note.id} className="p-6 bg-white rounded-lg shadow-md border border-gray-200 relative group">
+                            <div key={note.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group">
                                 {editingNoteId === note.id ? (
                                     <form onSubmit={(e) => submitUpdate(e, note.id)}>
                                         <input
                                             type="text"
                                             value={editForm.title}
                                             onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                                            className="w-full mb-2 border-gray-300 rounded-md shadow-sm"
+                                            className="w-full mb-2 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
                                         />
                                         <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
                                             <RichTextEditor
                                                 content={editForm.content}
                                                 onChange={newContent => setEditForm({ ...editForm, content: newContent })}
@@ -156,7 +156,7 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                                             <RichTextEditor
                                                 content={editForm.notes}
                                                 onChange={newNotes => setEditForm({ ...editForm, notes: newNotes })}
@@ -167,30 +167,30 @@ export default function Index({ notes, filters }) {
                                             type="text"
                                             value={editForm.tags}
                                             onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
-                                            className="w-full mb-4 border-gray-300 rounded-md shadow-sm"
+                                            className="w-full mb-4 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
                                             placeholder="Comma, separated, tags..."
                                         />
                                         <div className="flex gap-2">
                                             <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700">Save Changes</button>
-                                            <button type="button" onClick={() => setEditingNoteId(null)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm hover:bg-gray-400">Cancel</button>
+                                            <button type="button" onClick={() => setEditingNoteId(null)} className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-400 dark:hover:bg-gray-500">Cancel</button>
                                         </div>
                                     </form>
                                 ) : (
                                     <>
                                         <div className="flex justify-between items-start">
-                                            <h2 className="text-xl font-semibold text-gray-900">{note.title}</h2>
+                                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{note.title}</h2>
                                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => startEditing(note)} className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Edit</button>
-                                                <button onClick={() => deleteNote(note.id)} className="text-sm text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                                                <button onClick={() => startEditing(note)} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold">Edit</button>
+                                                <button onClick={() => deleteNote(note.id)} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold">Delete</button>
                                             </div>
                                         </div>
-                                        <div className="prose mt-2 text-gray-600" dangerouslySetInnerHTML={{ __html: note.content }} />
-                                        <div className="prose mt-2 text-gray-600" dangerouslySetInnerHTML={{ __html: note.notes }} />
+                                        <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
+                                        <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.notes }} />
                                         {/* Display Tags */}
                                         {note.tags.length > 0 && (
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {note.tags.map(tag => (
-                                                    <span key={tag.id} className="px-2 py-1 bg-gray-200 text-gray-800 text-xs font-semibold rounded-full">
+                                                    <span key={tag.id} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold rounded-full">
                                                         {tag.name}
                                                     </span>
                                                 ))}
@@ -212,7 +212,7 @@ export default function Index({ notes, filters }) {
                                     className={`px-4 py-2 border rounded-md text-sm ${
                                         link.active
                                             ? 'bg-indigo-600 text-white border-indigo-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
                                     } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

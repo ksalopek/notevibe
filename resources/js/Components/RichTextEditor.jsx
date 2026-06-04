@@ -16,7 +16,7 @@ const MenuBar = ({ editor }) => {
             onClick={onClick}
             disabled={disabled}
             className={`px-2 py-1 rounded-md text-sm transition-colors ${
-                isActive ? 'bg-indigo-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                isActive ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
             }`}
         >
             {children}
@@ -24,7 +24,7 @@ const MenuBar = ({ editor }) => {
     );
 
     return (
-        <div className="flex flex-wrap gap-1 p-2 border-b border-gray-300 bg-gray-50 rounded-t-md">
+        <div className="flex flex-wrap gap-1 p-2 border-b border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-t-md">
             <EditorButton onClick={() => editor.chain().focus().toggleBold().run()} disabled={!editor.can().chain().focus().toggleBold().run()} isActive={editor.isActive('bold')}>Bold</EditorButton>
             <EditorButton onClick={() => editor.chain().focus().toggleItalic().run()} disabled={!editor.can().chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')}>Italic</EditorButton>
             <EditorButton onClick={() => editor.chain().focus().toggleStrike().run()} disabled={!editor.can().chain().focus().toggleStrike().run()} isActive={editor.isActive('strike')}>Strike</EditorButton>
@@ -73,7 +73,7 @@ export default function RichTextEditor({ content, onChange, className = '' }) {
         },
         editorProps: {
             attributes: {
-                class: 'prose max-w-none focus:outline-none p-4 min-h-[150px]',
+                class: 'prose dark:prose-invert max-w-none focus:outline-none p-4 min-h-[150px] text-gray-900 dark:text-gray-100',
             },
         },
     });
@@ -85,7 +85,7 @@ export default function RichTextEditor({ content, onChange, className = '' }) {
     }, [content, editor]);
 
     return (
-        <div className={`border border-gray-300 rounded-md shadow-sm ${className}`}>
+        <div className={`border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-md shadow-sm overflow-hidden ${className}`}>
             <MenuBar editor={editor} />
             <EditorContent editor={editor} />
         </div>
