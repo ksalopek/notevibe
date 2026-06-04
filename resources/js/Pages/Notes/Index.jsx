@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Head, useForm, router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
-import RichTextEditor from '@/Components/RichTextEditor'; // Import the new component
+import RichTextEditor from '@/Components/RichTextEditor';
+import { AnimatePresence, motion } from 'framer-motion';
+import NoteSkeleton from '@/Components/NoteSkeleton';
 
 export default function Index({ notes, filters }) {
     // 1. State for the "Create" form
@@ -17,8 +19,24 @@ export default function Index({ notes, filters }) {
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
 
-    // 3. State for the search input
+    // 3. State for the search input and loading
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const [isLoading, setIsLoading] = useState(false);
+    const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
+
+    useEffect(() => {
+        localStorage.setItem('notesViewMode', viewMode);
+    }, [viewMode]);
+
+    useEffect(() => {
+        const startListener = router.on('start', () => setIsLoading(true));
+        const finishListener = router.on('finish', () => setIsLoading(false));
+        
+        return () => {
+            startListener();
+            finishListener();
+        };
+    }, []);
 
     // --- Action Handlers ---
 
@@ -55,6 +73,7 @@ export default function Index({ notes, filters }) {
         debounce((nextValue) => {
             router.get(route('notes.index'), { search: nextValue }, {
                 preserveState: true,
+                preserveScroll: true,
                 replace: true,
             });
         }, 300),
@@ -62,7 +81,7 @@ export default function Index({ notes, filters }) {
     );
 
     useEffect(() => {
-        if (searchTerm !== filters.search) {
+        if (searchTerm !== (filters.search || '')) {
             debouncedSearch(searchTerm);
         }
     }, [searchTerm, filters.search, debouncedSearch]);
@@ -124,21 +143,60 @@ export default function Index({ notes, filters }) {
                         </form>
                     </div>
 
-                    {/* --- SEARCH BAR --- */}
-                    <div className="mb-8">
+                    {/* --- SEARCH AND TOGGLE --- */}
+                    <div className="mb-8 flex gap-4">
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search notes..."
-                            className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         />
+                        <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                title="Grid View"
+                                className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                title="List View"
+                                className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     {/* --- NOTES LIST --- */}
-                    <div className="space-y-4">
-                        {notes.data.map((note) => (
-                            <div key={note.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group">
+                    <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
+                        {isLoading ? (
+                            <>
+                                <NoteSkeleton />
+                                <NoteSkeleton />
+                                <NoteSkeleton />
+                                <NoteSkeleton />
+                                <NoteSkeleton />
+                                <NoteSkeleton />
+                            </>
+                        ) : (
+                            <AnimatePresence mode="popLayout">
+                                {notes.data.map((note) => (
+                                    <motion.div 
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                        transition={{ duration: 0.3 }}
+                                        key={note.id} 
+                                        className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-indigo-500/10"
+                                    >
                                 {editingNoteId === note.id ? (
                                     <form onSubmit={(e) => submitUpdate(e, note.id)}>
                                         <input
@@ -198,8 +256,10 @@ export default function Index({ notes, filters }) {
                                         )}
                                     </>
                                 )}
-                            </div>
-                        ))}
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        )}
                     </div>
 
                     {/* --- PAGINATION LINKS --- */}
@@ -209,6 +269,8 @@ export default function Index({ notes, filters }) {
                                 <Link
                                     key={index}
                                     href={link.url || '#'}
+                                    preserveScroll={true}
+                                    onSuccess={() => document.getElementById('notes-list')?.scrollIntoView({ behavior: 'smooth' })}
                                     className={`px-4 py-2 border rounded-md text-sm ${
                                         link.active
                                             ? 'bg-indigo-600 text-white border-indigo-600'
