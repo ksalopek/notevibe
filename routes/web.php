@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::patch('/admin/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle');
+    Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all');
+    Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all');
 });
 
 require __DIR__.'/auth.php';
