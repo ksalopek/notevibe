@@ -30,8 +30,12 @@ RUN apk add --no-cache \
     libxml2-dev
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && apk del pcre-dev $PHPIZE_DEPS
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
