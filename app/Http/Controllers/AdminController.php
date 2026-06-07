@@ -16,6 +16,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/Dashboard');
     }
 
+<<<<<<< HEAD
     /**
      * Display all users.
      */
@@ -68,5 +69,43 @@ class AdminController extends Controller
                      ->update(['is_active' => true]);
 
         return back()->with('success', "Successfully restored and enabled {$count} users.");
+=======
+    public function users()
+    {
+        return Inertia::render('Admin/Users', [
+            'users' => \App\Models\User::all()
+        ]);
+    }
+
+    public function toggleUserStatus(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors('You cannot disable your own account.');
+        }
+
+        $user->update([
+            'is_active' => !$user->is_active
+        ]);
+
+        return back()->with('message', 'User status updated successfully.');
+    }
+
+    public function disableAllUsers()
+    {
+        \App\Models\User::where('id', '!=', auth()->id())->update([
+            'is_active' => false
+        ]);
+
+        return back()->with('message', 'NUCLEAR OPTION ENGAGED: All other users have been disabled.');
+    }
+
+    public function enableAllUsers()
+    {
+        \App\Models\User::query()->update([
+            'is_active' => true
+        ]);
+
+        return back()->with('message', 'RESTORE OPTION ENGAGED: All users have been enabled.');
+>>>>>>> feature/user_list
     }
 }
