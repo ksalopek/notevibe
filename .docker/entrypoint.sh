@@ -12,6 +12,8 @@ echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-error
 # Run migrations (Optional, but usually a good idea in production if it's safe)
 # php artisan migrate --force
 
-# Start Laravel's built-in server directly
-echo "Starting artisan serve..."
-php artisan serve --host=0.0.0.0 --port=80
+# Start PHP-FPM in daemon mode
+php-fpm -D
+
+# Start Nginx in foreground
+nginx -g "daemon off;"

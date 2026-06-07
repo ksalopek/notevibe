@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: modern-app:latest
+    image: modern-app:v2
     container_name: modern-app-web
     restart: unless-stopped
     ports:
