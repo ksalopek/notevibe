@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // This is the "pivot" table for the many-to-many relationship.
-        // The table name is the singular, alphabetical combination of the two models.
-        Schema::create('note_tag', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('note_id')->constrained()->onDelete('cascade');
-            $table->foreignId('tag_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
+        if (!Schema::hasTable('note_tag')) {
+            // This is the "pivot" table for the many-to-many relationship.
+            // The table name is the singular, alphabetical combination of the two models.
+            Schema::create('note_tag', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('note_id')->constrained()->onDelete('cascade');
+                $table->foreignId('tag_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
 
-            // Add a unique constraint to prevent duplicate tag attachments to the same note.
-            $table->unique(['note_id', 'tag_id']);
-        });
+                // Add a unique constraint to prevent duplicate tag attachments to the same note.
+                $table->unique(['note_id', 'tag_id']);
+            });
+        }
     }
 
     /**
