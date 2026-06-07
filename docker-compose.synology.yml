@@ -11,8 +11,8 @@ services:
     ports:
       - "8080:80"
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      APP_ENV: local
+      APP_DEBUG: "true"
       APP_URL: "http://your-synology-ip:8080"
       APP_KEY: "${APP_KEY:-base64:cXQo9+EVa+HwTjKsY9mHeltvIKOvNrZivx1t1H2Fddk=}"
       DB_CONNECTION: mysql
