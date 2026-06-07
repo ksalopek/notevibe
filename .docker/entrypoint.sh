@@ -5,6 +5,10 @@
 # Ensure permissions are correct
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Force PHP to show raw errors on the screen so we aren't guessing
+echo "display_errors = On" > /usr/local/etc/php/conf.d/docker-php-ext-error.ini
+echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-error.ini
+
 # Run migrations (Optional, but usually a good idea in production if it's safe)
 # php artisan migrate --force
 
