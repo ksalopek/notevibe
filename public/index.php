@@ -3,9 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-echo "HELLO WORLD! IF YOU SEE THIS, NGINX AND PHP ARE WORKING PERFECTLY.";
-exit;
-
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...
