@@ -1,12 +1,8 @@
 #!/bin/sh
 
-# Cache configurations
-php artisan config:cache
-php artisan event:cache
-php artisan route:cache
-php artisan view:cache
+# We will skip artisan caching for now to avoid fatal environment errors
 
-# Fix permissions that might have been changed to root by the artisan commands above
+# Ensure permissions are correct
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Run migrations (Optional, but usually a good idea in production if it's safe)
