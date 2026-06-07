@@ -39,11 +39,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <NavLink href={route('notes.trash')} active={route().current('notes.trash')}>
                                     Trash Can
                                 </NavLink>
-                                {/* Conditionally render the Admin link */}
+                                {/* Conditionally render the Admin links */}
                                 {isAdmin && (
-                                    <NavLink href={route('admin.index')} active={route().current('admin.index')}>
-                                        Admin
-                                    </NavLink>
+                                    <>
+                                        <NavLink href={route('admin.index')} active={route().current('admin.index')}>
+                                            Admin
+                                        </NavLink>
+                                        <NavLink href={route('admin.users')} active={route().current('admin.users')}>
+                                            Users
+                                        </NavLink>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -124,11 +129,16 @@ export default function AuthenticatedLayout({ header, children }) {
                         <ResponsiveNavLink href={route('notes.trash')} active={route().current('notes.trash')}>
                             Trash Can
                         </ResponsiveNavLink>
-                        {/* Conditionally render the Admin link for mobile */}
+                        {/* Conditionally render the Admin links for mobile */}
                         {isAdmin && (
-                            <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
-                                Admin
-                            </ResponsiveNavLink>
+                            <>
+                                <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
+                                    Admin
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.users')} active={route().current('admin.users')}>
+                                    Users
+                                </ResponsiveNavLink>
+                            </>
                         )}
                     </div>
 
