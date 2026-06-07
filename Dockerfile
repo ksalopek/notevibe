@@ -54,7 +54,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Clear old compiled views and config caches copied from the host machine
 RUN rm -rf /var/www/html/bootstrap/cache/*.php \
-    && rm -rf /var/www/html/storage/framework/views/*.php
+    && rm -rf /var/www/html/storage/framework/views/*.php \
+    && rm -f /var/www/html/public/hot
 
 # Set appropriate permissions
 RUN chown -R www-data:www-data /var/www/html \
