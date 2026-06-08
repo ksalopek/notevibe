@@ -13,7 +13,21 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Admin/Dashboard');
+        $totalUsers = User::count();
+        $activeUsers = User::where('is_active', true)->count();
+        $inactiveUsers = $totalUsers - $activeUsers;
+        $totalNotes = \App\Models\Note::count();
+        $recentUsers = User::latest()->take(5)->get();
+
+        return Inertia::render('Admin/Dashboard', [
+            'metrics' => [
+                'totalUsers' => $totalUsers,
+                'activeUsers' => $activeUsers,
+                'inactiveUsers' => $inactiveUsers,
+                'totalNotes' => $totalNotes,
+            ],
+            'recentUsers' => $recentUsers,
+        ]);
     }
 
     public function users()
