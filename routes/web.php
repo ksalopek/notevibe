@@ -18,7 +18,39 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $user = auth()->user();
+
+    $recentNotes = $user->notes()->with('tags')->latest()->take(5)->get();
+    
+    $totalNotes = $user->notes()->count();
+    $trashedNotesCount = $user->notes()->onlyTrashed()->count();
+    
+    $tagCounts = \Illuminate\Support\Facades\DB::table('note_tag')
+        ->join('notes', 'note_tag.note_id', '=', 'notes.id')
+        ->join('tags', 'note_tag.tag_id', '=', 'tags.id')
+        ->where('notes.user_id', $user->id)
+        ->whereNull('notes.deleted_at')
+        ->select('tags.name', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+        ->groupBy('tags.id', 'tags.name')
+        ->orderByDesc('count')
+        ->take(10)
+        ->get();
+
+    $totalTags = \Illuminate\Support\Facades\DB::table('note_tag')
+        ->join('notes', 'note_tag.note_id', '=', 'notes.id')
+        ->where('notes.user_id', $user->id)
+        ->distinct('note_tag.tag_id')
+        ->count('note_tag.tag_id');
+
+    return Inertia::render('Dashboard', [
+        'recentNotes' => $recentNotes,
+        'stats' => [
+            'totalNotes' => $totalNotes,
+            'trashedNotes' => $trashedNotesCount,
+            'totalTags' => $totalTags,
+        ],
+        'topTags' => $tagCounts,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
