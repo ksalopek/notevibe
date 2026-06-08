@@ -11,29 +11,49 @@ class AdminController extends Controller
     /**
      * Display the admin dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $totalUsers = User::count();
-        $activeUsers = User::where('is_active', true)->count();
-        $inactiveUsers = $totalUsers - $activeUsers;
-        $totalNotes = \App\Models\Note::count();
-        $recentUsers = User::latest()->take(5)->get();
-
         return Inertia::render('Admin/Dashboard', [
-            'metrics' => [
-                'totalUsers' => $totalUsers,
-                'activeUsers' => $activeUsers,
-                'inactiveUsers' => $inactiveUsers,
-                'totalNotes' => $totalNotes,
+            'metrics' => fn () => [
+                'totalUsers' => User::count(),
+                'activeUsers' => User::where('is_active', true)->count(),
+                'inactiveUsers' => User::count() - User::where('is_active', true)->count(),
+                'totalNotes' => \App\Models\Note::count(),
             ],
-            'recentUsers' => $recentUsers,
+            'recentUsers' => fn () => User::latest()->take(5)->get(),
+            'latestLogins' => fn () => User::whereNotNull('last_login_at')
+                ->when($request->search_logins, function($query, $search) {
+                    $query->where(function($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%");
+                    });
+                })
+                ->orderBy('last_login_at', 'desc')
+                ->paginate(10)
+                ->withQueryString(),
+            'filters' => $request->only(['search_logins']),
         ]);
     }
 
-    public function users()
+    public function users(Request $request)
     {
+        $sortField = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+
+        $users = \App\Models\User::query()
+            ->when($request->search_users, function($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortField, $sortDirection)
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('Admin/Users', [
-            'users' => \App\Models\User::orderBy('created_at', 'desc')->get()
+            'users' => $users,
+            'filters' => $request->only(['search_users', 'sort', 'direction']),
         ]);
     }
 
@@ -66,5 +86,34 @@ class AdminController extends Controller
         ]);
 
         return back()->with('message', 'RESTORE OPTION ENGAGED: All users have been enabled.');
+    }
+
+    public function notes(Request $request)
+    {
+        $notes = \App\Models\Note::with('user')
+            ->when($request->search_notes, function($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('content', 'like', "%{$search}%")
+                      ->orWhereHas('user', function($uq) use ($search) {
+                          $uq->where('name', 'like', "%{$search}%");
+                      });
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Admin/Notes', [
+            'notes' => $notes,
+            'filters' => $request->only(['search_notes']),
+        ]);
+    }
+
+    public function destroyNote(\App\Models\Note $note)
+    {
+        $note->delete();
+
+        return back()->with('message', 'Note deleted successfully.');
     }
 }
