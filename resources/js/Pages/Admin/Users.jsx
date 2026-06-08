@@ -3,7 +3,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Users({ auth, users }) {
-    const { patch } = useForm();
+    const { patch, post } = useForm();
     const [sortField, setSortField] = useState('id');
     const [sortDirection, setSortDirection] = useState('asc');
 
@@ -30,6 +30,10 @@ export default function Users({ auth, users }) {
 
     const toggleStatus = (user) => {
         patch(route('admin.users.toggle', user.id));
+    };
+
+    const impersonate = (user) => {
+        post(route('admin.users.impersonate', user.id));
     };
 
     const disableAll = () => {
@@ -102,9 +106,14 @@ export default function Users({ auth, users }) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {u.id !== auth.user.id && (
-                                                    <button onClick={() => toggleStatus(u)} className={`${u.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} font-bold px-3 py-1 border rounded`}>
-                                                        {u.is_active ? 'Disable' : 'Enable'}
-                                                    </button>
+                                                    <div className="flex justify-end gap-2">
+                                                        <button onClick={() => impersonate(u)} className="text-indigo-600 hover:text-indigo-900 font-bold px-3 py-1 border rounded border-indigo-200">
+                                                            Impersonate
+                                                        </button>
+                                                        <button onClick={() => toggleStatus(u)} className={`${u.is_active ? 'text-red-600 hover:text-red-900 border-red-200' : 'text-green-600 hover:text-green-900 border-green-200'} font-bold px-3 py-1 border rounded`}>
+                                                            {u.is_active ? 'Disable' : 'Enable'}
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </td>
                                         </tr>
