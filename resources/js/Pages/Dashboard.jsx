@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Tooltip from '@/Components/Tooltip';
 import {
     DndContext,
     closestCenter,
@@ -46,13 +47,16 @@ function SortableWidget({ id, children, className }) {
 
     return (
         <div ref={setNodeRef} style={style} className={`${className} ${isDragging ? 'opacity-50 scale-[1.02] shadow-2xl z-50' : ''}`}>
-            <div 
-                className="absolute top-4 right-4 z-10 p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
-                {...attributes} 
-                {...listeners}
-                title="Drag to reorder"
-            >
-                <GripVerticalIcon />
+            <div className="absolute top-4 right-4 z-10">
+                <Tooltip content="Drag to reorder">
+                    <div 
+                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
+                        {...attributes} 
+                        {...listeners}
+                    >
+                        <GripVerticalIcon />
+                    </div>
+                </Tooltip>
             </div>
             {children}
         </div>
