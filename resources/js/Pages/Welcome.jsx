@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
-// Second test comment to trigger NAS scheduled task update and check logs
+// Third test comment to verify composer and npm build steps
 export default function Welcome({ auth }) {
     return (
         <>
