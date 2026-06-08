@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
-// Test comment to trigger NAS scheduled task update
+// Second test comment to trigger NAS scheduled task update and check logs
 export default function Welcome({ auth }) {
     return (
         <>
