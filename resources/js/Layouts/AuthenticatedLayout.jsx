@@ -9,7 +9,7 @@ import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 
 export default function AuthenticatedLayout({ header, children }) {
-    const { user } = usePage().props.auth;
+    const { user, is_impersonating } = usePage().props.auth;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     // Helper to check if the user is an admin
@@ -17,6 +17,19 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+            {is_impersonating && (
+                <div className="bg-indigo-600 px-4 py-3 text-white sm:px-6 lg:px-8 text-center flex justify-center items-center gap-4">
+                    <span className="font-medium">You are currently impersonating {user.name}.</span>
+                    <Link
+                        href={route('impersonate.leave')}
+                        method="post"
+                        as="button"
+                        className="rounded-md bg-white/20 px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition"
+                    >
+                        Leave Impersonation
+                    </Link>
+                </div>
+            )}
             <CommandPalette />
             <FlashMessage />
             <nav className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 dark:border-gray-700/50">

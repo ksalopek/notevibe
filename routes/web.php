@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\ImpersonationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -44,6 +45,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/admin/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle');
     Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all');
     Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all');
+    Route::post('/admin/users/{user}/impersonate', [ImpersonationController::class, 'store'])->name('admin.users.impersonate');
 });
+
+Route::post('/impersonate/leave', [ImpersonationController::class, 'destroy'])
+    ->middleware(['auth'])
+    ->name('impersonate.leave');
 
 require __DIR__.'/auth.php';
