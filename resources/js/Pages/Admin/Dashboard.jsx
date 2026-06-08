@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import Pagination from '@/Components/Pagination';
+import Tooltip from '@/Components/Tooltip';
 import {
     DndContext,
     closestCenter,
@@ -48,13 +49,16 @@ function SortableWidget({ id, children, className }) {
 
     return (
         <div ref={setNodeRef} style={style} className={`${className} ${isDragging ? 'opacity-50 scale-[1.02] shadow-2xl z-50' : ''}`}>
-            <div 
-                className="absolute top-4 right-4 z-10 p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
-                {...attributes} 
-                {...listeners}
-                title="Drag to reorder"
-            >
-                <GripVerticalIcon />
+            <div className="absolute top-4 right-4 z-10">
+                <Tooltip content="Drag to reorder">
+                    <div 
+                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
+                        {...attributes} 
+                        {...listeners}
+                    >
+                        <GripVerticalIcon />
+                    </div>
+                </Tooltip>
             </div>
             {children}
         </div>
@@ -141,7 +145,11 @@ const RegistrationsWidget = ({ recentUsers }) => (
                         recentUsers.map(user => (
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white flex items-center">
-                                    {user.is_admin && <span className="mr-2 text-amber-500" title="Admin"><SettingsIcon /></span>}
+                                    {user.is_admin && (
+                                        <Tooltip content="Admin" className="mr-2">
+                                            <span className="text-amber-500"><SettingsIcon /></span>
+                                        </Tooltip>
+                                    )}
                                     {user.name}
                                 </td>
                                 <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
