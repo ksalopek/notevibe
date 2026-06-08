@@ -36,17 +36,6 @@ export default function Users({ auth, users }) {
         post(route('admin.users.impersonate', user.id));
     };
 
-    const disableAll = () => {
-        if (confirm('NUCLEAR OPTION: Are you sure you want to disable all other users?')) {
-            patch(route('admin.users.disable-all'));
-        }
-    };
-
-    const enableAll = () => {
-        if (confirm('RESTORE: Are you sure you want to enable all users?')) {
-            patch(route('admin.users.enable-all'));
-        }
-    };
 
     return (
         <AuthenticatedLayout
@@ -56,14 +45,6 @@ export default function Users({ auth, users }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="mb-4 flex justify-end space-x-4">
-                        <button onClick={enableAll} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow">
-                            Restore All Users
-                        </button>
-                        <button onClick={disableAll} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow">
-                            Nuclear Option (Disable All)
-                        </button>
-                    </div>
 
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100 overflow-x-auto">
