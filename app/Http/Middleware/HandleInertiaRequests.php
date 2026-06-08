@@ -34,6 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'is_impersonating' => $request->session()->has('impersonated_by'),
+                'has_trashed_notes' => $request->user() ? \App\Models\Note::onlyTrashed()->where('user_id', $request->user()->id)->exists() : false,
             ],
             'flash' => [
                 'message' => $request->session()->get('message'),
