@@ -6,6 +6,14 @@ import RichTextEditor from '@/Components/RichTextEditor';
 import { AnimatePresence, motion } from 'framer-motion';
 import NoteSkeleton from '@/Components/NoteSkeleton';
 import Tooltip from '@/Components/Tooltip';
+import Modal from '@/Components/Modal';
+import DangerButton from '@/Components/DangerButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+
+const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
+const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
+const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
+const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
 export default function Index({ notes, filters }) {
     // 1. State for the "Create" form
@@ -19,6 +27,7 @@ export default function Index({ notes, filters }) {
     // 2. React State to track which note we are currently editing
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
+    const [confirmingNoteDeletion, setConfirmingNoteDeletion] = useState(null);
 
     // 3. State for the search input and loading
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
@@ -47,8 +56,14 @@ export default function Index({ notes, filters }) {
     };
 
     const deleteNote = (id) => {
-        if (confirm('Are you sure you want to delete this note?')) {
-            router.delete(route('notes.destroy', id));
+        setConfirmingNoteDeletion(id);
+    };
+
+    const executeDelete = () => {
+        if (confirmingNoteDeletion) {
+            router.delete(route('notes.destroy', confirmingNoteDeletion), {
+                onSuccess: () => setConfirmingNoteDeletion(null),
+            });
         }
     };
 
@@ -99,7 +114,9 @@ export default function Index({ notes, filters }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                    <TitleIcon className="w-4 h-4 mr-2 text-indigo-500" /> Title
+                                </label>
                                 <input
                                     type="text"
                                     value={data.title}
@@ -110,7 +127,9 @@ export default function Index({ notes, filters }) {
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                    <ContentIcon className="w-4 h-4 mr-2 text-indigo-500" /> Content
+                                </label>
                                 <RichTextEditor
                                     content={data.content}
                                     onChange={newContent => setData('content', newContent)}
@@ -119,7 +138,9 @@ export default function Index({ notes, filters }) {
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                    <NotesIcon className="w-4 h-4 mr-2 text-indigo-500" /> Notes
+                                </label>
                                 <RichTextEditor
                                     content={data.notes}
                                     onChange={newNotes => setData('notes', newNotes)}
@@ -128,7 +149,9 @@ export default function Index({ notes, filters }) {
                                 {errors.notes && <div className="text-red-500 text-sm mt-1">{errors.notes}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags</label>
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                    <TagsIcon className="w-4 h-4 mr-2 text-indigo-500" /> Tags
+                                </label>
                                 <input
                                     type="text"
                                     value={data.tags}
@@ -202,14 +225,21 @@ export default function Index({ notes, filters }) {
                                     >
                                 {editingNoteId === note.id ? (
                                     <form onSubmit={(e) => submitUpdate(e, note.id)}>
-                                        <input
-                                            type="text"
-                                            value={editForm.title}
-                                            onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                                            className="w-full mb-2 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
-                                        />
                                         <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                                <TitleIcon className="w-4 h-4 mr-2 text-indigo-500" /> Title
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={editForm.title}
+                                                onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                                <ContentIcon className="w-4 h-4 mr-2 text-indigo-500" /> Content
+                                            </label>
                                             <RichTextEditor
                                                 content={editForm.content}
                                                 onChange={newContent => setEditForm({ ...editForm, content: newContent })}
@@ -217,20 +247,27 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                                <NotesIcon className="w-4 h-4 mr-2 text-indigo-500" /> Notes
+                                            </label>
                                             <RichTextEditor
                                                 content={editForm.notes}
                                                 onChange={newNotes => setEditForm({ ...editForm, notes: newNotes })}
                                                 className="min-h-[100px]"
                                             />
                                         </div>
-                                        <input
-                                            type="text"
-                                            value={editForm.tags}
-                                            onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
-                                            className="w-full mb-4 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
-                                            placeholder="Comma, separated, tags..."
-                                        />
+                                        <div className="mb-4">
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
+                                                <TagsIcon className="w-4 h-4 mr-2 text-indigo-500" /> Tags
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={editForm.tags}
+                                                onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
+                                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
+                                                placeholder="Comma, separated, tags..."
+                                            />
+                                        </div>
                                         <div className="flex gap-2">
                                             <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700">Save Changes</button>
                                             <button type="button" onClick={() => setEditingNoteId(null)} className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-400 dark:hover:bg-gray-500">Cancel</button>
@@ -241,8 +278,18 @@ export default function Index({ notes, filters }) {
                                         <div className="flex justify-between items-start">
                                             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{note.title}</h2>
                                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => startEditing(note)} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold">Edit</button>
-                                                <button onClick={() => deleteNote(note.id)} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold">Delete</button>
+                                                <button 
+                                                    onClick={() => startEditing(note)} 
+                                                    className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full transition-all duration-200 border border-indigo-200 dark:border-indigo-800/50 shadow-sm hover:shadow"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => deleteNote(note.id)} 
+                                                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 text-xs font-bold rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                                >
+                                                    Delete
+                                                </button>
                                             </div>
                                         </div>
                                         <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
@@ -286,6 +333,23 @@ export default function Index({ notes, filters }) {
                     )}
                 </div>
             </div>
+
+            <Modal show={!!confirmingNoteDeletion} onClose={() => setConfirmingNoteDeletion(null)}>
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Move to Trash?
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Are you sure you want to move this note to the trash? You can restore it later if needed.
+                    </p>
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={() => setConfirmingNoteDeletion(null)}>Cancel</SecondaryButton>
+                        <DangerButton className="ml-3" onClick={executeDelete}>
+                            Move to Trash
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

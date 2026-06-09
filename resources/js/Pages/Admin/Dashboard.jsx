@@ -115,15 +115,48 @@ const MetricTotalNotesWidget = ({ metrics }) => (
 );
 
 
-const RegistrationsWidget = ({ recentUsers }) => (
+const RegistrationsWidget = ({ recentUsers }) => {
+    const [sortField, setSortField] = useState(null);
+    const [sortDirection, setSortDirection] = useState('asc');
+
+    const handleSort = (field) => {
+        let direction = 'asc';
+        if (sortField === field && sortDirection === 'asc') direction = 'desc';
+        setSortField(field);
+        setSortDirection(direction);
+    };
+
+    const sortedUsers = [...(recentUsers || [])].sort((a, b) => {
+        if (!sortField) return 0;
+        const aVal = a[sortField] === null ? '' : a[sortField];
+        const bVal = b[sortField] === null ? '' : b[sortField];
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const SortIcon = ({ field }) => {
+        if (sortField !== field) {
+            return <svg className="w-4 h-4 ml-1 opacity-20 group-hover:opacity-50 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>;
+        }
+        if (sortDirection === 'asc') {
+            return <svg className="w-4 h-4 ml-1 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>;
+        }
+        return <svg className="w-4 h-4 ml-1 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+    };
+
+    return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><UsersIcon /></span>
                 Recent Registrations
             </h3>
-            <Link href={route('admin.users')} className="text-sm font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                Manage &rarr;
+            <Link 
+                href={route('admin.users')} 
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors duration-200 shadow-sm hover:shadow"
+            >
+                Manage <span className="ml-2">&rarr;</span>
             </Link>
         </div>
 
@@ -131,19 +164,35 @@ const RegistrationsWidget = ({ recentUsers }) => (
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                Name <SortIcon field="name" />
+                            </button>
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSort('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                Email <SortIcon field="email" />
+                            </button>
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSort('is_active')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                Status <SortIcon field="is_active" />
+                            </button>
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSort('created_at')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                Joined <SortIcon field="created_at" />
+                            </button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                    {!recentUsers || recentUsers.length === 0 ? (
+                    {!sortedUsers || sortedUsers.length === 0 ? (
                         <tr>
                             <td colSpan="4" className="px-4 py-8 text-center text-slate-500">No users found.</td>
                         </tr>
                     ) : (
-                        recentUsers.map(user => (
+                        sortedUsers.map(user => (
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white flex items-center">
                                     {user.is_admin && (
@@ -173,7 +222,8 @@ const RegistrationsWidget = ({ recentUsers }) => (
             </table>
         </div>
     </div>
-);
+    );
+};
 
 const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
     <div className="bg-slate-900 dark:bg-black rounded-3xl p-6 shadow-2xl border border-slate-700 text-white h-full">
@@ -213,7 +263,7 @@ const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
     </div>
 );
 
-const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins }) => (
+const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortLogins, SortIconLogins }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
@@ -235,9 +285,21 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins }) => (
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Last Login</th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSortLogins('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
+                                Name <SortIconLogins field="name" />
+                            </button>
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSortLogins('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
+                                Email <SortIconLogins field="email" />
+                            </button>
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                            <button onClick={() => handleSortLogins('last_login_at')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
+                                Last Login <SortIconLogins field="last_login_at" />
+                            </button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -281,11 +343,38 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
     useEffect(() => {
         const timer = setTimeout(() => {
             if (searchLogins !== (filters?.search_logins || '')) {
-                router.get(route('admin.index'), { search_logins: searchLogins }, { preserveState: true, replace: true, preserveScroll: true, only: ['latestLogins'] });
+                router.get(route('admin.index'), { 
+                    search_logins: searchLogins,
+                    sort_logins: filters?.sort_logins,
+                    direction_logins: filters?.direction_logins
+                }, { preserveState: true, replace: true, preserveScroll: true, only: ['latestLogins'] });
             }
         }, 300);
         return () => clearTimeout(timer);
     }, [searchLogins]);
+
+    const handleSortLogins = (field) => {
+        let direction = 'asc';
+        if (filters?.sort_logins === field && filters?.direction_logins === 'asc') {
+            direction = 'desc';
+        }
+
+        router.get(route('admin.index'), { 
+            search_logins: searchLogins, 
+            sort_logins: field, 
+            direction_logins: direction 
+        }, { preserveState: true, replace: true, preserveScroll: true, only: ['latestLogins', 'filters'] });
+    };
+
+    const SortIconLogins = ({ field }) => {
+        if (filters?.sort_logins !== field) {
+            return <svg className="w-4 h-4 ml-1 opacity-20 group-hover:opacity-50 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>;
+        }
+        if (filters?.direction_logins === 'asc') {
+            return <svg className="w-4 h-4 ml-1 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>;
+        }
+        return <svg className="w-4 h-4 ml-1 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+    };
 
     const handleDisableAll = () => {
         if (confirm('Are you absolutely sure? This will disable ALL users except yourself.')) {
@@ -368,7 +457,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
             case 'actions':
                 return <ActionsWidget handleDisableAll={handleDisableAll} handleEnableAll={handleEnableAll} />;
             case 'logins':
-                return <LoginsWidget latestLogins={latestLogins} searchLogins={searchLogins} setSearchLogins={setSearchLogins} />;
+                return <LoginsWidget latestLogins={latestLogins} searchLogins={searchLogins} setSearchLogins={setSearchLogins} handleSortLogins={handleSortLogins} SortIconLogins={SortIconLogins} />;
             default:
                 return null;
         }

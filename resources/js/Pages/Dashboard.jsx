@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Tooltip from '@/Components/Tooltip';
@@ -106,8 +106,11 @@ const RecentNotesWidget = ({ recentNotes }) => (
                 <span className="mr-2 text-indigo-500"><ClockIcon /></span>
                 Recent Notes
             </h3>
-            <Link href={route('notes.index')} className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                View all &rarr;
+            <Link 
+                href={route('notes.index')} 
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors duration-200 shadow-sm hover:shadow"
+            >
+                View all <span className="ml-2">&rarr;</span>
             </Link>
         </div>
 
@@ -180,6 +183,7 @@ const TopTagsWidget = ({ topTags }) => (
 
 
 export default function Dashboard({ recentNotes, stats, topTags }) {
+    const { auth } = usePage().props;
     const [greeting, setGreeting] = useState('');
 
     useEffect(() => {
@@ -272,7 +276,7 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
                     className="mb-8"
                 >
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {greeting}, Explorer! ✨
+                        {greeting}, {auth.user.name}! ✨
                     </h3>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">
                         Here's an overview of your notes today. Drag the handle on each widget to rearrange your dashboard.
