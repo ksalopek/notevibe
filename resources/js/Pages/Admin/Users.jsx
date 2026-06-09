@@ -2,6 +2,11 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Pagination from '@/Components/Pagination';
+import Tooltip from '@/Components/Tooltip';
+
+const ImpersonateIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>);
+const BanIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>);
+const CheckCircleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 
 export default function Users({ auth, users, filters }) {
     const { patch, post } = useForm();
@@ -33,6 +38,16 @@ export default function Users({ auth, users, filters }) {
         }, { preserveState: true, replace: true, preserveScroll: true, only: ['users'] });
     };
 
+    const SortIcon = ({ field }) => {
+        if (filters?.sort !== field) {
+            return <svg className="w-4 h-4 ml-1 opacity-20 group-hover:opacity-50 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>;
+        }
+        if (filters?.direction === 'asc') {
+            return <svg className="w-4 h-4 ml-1 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>;
+        }
+        return <svg className="w-4 h-4 ml-1 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+    };
+
     const toggleStatus = (user) => {
         patch(route('admin.users.toggle', user.id));
     };
@@ -50,14 +65,29 @@ export default function Users({ auth, users, filters }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     
-                    <div className="mb-4 flex justify-end">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+                        <div className="flex items-center">
+                            <span className="mr-4 text-indigo-500 p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    Manage Users
+                                </h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    View, search, and manage all registered accounts in the system.
+                                </p>
+                            </div>
+                        </div>
                         <div className="w-full sm:w-64">
                             <input 
                                 type="text" 
                                 placeholder="Search by name or email..." 
                                 value={searchUsers}
                                 onChange={(e) => setSearchUsers(e.target.value)}
-                                className="w-full px-4 py-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-gray-400"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-slate-400"
                             />
                         </div>
                     </div>
@@ -65,24 +95,34 @@ export default function Users({ auth, users, filters }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
                         <div className="p-6 text-gray-900 dark:text-gray-100 overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-50 dark:bg-gray-700">
+                                <thead>
                                     <tr>
-                                        <th onClick={() => handleSort('id')} className="cursor-pointer px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            ID {filters?.sort === 'id' && (filters?.direction === 'asc' ? '↑' : '↓')}
+                                        <th className="px-4 py-3 text-left">
+                                            <button onClick={() => handleSort('id')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                                ID <SortIcon field="id" />
+                                            </button>
                                         </th>
-                                        <th onClick={() => handleSort('name')} className="cursor-pointer px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            Name {filters?.sort === 'name' && (filters?.direction === 'asc' ? '↑' : '↓')}
+                                        <th className="px-4 py-3 text-left">
+                                            <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                                Name <SortIcon field="name" />
+                                            </button>
                                         </th>
-                                        <th onClick={() => handleSort('email')} className="cursor-pointer px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            Email {filters?.sort === 'email' && (filters?.direction === 'asc' ? '↑' : '↓')}
+                                        <th className="px-4 py-3 text-left">
+                                            <button onClick={() => handleSort('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                                Email <SortIcon field="email" />
+                                            </button>
                                         </th>
-                                        <th onClick={() => handleSort('role')} className="cursor-pointer px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            Role {filters?.sort === 'role' && (filters?.direction === 'asc' ? '↑' : '↓')}
+                                        <th className="px-4 py-3 text-left">
+                                            <button onClick={() => handleSort('role')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                                Role <SortIcon field="role" />
+                                            </button>
                                         </th>
-                                        <th onClick={() => handleSort('is_active')} className="cursor-pointer px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            Status {filters?.sort === 'is_active' && (filters?.direction === 'asc' ? '↑' : '↓')}
+                                        <th className="px-4 py-3 text-left">
+                                            <button onClick={() => handleSort('is_active')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
+                                                Status <SortIcon field="is_active" />
+                                            </button>
                                         </th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
@@ -95,26 +135,36 @@ export default function Users({ auth, users, filters }) {
                                     ) : (
                                         users.data.map((u) => (
                                             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words text-sm">
+                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
+                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>
+                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
+                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>
+                                                <td className="px-4 py-4 whitespace-normal break-words text-sm">
                                                     {u.is_active ? (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">Active</span>
                                                     ) : (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">Disabled</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-normal break-words text-right text-sm font-medium">
+                                                <td className="px-4 py-4 whitespace-normal break-words text-right text-sm font-medium">
                                                     {u.id !== auth.user.id && (
-                                                        <div className="flex justify-end gap-2">
-                                                            <button onClick={() => impersonate(u)} className="text-indigo-600 hover:text-indigo-900 font-bold px-3 py-1 border rounded border-indigo-200">
-                                                                Impersonate
-                                                            </button>
-                                                            <button onClick={() => toggleStatus(u)} className={`${u.is_active ? 'text-red-600 hover:text-red-900 border-red-200' : 'text-green-600 hover:text-green-900 border-green-200'} font-bold px-3 py-1 border rounded`}>
-                                                                {u.is_active ? 'Disable' : 'Enable'}
-                                                            </button>
+                                                        <div className="flex justify-end gap-3 w-full items-center">
+                                                            <Tooltip content="Impersonate User" placement="top">
+                                                                <button
+                                                                    onClick={() => impersonate(u)}
+                                                                    className="text-indigo-500 hover:text-indigo-700 transition-colors"
+                                                                >
+                                                                    <ImpersonateIcon />
+                                                                </button>
+                                                            </Tooltip>
+                                                            <Tooltip content={u.is_active ? 'Disable User' : 'Enable User'} placement="top-right">
+                                                                <button
+                                                                    onClick={() => toggleStatus(u)}
+                                                                    className={`${u.is_active ? 'text-red-500 hover:text-red-700' : 'text-emerald-500 hover:text-emerald-700'} transition-colors`}
+                                                                >
+                                                                    {u.is_active ? <BanIcon /> : <CheckCircleIcon />}
+                                                                </button>
+                                                            </Tooltip>
                                                         </div>
                                                     )}
                                                 </td>
