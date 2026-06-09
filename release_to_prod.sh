@@ -52,7 +52,17 @@ fi
 
 git checkout $MAIN_BRANCH
 git pull origin $MAIN_BRANCH
-git merge --no-ff $RELEASE_BRANCH -m "Merge release branch '$RELEASE_BRANCH' into $MAIN_BRANCH"
+if ! git merge --no-ff $RELEASE_BRANCH -m "Merge release branch '$RELEASE_BRANCH' into $MAIN_BRANCH"; then
+    if [ "$(git diff --name-only --diff-filter=U)" = "config/version.php" ]; then
+        echo "Auto-resolving config/version.php conflict by accepting incoming version..."
+        git checkout --theirs config/version.php
+        git add config/version.php
+        git commit --no-edit
+    else
+        echo "Merge conflicts detected. Please resolve them manually."
+        exit 1
+    fi
+fi
 git tag -a $VERSION -m "Release version $VERSION"
 git push origin $MAIN_BRANCH
 git push origin $VERSION
@@ -69,7 +79,17 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 git checkout $DEVELOP_BRANCH
-git merge --no-ff $MAIN_BRANCH -m "Merge branch '$MAIN_BRANCH' into $DEVELOP_BRANCH"
+if ! git merge --no-ff $MAIN_BRANCH -m "Merge branch '$MAIN_BRANCH' into $DEVELOP_BRANCH"; then
+    if [ "$(git diff --name-only --diff-filter=U)" = "config/version.php" ]; then
+        echo "Auto-resolving config/version.php conflict by accepting incoming version..."
+        git checkout --theirs config/version.php
+        git add config/version.php
+        git commit --no-edit
+    else
+        echo "Merge conflicts detected. Please resolve them manually."
+        exit 1
+    fi
+fi
 git commit -a -m "Updating develop with release"
 git push origin $DEVELOP_BRANCH
 echo "✅ '$DEVELOP_BRANCH' is now fully up-to-date."
