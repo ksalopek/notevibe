@@ -29,6 +29,12 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 git checkout -b $RELEASE_BRANCH $TEST_BRANCH
+
+# Write the version to a config file
+echo "<?php return ['app_version' => '$VERSION'];" > config/version.php
+git add config/version.php
+git commit -m "Bump version to $VERSION"
+
 git push -u origin $RELEASE_BRANCH
 echo "✅ Release branch '$RELEASE_BRANCH' created and pushed."
 echo "➡️ You should now deploy this branch to production."

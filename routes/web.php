@@ -9,7 +9,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    $version = trim(exec('git describe --tags --abbrev=0 2>/dev/null')) ?: 'v1.0.0';
+    // Check config first (for production), fallback to git command (for local dev)
+    $version = config('version.app_version');
+    if (!$version) {
+        $version = trim(exec('git describe --tags --abbrev=0 2>/dev/null')) ?: 'v1.0.0';
+    }
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
