@@ -34,6 +34,8 @@ class LoginController extends Controller
         // If authentication is successful, create a new API token for the user.
         $token = $request->user()->createToken('api-token');
 
+        $request->user()->update(['last_login_at' => now()]);
+
         // Return the plain-text token as a JSON response.
         // The frontend will need to save this token and send it with every subsequent API request.
         return response()->json([

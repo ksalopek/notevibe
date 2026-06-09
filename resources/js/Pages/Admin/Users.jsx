@@ -62,7 +62,7 @@ export default function Users({ auth, users, filters }) {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
                         <div className="p-6 text-gray-900 dark:text-gray-100 overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gray-50 dark:bg-gray-700">
@@ -95,18 +95,18 @@ export default function Users({ auth, users, filters }) {
                                     ) : (
                                         users.data.map((u) => (
                                             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{u.name}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{u.role}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words text-sm">
                                                     {u.is_active ? (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">Active</span>
                                                     ) : (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">Disabled</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-6 py-4 whitespace-normal break-words text-right text-sm font-medium">
                                                     {u.id !== auth.user.id && (
                                                         <div className="flex justify-end gap-2">
                                                             <button onClick={() => impersonate(u)} className="text-indigo-600 hover:text-indigo-900 font-bold px-3 py-1 border rounded border-indigo-200">
