@@ -3,24 +3,42 @@ import { Head, router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
+import Modal from '@/Components/Modal';
+import DangerButton from '@/Components/DangerButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Trash({ notes, filters }) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
+    const [confirmingRestore, setConfirmingRestore] = useState(null);
+    const [confirmingForceDelete, setConfirmingForceDelete] = useState(null);
 
     useEffect(() => {
         localStorage.setItem('notesViewMode', viewMode);
     }, [viewMode]);
 
     const restoreNote = (id) => {
-        if (confirm('Are you sure you want to restore this note?')) {
-            router.put(route('notes.restore', id));
+        setConfirmingRestore(id);
+    };
+
+    const executeRestore = () => {
+        if (confirmingRestore) {
+            router.put(route('notes.restore', confirmingRestore), {}, {
+                onSuccess: () => setConfirmingRestore(null),
+            });
         }
     };
 
     const forceDeleteNote = (id) => {
-        if (confirm('Are you sure you want to PERMANENTLY delete this note? This action cannot be undone.')) {
-            router.delete(route('notes.forceDelete', id));
+        setConfirmingForceDelete(id);
+    };
+
+    const executeForceDelete = () => {
+        if (confirmingForceDelete) {
+            router.delete(route('notes.forceDelete', confirmingForceDelete), {
+                onSuccess: () => setConfirmingForceDelete(null),
+            });
         }
     };
 
@@ -46,8 +64,11 @@ export default function Trash({ notes, filters }) {
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Trash Can</h2>
-                    <Link href={route('notes.index')} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold">
-                        &larr; Back to Notes
+                    <Link 
+                        href={route('notes.index')} 
+                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors duration-200 shadow-sm hover:shadow"
+                    >
+                        <span className="mr-2">&larr;</span> Back to Notes
                     </Link>
                 </div>
             }
@@ -101,11 +122,17 @@ export default function Trash({ notes, filters }) {
                                 <div key={note.id} className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group opacity-75 hover:opacity-100 transition-opacity">
                                     <div className="flex justify-between items-start">
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 line-through">{note.title}</h2>
-                                        <div className="flex gap-4">
-                                            <button onClick={() => restoreNote(note.id)} className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold">
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => restoreNote(note.id)} 
+                                                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full transition-all duration-200 border border-emerald-200 dark:border-emerald-800/50 shadow-sm hover:shadow"
+                                            >
                                                 Restore
                                             </button>
-                                            <button onClick={() => forceDeleteNote(note.id)} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-bold">
+                                            <button 
+                                                onClick={() => forceDeleteNote(note.id)} 
+                                                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 text-xs font-bold rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                            >
                                                 Delete Forever
                                             </button>
                                         </div>
@@ -143,6 +170,40 @@ export default function Trash({ notes, filters }) {
                     )}
                 </div>
             </div>
+
+            <Modal show={!!confirmingRestore} onClose={() => setConfirmingRestore(null)}>
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Restore Note?
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Are you sure you want to restore this note? It will be moved back to your active notes.
+                    </p>
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={() => setConfirmingRestore(null)}>Cancel</SecondaryButton>
+                        <PrimaryButton className="ml-3" onClick={executeRestore}>
+                            Restore
+                        </PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={!!confirmingForceDelete} onClose={() => setConfirmingForceDelete(null)}>
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Permanently Delete Note?
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Are you sure you want to PERMANENTLY delete this note? This action cannot be undone.
+                    </p>
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={() => setConfirmingForceDelete(null)}>Cancel</SecondaryButton>
+                        <DangerButton className="ml-3" onClick={executeForceDelete}>
+                            Delete Forever
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
