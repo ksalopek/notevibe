@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeEmail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,6 +46,8 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+        
+        Mail::to($user)->send(new WelcomeEmail($user));
 
         Auth::login($user);
 

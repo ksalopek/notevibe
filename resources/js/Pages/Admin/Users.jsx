@@ -3,14 +3,19 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Pagination from '@/Components/Pagination';
 import Tooltip from '@/Components/Tooltip';
+import Modal from '@/Components/Modal';
+import DangerButton from '@/Components/DangerButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 const ImpersonateIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>);
 const BanIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>);
 const CheckCircleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>);
 
 export default function Users({ auth, users, filters }) {
-    const { patch, post } = useForm();
+    const { patch, post, delete: destroy } = useForm();
     const [searchUsers, setSearchUsers] = useState(filters?.search_users || '');
+    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(null);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -19,7 +24,7 @@ export default function Users({ auth, users, filters }) {
                     search_users: searchUsers,
                     sort: filters?.sort,
                     direction: filters?.direction
-                }, { preserveState: true, replace: true, preserveScroll: true, only: ['users'] });
+                }, { preserveState: true, replace: true, preserveScroll: true, only: ['users', 'filters'] });
             }
         }, 300);
         return () => clearTimeout(timer);
@@ -35,7 +40,7 @@ export default function Users({ auth, users, filters }) {
             search_users: searchUsers, 
             sort: field, 
             direction: direction 
-        }, { preserveState: true, replace: true, preserveScroll: true, only: ['users'] });
+        }, { preserveState: true, replace: true, preserveScroll: true, only: ['users', 'filters'] });
     };
 
     const SortIcon = ({ field }) => {
@@ -54,6 +59,19 @@ export default function Users({ auth, users, filters }) {
 
     const impersonate = (user) => {
         post(route('admin.users.impersonate', user.id));
+    };
+
+    const deleteUser = (user) => {
+        setConfirmingUserDeletion(user);
+    };
+
+    const executeDelete = () => {
+        if (confirmingUserDeletion) {
+            destroy(route('admin.users.destroy', confirmingUserDeletion.id), {
+                preserveScroll: true,
+                onSuccess: () => setConfirmingUserDeletion(null),
+            });
+        }
     };
 
     return (
@@ -157,12 +175,20 @@ export default function Users({ auth, users, filters }) {
                                                                     <ImpersonateIcon />
                                                                 </button>
                                                             </Tooltip>
-                                                            <Tooltip content={u.is_active ? 'Disable User' : 'Enable User'} placement="top-right">
+                                                            <Tooltip content={u.is_active ? 'Disable User' : 'Enable User'} placement="top">
                                                                 <button
                                                                     onClick={() => toggleStatus(u)}
-                                                                    className={`${u.is_active ? 'text-red-500 hover:text-red-700' : 'text-emerald-500 hover:text-emerald-700'} transition-colors`}
+                                                                    className={`${u.is_active ? 'text-orange-500 hover:text-orange-700' : 'text-emerald-500 hover:text-emerald-700'} transition-colors`}
                                                                 >
                                                                     {u.is_active ? <BanIcon /> : <CheckCircleIcon />}
+                                                                </button>
+                                                            </Tooltip>
+                                                            <Tooltip content="Delete User" placement="top-right">
+                                                                <button
+                                                                    onClick={() => deleteUser(u)}
+                                                                    className="text-red-500 hover:text-red-700 transition-colors"
+                                                                >
+                                                                    <TrashIcon />
                                                                 </button>
                                                             </Tooltip>
                                                         </div>
@@ -182,6 +208,23 @@ export default function Users({ auth, users, filters }) {
                     </div>
                 </div>
             </div>
+
+            <Modal show={!!confirmingUserDeletion} onClose={() => setConfirmingUserDeletion(null)}>
+                <div className="p-6 bg-white dark:bg-slate-900">
+                    <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">
+                        Are you sure you want to completely delete this user?
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        This action cannot be undone. This will permanently delete the user and all associated data from the database.
+                    </p>
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={() => setConfirmingUserDeletion(null)}>Cancel</SecondaryButton>
+                        <DangerButton className="ml-3" onClick={executeDelete}>
+                            Delete User
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

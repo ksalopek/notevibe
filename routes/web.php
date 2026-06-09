@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all');
     Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all');
     Route::post('/admin/users/{user}/impersonate', [ImpersonationController::class, 'store'])->name('admin.users.impersonate');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::get('/admin/notes', [AdminController::class, 'notes'])->name('admin.notes');
     Route::delete('/admin/notes/{note}', [AdminController::class, 'destroyNote'])->name('admin.notes.destroy');
 });

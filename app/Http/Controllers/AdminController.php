@@ -123,6 +123,17 @@ class AdminController extends Controller
         ]);
     }
 
+    public function destroyUser(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors('You cannot completely delete your own account.');
+        }
+
+        $user->delete();
+
+        return back()->with('message', 'User and all associated data deleted successfully.');
+    }
+
     public function destroyNote(\App\Models\Note $note)
     {
         $note->delete();
