@@ -13,6 +13,9 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
+        $sortLoginsField = $request->input('sort_logins', 'last_login_at');
+        $sortLoginsDirection = $request->input('direction_logins', 'desc');
+
         return Inertia::render('Admin/Dashboard', [
             'metrics' => fn () => [
                 'totalUsers' => User::count(),
@@ -28,10 +31,10 @@ class AdminController extends Controller
                           ->orWhere('email', 'like', "%{$search}%");
                     });
                 })
-                ->orderBy('last_login_at', 'desc')
+                ->orderBy($sortLoginsField, $sortLoginsDirection)
                 ->paginate(10)
                 ->withQueryString(),
-            'filters' => $request->only(['search_logins']),
+            'filters' => $request->only(['search_logins', 'sort_logins', 'direction_logins']),
         ]);
     }
 
@@ -90,7 +93,10 @@ class AdminController extends Controller
 
     public function notes(Request $request)
     {
-        $notes = \App\Models\Note::with('user')
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+
+        $query = \App\Models\Note::with('user')
             ->when($request->search_notes, function($query, $search) {
                 $query->where(function($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
@@ -99,14 +105,21 @@ class AdminController extends Controller
                           $uq->where('name', 'like', "%{$search}%");
                       });
                 });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            });
+
+        if ($sortField === 'author') {
+            $query->join('users', 'notes.user_id', '=', 'users.id')
+                  ->select('notes.*')
+                  ->orderBy('users.name', $sortDirection);
+        } else {
+            $query->orderBy('notes.' . $sortField, $sortDirection);
+        }
+
+        $notes = $query->paginate(10)->withQueryString();
 
         return Inertia::render('Admin/Notes', [
             'notes' => $notes,
-            'filters' => $request->only(['search_notes']),
+            'filters' => $request->only(['search_notes', 'sort', 'direction']),
         ]);
     }
 
