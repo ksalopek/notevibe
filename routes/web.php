@@ -94,3 +94,5 @@ Route::post('/impersonate/leave', [ImpersonationController::class, 'destroy'])
     ->name('impersonate.leave');
 
 require __DIR__.'/auth.php';
+
+// Trigger new hotfix build
