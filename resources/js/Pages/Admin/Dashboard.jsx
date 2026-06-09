@@ -9,6 +9,7 @@ import {
     closestCenter,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -66,7 +67,7 @@ function SortableWidget({ id, children, className }) {
 }
 
 const MetricTotalUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400">
             <UsersIcon />
         </div>
@@ -78,7 +79,7 @@ const MetricTotalUsersWidget = ({ metrics }) => (
 );
 
 const MetricActiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
         <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400">
             <CheckCircleIcon />
         </div>
@@ -90,7 +91,7 @@ const MetricActiveUsersWidget = ({ metrics }) => (
 );
 
 const MetricInactiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
         <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
             <AlertTriangleIcon />
         </div>
@@ -102,7 +103,7 @@ const MetricInactiveUsersWidget = ({ metrics }) => (
 );
 
 const MetricTotalNotesWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
         <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400">
             <DatabaseIcon />
         </div>
@@ -115,7 +116,7 @@ const MetricTotalNotesWidget = ({ metrics }) => (
 
 
 const RegistrationsWidget = ({ recentUsers }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><UsersIcon /></span>
@@ -144,7 +145,7 @@ const RegistrationsWidget = ({ recentUsers }) => (
                     ) : (
                         recentUsers.map(user => (
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white flex items-center">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white flex items-center">
                                     {user.is_admin && (
                                         <Tooltip content="Admin" className="mr-2">
                                             <span className="text-amber-500"><SettingsIcon /></span>
@@ -152,17 +153,17 @@ const RegistrationsWidget = ({ recentUsers }) => (
                                     )}
                                     {user.name}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {user.email}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm">
                                     {user.is_active ? (
                                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
                                     ) : (
                                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Inactive</span>
                                     )}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {new Date(user.created_at).toLocaleDateString()}
                                 </td>
                             </tr>
@@ -213,7 +214,7 @@ const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
 );
 
 const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-emerald-500"><ActivityIcon /></span>
@@ -247,13 +248,13 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins }) => (
                     ) : (
                         latestLogins.data.map(user => (
                             <tr key={`login-${user.id}`} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
                                     {user.name}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {user.email}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {new Date(user.last_login_at).toLocaleString()}
                                 </td>
                             </tr>
@@ -326,6 +327,12 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
             },
         }),
         useSensor(KeyboardSensor, {

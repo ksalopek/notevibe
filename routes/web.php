@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $version = trim(exec('git describe --tags --abbrev=0 2>/dev/null')) ?: 'v1.0.0';
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'appVersion' => $version,
     ]);
 });
 

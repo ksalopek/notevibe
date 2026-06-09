@@ -69,7 +69,7 @@ export default function Notes({ notes, filters }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700"
+                    className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300"
                 >
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
@@ -89,16 +89,16 @@ export default function Notes({ notes, filters }) {
                                 ) : (
                                     notes.data.map(note => (
                                         <tr key={note.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+                                            <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
                                                 {note.title}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                            <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                                 {note.user ? note.user.name : 'Unknown'}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                            <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                                 {new Date(note.created_at).toLocaleString()}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <td className="px-4 py-4 whitespace-normal break-words text-right text-sm font-medium">
                                                 <div className="flex items-center justify-end w-full">
                                                     <Tooltip content="Delete Note" placement="top-right">
                                                         <button
