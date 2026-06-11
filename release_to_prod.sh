@@ -21,12 +21,6 @@ RELEASE_BRANCH="release/$VERSION"
 
 # --- Step 1: Create Release Branch ---
 echo "--- Step 1: Creating release branch '$RELEASE_BRANCH' from '$TEST_BRANCH' ---"
-read -p "Continue? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-fi
 
 git checkout -b $RELEASE_BRANCH $TEST_BRANCH
 
@@ -42,13 +36,6 @@ echo
 
 # --- Step 2: Merge Release into Main (Post-Deployment) ---
 echo "--- Step 2: Merging '$RELEASE_BRANCH' into '$MAIN_BRANCH' and tagging ---"
-echo "⚠️ IMPORTANT: Only continue if deployment was successful."
-read -p "Continue? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-fi
 
 git checkout $MAIN_BRANCH
 git pull origin $MAIN_BRANCH
@@ -71,14 +58,9 @@ echo
 
 # --- Step 4: Update Develop ---
 echo "--- Step 4: Updating Develop with release ---"
-read -p "Continue? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-fi
 
 git checkout $DEVELOP_BRANCH
+git pull origin $DEVELOP_BRANCH
 if ! git merge --no-ff $MAIN_BRANCH -m "Merge branch '$MAIN_BRANCH' into $DEVELOP_BRANCH"; then
     if [ "$(git diff --name-only --diff-filter=U)" = "config/version.php" ]; then
         echo "Auto-resolving config/version.php conflict by accepting incoming version..."
@@ -90,7 +72,6 @@ if ! git merge --no-ff $MAIN_BRANCH -m "Merge branch '$MAIN_BRANCH' into $DEVELO
         exit 1
     fi
 fi
-git commit -a -m "Updating develop with release"
 git push origin $DEVELOP_BRANCH
 echo "✅ '$DEVELOP_BRANCH' is now fully up-to-date."
 echo
