@@ -41,3 +41,9 @@ Thumbs.db
 .idea/
 public/hot
 LARAVEL_LEARNING_GUIDE.md
+
+# =========================
+# Local Helper Scripts
+# =========================
+update_hotfixes.sh
+update_features.sh
