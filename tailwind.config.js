@@ -11,6 +11,14 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.jsx',
     ],
+    safelist: [
+        'theme-purple',
+        'theme-orange',
+        'theme-emerald',
+        'theme-blue',
+        'theme-rose',
+        'theme-custom',
+    ],
 
     theme: {
         extend: {
