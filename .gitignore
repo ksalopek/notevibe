@@ -47,3 +47,6 @@ LARAVEL_LEARNING_GUIDE.md
 # =========================
 update_hotfixes.sh
 update_features.sh
+start_dev.sh
+stop_dev.sh
+
