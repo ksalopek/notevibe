@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
@@ -9,9 +9,18 @@ import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
 
+import { applyTheme } from '@/theme';
+
 export default function AuthenticatedLayout({ header, children }) {
     const { user, is_impersonating, has_trashed_notes } = usePage().props.auth;
+    const { app_theme } = usePage().props;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+    useEffect(() => {
+        if (app_theme) {
+            applyTheme(app_theme);
+        }
+    }, [app_theme]);
 
     // Helper to check if the user is an admin
     const isAdmin = user && user.role === 'admin';
@@ -90,6 +99,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Dropdown.Link href={route('admin.index')}>Command Center</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
+                                            <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -166,6 +176,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Dropdown.Link href={route('admin.index')}>Command Center</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
+                                            <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -214,6 +225,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('admin.notes')} active={route().current('admin.notes')}>
                                     All Notes
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.settings')} active={route().current('admin.settings')}>
+                                    Settings
                                 </ResponsiveNavLink>
                             </>
                         )}

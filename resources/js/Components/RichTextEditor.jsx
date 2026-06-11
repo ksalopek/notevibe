@@ -134,7 +134,7 @@ const MenuBar = ({ editor }) => {
                 onClick={onClick}
                 disabled={disabled}
                 className={`p-1.5 rounded-md transition-colors flex items-center justify-center ${
-                    isActive ? 'bg-indigo-600 text-white' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                    isActive ? 'bg-primary-600 text-white' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                 } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${customClass}`}
             >
                 {children}
@@ -175,7 +175,7 @@ const MenuBar = ({ editor }) => {
                 title={isEnhancing ? "Enhancing..." : "AI Enhance"}
                 onClick={enhanceText}
                 disabled={isEnhancing}
-                customClass={isEnhancing ? 'text-indigo-500 animate-pulse' : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'}
+                customClass={isEnhancing ? 'text-primary-500 animate-pulse' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30'}
             >
                 {isEnhancing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
             </EditorButton>
@@ -208,7 +208,7 @@ const MenuBar = ({ editor }) => {
                                     <button
                                         type="button"
                                         onClick={() => editor.chain().focus().setParagraph().run()}
-                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('paragraph') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
+                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('paragraph') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
                                     >
                                         <Type size={16} /> Paragraph
                                     </button>
@@ -219,7 +219,7 @@ const MenuBar = ({ editor }) => {
                                     <button
                                         type="button"
                                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 1 }) ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
+                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 1 }) ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
                                     >
                                         <Heading1 size={16} /> Heading 1
                                     </button>
@@ -230,7 +230,7 @@ const MenuBar = ({ editor }) => {
                                     <button
                                         type="button"
                                         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 2 }) ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
+                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 2 }) ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
                                     >
                                         <Heading2 size={16} /> Heading 2
                                     </button>
@@ -241,7 +241,7 @@ const MenuBar = ({ editor }) => {
                                     <button
                                         type="button"
                                         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 3 }) ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
+                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} ${editor.isActive('heading', { level: 3 }) ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'} group flex w-full items-center gap-2 px-3 py-2 text-sm`}
                                     >
                                         <Heading3 size={16} /> Heading 3
                                     </button>
