@@ -8,6 +8,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
+import { LayoutDashboard, Notebook } from 'lucide-react';
 
 import { applyTheme } from '@/theme';
 
@@ -53,11 +54,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                <NavLink href={route('dashboard')} active={route().current('dashboard')} className="group flex items-center gap-2">
+                                    <LayoutDashboard className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                                    <span>Dashboard</span>
                                 </NavLink>
-                                <NavLink href={route('notes.index')} active={route().current('notes.index')}>
-                                    My Notes
+                                <NavLink href={route('notes.index')} active={route().current('notes.index')} className="group flex items-center gap-2">
+                                    <Notebook className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                                    <span>My Notes</span>
                                 </NavLink>
                                 {/* Admin links moved to icon dropdown */}
                             </div>
@@ -208,11 +211,13 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
+                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')} className="group flex items-center gap-3">
+                            <LayoutDashboard className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                            <span>Dashboard</span>
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('notes.index')} active={route().current('notes.index')}>
-                            My Notes
+                        <ResponsiveNavLink href={route('notes.index')} active={route().current('notes.index')} className="group flex items-center gap-3">
+                            <Notebook className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                            <span>My Notes</span>
                         </ResponsiveNavLink>
                         {/* Conditionally render the Admin links for mobile */}
                         {isAdmin && (
