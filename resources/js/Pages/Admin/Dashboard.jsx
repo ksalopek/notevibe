@@ -339,6 +339,35 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
     const { patch: patchEnable } = useForm();
     
     const [searchLogins, setSearchLogins] = useState(filters?.search_logins || '');
+    const [lastUpdated, setLastUpdated] = useState(new Date());
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const handleRefresh = () => {
+        if (isRefreshing) return;
+        setIsRefreshing(true);
+        router.reload({
+            only: ['metrics', 'recentUsers', 'latestLogins'],
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                setIsRefreshing(false);
+                setLastUpdated(new Date());
+            }
+        });
+    };
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({
+                only: ['metrics', 'recentUsers', 'latestLogins'],
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setLastUpdated(new Date())
+            });
+        }, 30000); // 30 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -486,14 +515,32 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="mb-8"
+                    className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
                 >
-                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center">
-                        <ActivityIcon /> <span className="ml-3">System Overview</span>
-                    </h3>
-                    <p className="mt-2 text-slate-600 dark:text-slate-400">
-                        Monitor platform health and manage global settings. Drag the handle on each widget to rearrange your dashboard.
-                    </p>
+                    <div>
+                        <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center">
+                            <ActivityIcon /> <span className="ml-3">System Overview</span>
+                        </h3>
+                        <p className="mt-2 text-slate-600 dark:text-slate-400">
+                            Monitor platform health and manage global settings. Drag the handle on each widget to rearrange your dashboard.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                            Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </span>
+                        <Tooltip content="Refresh Dashboard">
+                            <button 
+                                onClick={handleRefresh} 
+                                disabled={isRefreshing}
+                                className={`p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </Tooltip>
+                    </div>
                 </motion.div>
 
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
