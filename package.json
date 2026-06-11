@@ -29,11 +29,14 @@
         "@dnd-kit/utilities": "^3.2.2",
         "@tailwindcss/typography": "^0.5.19",
         "@tiptap/extension-link": "^3.22.5",
+        "@tiptap/extension-task-item": "^3.22.5",
+        "@tiptap/extension-task-list": "^3.22.5",
         "@tiptap/react": "^3.22.5",
         "@tiptap/starter-kit": "^3.22.5",
         "cmdk": "^1.0.0",
         "framer-motion": "^11.0.0",
         "lodash": "^4.18.1",
+        "lucide-react": "^1.17.0",
         "sonner": "^1.4.0"
     }
 }
