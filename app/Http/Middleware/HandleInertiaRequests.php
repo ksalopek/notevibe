@@ -29,6 +29,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $appTheme = 'purple';
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                $appTheme = \App\Models\Setting::get('app_theme', 'purple');
+            }
+        } catch (\Exception $e) {
+            // fallback
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -39,6 +48,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => $request->session()->get('message'),
             ],
+            'app_theme' => $appTheme,
         ];
     }
 }

@@ -64,7 +64,7 @@ function SortableWidget({ id, children, className }) {
 }
 
 const MetricTotalNotesWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300 h-full">
+    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
             <FileTextIcon />
         </div>
@@ -76,8 +76,8 @@ const MetricTotalNotesWidget = ({ stats }) => (
 );
 
 const MetricUniqueTagsWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300 h-full">
-        <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-xl text-purple-600 dark:text-purple-400">
+    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+        <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
             <TagsIcon />
         </div>
         <div>
@@ -88,7 +88,7 @@ const MetricUniqueTagsWidget = ({ stats }) => (
 );
 
 const MetricInTrashWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300 h-full">
+    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
         <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
             <TrashIcon />
         </div>
@@ -100,7 +100,7 @@ const MetricInTrashWidget = ({ stats }) => (
 );
 
 const RecentNotesWidget = ({ recentNotes }) => (
-    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><ClockIcon /></span>
@@ -152,7 +152,7 @@ const RecentNotesWidget = ({ recentNotes }) => (
 );
 
 const TopTagsWidget = ({ topTags }) => (
-    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-shadow duration-300 text-white h-full relative">
+    <div className="bg-gradient-to-br from-indigo-500 to-primary-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative">
         <div className="flex items-center mb-6 pr-10">
             <span className="mr-2 text-indigo-100"><HashIcon /></span>
             <h3 className="text-xl font-bold">Top Tags</h3>

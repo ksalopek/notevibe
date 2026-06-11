@@ -114,21 +114,21 @@ export default function Index({ notes, filters }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                    <TitleIcon className="w-4 h-4 mr-2 text-indigo-500" /> Title
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                    <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
                                 </label>
                                 <input
                                     type="text"
                                     value={data.title}
                                     onChange={e => setData('title', e.target.value)}
-                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                                     placeholder="Note title..."
                                 />
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                    <ContentIcon className="w-4 h-4 mr-2 text-indigo-500" /> Content
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                    <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
                                 </label>
                                 <RichTextEditor
                                     content={data.content}
@@ -138,8 +138,8 @@ export default function Index({ notes, filters }) {
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                    <NotesIcon className="w-4 h-4 mr-2 text-indigo-500" /> Notes
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                    <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
                                 </label>
                                 <RichTextEditor
                                     content={data.notes}
@@ -149,14 +149,14 @@ export default function Index({ notes, filters }) {
                                 {errors.notes && <div className="text-red-500 text-sm mt-1">{errors.notes}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                    <TagsIcon className="w-4 h-4 mr-2 text-indigo-500" /> Tags
+                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                    <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
                                 </label>
                                 <input
                                     type="text"
                                     value={data.tags}
                                     onChange={e => setData('tags', e.target.value)}
-                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                                     placeholder="Comma, separated, tags..."
                                 />
                                 {errors.tags && <div className="text-red-500 text-sm mt-1">{errors.tags}</div>}
@@ -174,13 +174,13 @@ export default function Index({ notes, filters }) {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search notes..."
-                            className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         />
                         <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
                             <Tooltip content="Grid View">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                                    className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -190,7 +190,7 @@ export default function Index({ notes, filters }) {
                             <Tooltip content="List View">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                                    className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -221,13 +221,13 @@ export default function Index({ notes, filters }) {
                                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                                         transition={{ duration: 0.3 }}
                                         key={note.id} 
-                                        className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-indigo-500/10"
+                                        className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50"
                                     >
                                 {editingNoteId === note.id ? (
                                     <form onSubmit={(e) => submitUpdate(e, note.id)}>
                                         <div className="mb-4">
-                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                                <TitleIcon className="w-4 h-4 mr-2 text-indigo-500" /> Title
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                                <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
                                             </label>
                                             <input
                                                 type="text"
@@ -237,8 +237,8 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                                <ContentIcon className="w-4 h-4 mr-2 text-indigo-500" /> Content
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                                <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
                                             </label>
                                             <RichTextEditor
                                                 content={editForm.content}
@@ -247,8 +247,8 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                                <NotesIcon className="w-4 h-4 mr-2 text-indigo-500" /> Notes
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                                <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
                                             </label>
                                             <RichTextEditor
                                                 content={editForm.notes}
@@ -257,8 +257,8 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-2 uppercase tracking-widest">
-                                                <TagsIcon className="w-4 h-4 mr-2 text-indigo-500" /> Tags
+                                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                                <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
                                             </label>
                                             <input
                                                 type="text"
@@ -269,7 +269,7 @@ export default function Index({ notes, filters }) {
                                             />
                                         </div>
                                         <div className="flex gap-2">
-                                            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700">Save Changes</button>
+                                            <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700">Save Changes</button>
                                             <button type="button" onClick={() => setEditingNoteId(null)} className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-400 dark:hover:bg-gray-500">Cancel</button>
                                         </div>
                                     </form>
@@ -280,7 +280,7 @@ export default function Index({ notes, filters }) {
                                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button 
                                                     onClick={() => startEditing(note)} 
-                                                    className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full transition-all duration-200 border border-indigo-200 dark:border-indigo-800/50 shadow-sm hover:shadow"
+                                                    className="px-3 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs font-bold rounded-full transition-all duration-200 border border-primary-200 dark:border-primary-800/50 shadow-sm hover:shadow"
                                                 >
                                                     Edit
                                                 </button>
@@ -323,7 +323,7 @@ export default function Index({ notes, filters }) {
                                     onSuccess={() => document.getElementById('notes-list')?.scrollIntoView({ behavior: 'smooth' })}
                                     className={`px-4 py-2 border rounded-md text-sm ${
                                         link.active
-                                            ? 'bg-indigo-600 text-white border-indigo-600'
+                                            ? 'bg-primary-600 text-white border-primary-600'
                                             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
                                     } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
