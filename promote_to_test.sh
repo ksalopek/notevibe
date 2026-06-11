@@ -19,12 +19,6 @@ FEATURE_BRANCH=$1
 
 # --- Step 1: Merge Feature into Test Branch ---
 echo "--- Step 1: Merging '$FEATURE_BRANCH' into '$TEST_BRANCH' ---"
-read -p "Continue? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-fi
 
 git checkout $TEST_BRANCH
 git pull origin $TEST_BRANCH
