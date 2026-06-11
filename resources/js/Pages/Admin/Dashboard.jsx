@@ -67,7 +67,7 @@ function SortableWidget({ id, children, className }) {
 }
 
 const MetricTotalUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400">
             <UsersIcon />
         </div>
@@ -79,7 +79,7 @@ const MetricTotalUsersWidget = ({ metrics }) => (
 );
 
 const MetricActiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
         <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400">
             <CheckCircleIcon />
         </div>
@@ -91,7 +91,7 @@ const MetricActiveUsersWidget = ({ metrics }) => (
 );
 
 const MetricInactiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
         <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
             <AlertTriangleIcon />
         </div>
@@ -103,7 +103,7 @@ const MetricInactiveUsersWidget = ({ metrics }) => (
 );
 
 const MetricTotalNotesWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
         <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400">
             <DatabaseIcon />
         </div>
@@ -146,7 +146,7 @@ const RegistrationsWidget = ({ recentUsers }) => {
     };
 
     return (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><UsersIcon /></span>
@@ -264,7 +264,7 @@ const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
 );
 
 const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortLogins, SortIconLogins }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-purple-500/50 dark:hover:shadow-purple-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-emerald-500"><ActivityIcon /></span>

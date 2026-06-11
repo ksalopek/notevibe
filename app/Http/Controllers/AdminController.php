@@ -140,4 +140,32 @@ class AdminController extends Controller
 
         return back()->with('message', 'Note deleted successfully.');
     }
+
+    public function settings()
+    {
+        $appTheme = \App\Models\Setting::get('app_theme', 'purple');
+
+        return Inertia::render('Admin/Settings', [
+            'appTheme' => $appTheme,
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'app_theme' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!in_array($value, ['purple', 'orange', 'emerald', 'blue', 'rose']) && !preg_match('/^#[a-fA-F0-9]{6}$/', $value)) {
+                        $fail('The selected theme is invalid.');
+                    }
+                },
+            ],
+        ]);
+
+        \App\Models\Setting::set('app_theme', $request->app_theme);
+
+        return back()->with('message', 'Theme updated successfully.');
+    }
 }
