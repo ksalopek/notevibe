@@ -30,9 +30,11 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $appTheme = 'purple';
+        $globalAnnouncement = null;
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
                 $appTheme = \App\Models\Setting::get('app_theme', 'purple');
+                $globalAnnouncement = \App\Models\Setting::get('global_announcement');
             }
         } catch (\Exception $e) {
             // fallback
@@ -49,6 +51,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => $request->session()->get('message'),
             ],
             'app_theme' => $appTheme,
+            'global_announcement' => $globalAnnouncement,
         ];
     }
 }

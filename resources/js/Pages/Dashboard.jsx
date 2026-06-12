@@ -1,8 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Tooltip from '@/Components/Tooltip';
+import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
+import RichTextEditor from '@/Components/RichTextEditor';
 import {
     DndContext,
     closestCenter,
@@ -19,14 +22,20 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import CountUp from 'react-countup';
 
 // SVG Icons
+const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
+const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
+const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const FileTextIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>);
 const TagsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>);
 const ClockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>);
 const HashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>);
 const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
+const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
 
 function SortableWidget({ id, children, className }) {
     const {
@@ -64,51 +73,63 @@ function SortableWidget({ id, children, className }) {
 }
 
 const MetricTotalNotesWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
-        <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
-            <FileTextIcon />
+    <Link href={route('notes.index')} className="block h-full cursor-pointer">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
+                <FileTextIcon />
+            </div>
+            <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Notes</p>
+                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <CountUp end={stats?.totalNotes || 0} duration={2} separator="," />
+                </h4>
+            </div>
         </div>
-        <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Notes</p>
-            <h4 className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.totalNotes || 0}</h4>
-        </div>
-    </div>
+    </Link>
 );
 
-const MetricUniqueTagsWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
-        <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
-            <TagsIcon />
-        </div>
-        <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Unique Tags</p>
-            <h4 className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.totalTags || 0}</h4>
+const MetricUniqueTagsWidget = ({ stats, onClick }) => (
+    <div onClick={onClick} className="cursor-pointer h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+            <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
+                <TagsIcon />
+            </div>
+            <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Unique Tags</p>
+                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <CountUp end={stats?.totalTags || 0} duration={2} separator="," />
+                </h4>
+            </div>
         </div>
     </div>
 );
 
 const MetricInTrashWidget = ({ stats }) => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
-        <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
-            <TrashIcon />
+    <Link href={route('notes.trash')} className="block h-full cursor-pointer">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+            <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
+                <TrashIcon />
+            </div>
+            <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">In Trash</p>
+                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <CountUp end={stats?.trashedNotes || 0} duration={2} separator="," />
+                </h4>
+            </div>
         </div>
-        <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">In Trash</p>
-            <h4 className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.trashedNotes || 0}</h4>
-        </div>
-    </div>
+    </Link>
 );
 
-const RecentNotesWidget = ({ recentNotes }) => (
+const RecentNotesWidget = ({ recentNotes, onEdit }) => (
     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                <span className="mr-2 text-indigo-500"><ClockIcon /></span>
+                <span className="mr-2 text-primary-500"><ClockIcon /></span>
                 Recent Notes
             </h3>
             <Link 
                 href={route('notes.index')} 
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors duration-200 shadow-sm hover:shadow"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
             >
                 View all <span className="ml-2">&rarr;</span>
             </Link>
@@ -121,10 +142,10 @@ const RecentNotesWidget = ({ recentNotes }) => (
                 </div>
             ) : (
                 recentNotes.map(note => (
-                    <Link key={note.id} href={route('notes.index', { search: note.title })} className="block group">
+                    <div key={note.id} onClick={() => onEdit(note)} className="block group cursor-pointer">
                         <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
                             <div className="flex justify-between items-start">
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                     {note.title}
                                 </h4>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -137,14 +158,14 @@ const RecentNotesWidget = ({ recentNotes }) => (
                             {note.tags && note.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-3">
                                     {note.tags.map(tag => (
-                                        <span key={tag.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                        <span key={tag.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
                                             {tag.name}
                                         </span>
                                     ))}
                                 </div>
                             )}
                         </div>
-                    </Link>
+                    </div>
                 ))
             )}
         </div>
@@ -152,15 +173,15 @@ const RecentNotesWidget = ({ recentNotes }) => (
 );
 
 const TopTagsWidget = ({ topTags }) => (
-    <div className="bg-gradient-to-br from-indigo-500 to-primary-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative">
+    <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative">
         <div className="flex items-center mb-6 pr-10">
-            <span className="mr-2 text-indigo-100"><HashIcon /></span>
+            <span className="mr-2 text-primary-100"><HashIcon /></span>
             <h3 className="text-xl font-bold">Top Tags</h3>
         </div>
 
         <div className="space-y-3">
             {!topTags || topTags.length === 0 ? (
-                <div className="text-indigo-100 py-4 text-sm">
+                <div className="text-primary-100 py-4 text-sm">
                     No tags created yet.
                 </div>
             ) : (
@@ -175,16 +196,46 @@ const TopTagsWidget = ({ topTags }) => (
             )}
         </div>
         
-        <div className="mt-8 text-sm text-indigo-100/80">
+        <div className="mt-8 text-sm text-primary-100/80">
             Organize your thoughts efficiently by tagging your notes.
         </div>
     </div>
 );
 
+const ActivityChartWidget = ({ chartData }) => (
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="flex items-center justify-between mb-6 pr-10">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                <span className="mr-2 text-primary-500"><ActivityIcon /></span>
+                Note Activity (Last 7 Days)
+            </h3>
+        </div>
+        <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                    data={chartData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#9ca3af" opacity={0.2} />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" allowDecimals={false} />
+                    <RechartsTooltip 
+                        contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#f3f4f6' }}
+                        itemStyle={{ color: '#f3f4f6' }}
+                    />
+                    <Line type="monotone" dataKey="notes" name="Notes Written" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+    </div>
+);
 
-export default function Dashboard({ recentNotes, stats, topTags }) {
+export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
     const { auth } = usePage().props;
     const [greeting, setGreeting] = useState('');
+    const [showTagsModal, setShowTagsModal] = useState(false);
+    const [editingNoteId, setEditingNoteId] = useState(null);
+    const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
 
     useEffect(() => {
         const hour = new Date().getHours();
@@ -194,10 +245,10 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
     }, []);
 
     // Drag and Drop Logic
-    const defaultOrder = ['metric_total', 'metric_tags', 'metric_trash', 'recent', 'tags'];
+    const defaultOrder = ['metric_total', 'metric_tags', 'metric_trash', 'activity_chart', 'recent', 'tags'];
     const [widgetOrder, setWidgetOrder] = useState(() => {
         try {
-            const saved = localStorage.getItem('user_dashboard_order_v2'); // new key since order changed
+            const saved = localStorage.getItem('user_dashboard_order_v3'); // new key since order changed
             if (saved) {
                 const parsed = JSON.parse(saved);
                 // Ensure all keys exist in case they had the old layout saved
@@ -227,10 +278,27 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
                 const oldIndex = items.indexOf(active.id);
                 const newIndex = items.indexOf(over.id);
                 const newOrder = arrayMove(items, oldIndex, newIndex);
-                localStorage.setItem('user_dashboard_order_v2', JSON.stringify(newOrder));
+                localStorage.setItem('user_dashboard_order_v3', JSON.stringify(newOrder));
                 return newOrder;
             });
         }
+    };
+
+    const startEditing = (note) => {
+        setEditingNoteId(note.id);
+        setEditForm({
+            title: note.title,
+            content: note.content,
+            notes: note.notes,
+            tags: note.tags ? note.tags.map(tag => tag.name).join(', ') : '',
+        });
+    };
+
+    const submitUpdate = (e, id) => {
+        e.preventDefault();
+        router.put(route('notes.update', id), editForm, {
+            onSuccess: () => setEditingNoteId(null)
+        });
     };
 
     const renderWidget = (id) => {
@@ -238,12 +306,16 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
             case 'metric_total':
                 return <MetricTotalNotesWidget stats={stats} />;
             case 'metric_tags':
-                return <MetricUniqueTagsWidget stats={stats} />;
+                return <MetricUniqueTagsWidget stats={stats} onClick={() => setShowTagsModal(true)} />;
             case 'metric_trash':
                 return <MetricInTrashWidget stats={stats} />;
+            case 'activity_chart':
+                return <ActivityChartWidget chartData={chartData} />;
             case 'recent':
-                return <RecentNotesWidget recentNotes={recentNotes} />;
+                return <RecentNotesWidget recentNotes={recentNotes} onEdit={startEditing} />;
             case 'tags':
+                // Only take top 10 for the widget display
+                const topTags = allTags ? allTags.slice(0, 10) : [];
                 return <TopTagsWidget topTags={topTags} />;
             default:
                 return null;
@@ -252,6 +324,7 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
 
     const getColSpan = (id) => {
         if (id.startsWith('metric_')) return 'col-span-1 lg:col-span-1';
+        if (id === 'activity_chart') return 'col-span-1 lg:col-span-3';
         if (id === 'recent') return 'col-span-1 lg:col-span-2';
         if (id === 'tags') return 'col-span-1 lg:col-span-1';
         return 'col-span-1 lg:col-span-1';
@@ -296,6 +369,106 @@ export default function Dashboard({ recentNotes, stats, topTags }) {
                 </DndContext>
 
             </div>
+
+            <Modal show={showTagsModal} onClose={() => setShowTagsModal(false)} maxWidth="2xl">
+                <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                            <span className="mr-2 text-primary-500"><TagsIcon /></span>
+                            All Unique Tags
+                        </h2>
+                        <span className="bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full dark:bg-primary-900/50 dark:text-primary-300">
+                            {allTags?.length || 0} Total
+                        </span>
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto pr-2">
+                        {!allTags || allTags.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                No tags have been created yet.
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {allTags.map((tag, idx) => (
+                                    <Link key={idx} href={route('notes.index', { search: tag.name })} className="block">
+                                        <div className="bg-gray-50 dark:bg-gray-700/50 hover:bg-primary-50 dark:hover:bg-primary-900/30 border border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700 transition-colors p-3 rounded-xl flex justify-between items-center group cursor-pointer shadow-sm hover:shadow">
+                                            <span className="text-gray-800 dark:text-gray-200 font-medium truncate pr-2 group-hover:text-primary-700 dark:group-hover:text-primary-400">
+                                                {tag.name}
+                                            </span>
+                                            <span className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold px-2 py-1 rounded-md shadow-sm border border-gray-100 dark:border-gray-700 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                                {tag.count}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={() => setShowTagsModal(false)}>
+                            Close
+                        </SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={!!editingNoteId} onClose={() => setEditingNoteId(null)} maxWidth="5xl">
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                        Edit Note
+                    </h2>
+                    <form onSubmit={(e) => submitUpdate(e, editingNoteId)}>
+                        <div className="mb-4">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
+                                <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.title}
+                                onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
+                                <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
+                            </label>
+                            <RichTextEditor
+                                content={editForm.content}
+                                onChange={newContent => setEditForm({ ...editForm, content: newContent })}
+                                className="min-h-[150px]"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
+                                <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
+                            </label>
+                            <RichTextEditor
+                                content={editForm.notes}
+                                onChange={newNotes => setEditForm({ ...editForm, notes: newNotes })}
+                                className="min-h-[100px]"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
+                                <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.tags}
+                                onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
+                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
+                                placeholder="Comma, separated, tags..."
+                            />
+                        </div>
+                        <div className="flex gap-2 justify-end mt-6">
+                            <button type="button" onClick={() => setEditingNoteId(null)} className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-400 dark:hover:bg-gray-500">Cancel</button>
+                            <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

@@ -15,7 +15,7 @@ const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" c
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
-export default function Index({ notes, filters }) {
+export default function Index({ notes, filters = {} }) {
     // 1. State for the "Create" form
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
@@ -30,7 +30,12 @@ export default function Index({ notes, filters }) {
     const [confirmingNoteDeletion, setConfirmingNoteDeletion] = useState(null);
 
     // 3. State for the search input and loading
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const safeFilters = Array.isArray(filters) ? {} : (filters || {});
+    const initialSearch = typeof safeFilters.search === 'string' ? safeFilters.search : '';
+    const initialSort = typeof safeFilters.sort === 'string' ? safeFilters.sort : 'latest';
+
+    const [searchTerm, setSearchTerm] = useState(initialSearch);
+    const [sortBy, setSortBy] = useState(initialSort);
     const [isLoading, setIsLoading] = useState(false);
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
 
@@ -86,8 +91,8 @@ export default function Index({ notes, filters }) {
 
     // --- Search Handling ---
     const debouncedSearch = useCallback(
-        debounce((nextValue) => {
-            router.get(route('notes.index'), { search: nextValue }, {
+        debounce((nextValue, sortValue) => {
+            router.get(route('notes.index'), { search: nextValue, sort: sortValue }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
@@ -97,10 +102,20 @@ export default function Index({ notes, filters }) {
     );
 
     useEffect(() => {
-        if (searchTerm !== (filters.search || '')) {
-            debouncedSearch(searchTerm);
+        if (searchTerm !== initialSearch) {
+            debouncedSearch(searchTerm, sortBy);
         }
-    }, [searchTerm, filters.search, debouncedSearch]);
+    }, [searchTerm, debouncedSearch, initialSearch, sortBy]);
+
+    const handleSortChange = (e) => {
+        const newSort = e.target.value;
+        setSortBy(newSort);
+        router.get(route('notes.index'), { search: searchTerm, sort: newSort }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -114,7 +129,7 @@ export default function Index({ notes, filters }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                     <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
                                 </label>
                                 <input
@@ -127,7 +142,7 @@ export default function Index({ notes, filters }) {
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                     <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
                                 </label>
                                 <RichTextEditor
@@ -138,7 +153,7 @@ export default function Index({ notes, filters }) {
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                     <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
                                 </label>
                                 <RichTextEditor
@@ -149,7 +164,7 @@ export default function Index({ notes, filters }) {
                                 {errors.notes && <div className="text-red-500 text-sm mt-1">{errors.notes}</div>}
                             </div>
                             <div className="mb-4">
-                                <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                     <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
                                 </label>
                                 <input
@@ -168,7 +183,7 @@ export default function Index({ notes, filters }) {
                     </div>
 
                     {/* --- SEARCH AND TOGGLE --- */}
-                    <div className="mb-8 flex gap-4">
+                    <div className="mb-8 flex flex-col sm:flex-row gap-4">
                         <input
                             type="text"
                             value={searchTerm}
@@ -176,6 +191,16 @@ export default function Index({ notes, filters }) {
                             placeholder="Search notes..."
                             className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         />
+                        <select
+                            value={sortBy}
+                            onChange={handleSortChange}
+                            className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                        >
+                            <option value="latest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="a_z">Alphabetical (A-Z)</option>
+                            <option value="z_a">Alphabetical (Z-A)</option>
+                        </select>
                         <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
                             <Tooltip content="Grid View">
                                 <button
@@ -223,7 +248,7 @@ export default function Index({ notes, filters }) {
                                         key={note.id} 
                                         className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50"
                                     >
-                                <div className="flex justify-between items-start">
+                                        <div className="flex justify-between items-start">
                                             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{note.title}</h2>
                                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button 
@@ -243,7 +268,7 @@ export default function Index({ notes, filters }) {
                                         <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
                                         <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.notes }} />
                                         {/* Display Tags */}
-                                        {note.tags.length > 0 && (
+                                        {note.tags && note.tags.length > 0 && (
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {note.tags.map(tag => (
                                                     <span key={tag.id} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold rounded-full">
@@ -304,7 +329,7 @@ export default function Index({ notes, filters }) {
                     </h2>
                     <form onSubmit={(e) => submitUpdate(e, editingNoteId)}>
                         <div className="mb-4">
-                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                 <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
                             </label>
                             <input
@@ -315,7 +340,7 @@ export default function Index({ notes, filters }) {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                 <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
                             </label>
                             <RichTextEditor
@@ -325,7 +350,7 @@ export default function Index({ notes, filters }) {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                 <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
                             </label>
                             <RichTextEditor
@@ -335,7 +360,7 @@ export default function Index({ notes, filters }) {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="flex items-center text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500 mb-2 uppercase tracking-widest">
+                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                 <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
                             </label>
                             <input

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import Pagination from '@/Components/Pagination';
 import Tooltip from '@/Components/Tooltip';
@@ -21,6 +21,8 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import CountUp from 'react-countup';
 
 // SVG Icons
 const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
@@ -30,6 +32,7 @@ const AlertTriangleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="
 const CheckCircleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
+const SpeakerIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>);
 
 function SortableWidget({ id, children, className }) {
     const {
@@ -66,54 +69,233 @@ function SortableWidget({ id, children, className }) {
     );
 }
 
-const MetricTotalUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
-        <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400">
-            <UsersIcon />
+const MetricSparkline = ({ data, color }) => (
+    <div className="absolute inset-x-0 bottom-0 h-16 opacity-20 pointer-events-none overflow-hidden rounded-b-3xl">
+        <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+                <Line type="monotone" dataKey="value" stroke={color} strokeWidth={3} dot={false} isAnimationActive={true} />
+            </LineChart>
+        </ResponsiveContainer>
+    </div>
+);
+
+const MetricTotalUsersWidget = ({ metrics, chartData }) => {
+    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400 relative z-10">
+                <UsersIcon />
+            </div>
+            <div className="relative z-10">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Users</p>
+                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+                    <CountUp end={metrics?.totalUsers || 0} duration={2} separator="," />
+                </h4>
+            </div>
+            <MetricSparkline data={sparklineData} color="#3b82f6" />
         </div>
-        <div>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Users</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white">{metrics?.totalUsers || 0}</h4>
+    );
+};
+
+const MetricActiveUsersWidget = ({ metrics, chartData }) => {
+    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400 relative z-10">
+                <CheckCircleIcon />
+            </div>
+            <div className="relative z-10">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Active Users</p>
+                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+                    <CountUp end={metrics?.activeUsers || 0} duration={2} separator="," />
+                </h4>
+            </div>
+            <MetricSparkline data={sparklineData} color="#10b981" />
+        </div>
+    );
+};
+
+const MetricInactiveUsersWidget = ({ metrics, chartData }) => {
+    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+            <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400 relative z-10">
+                <AlertTriangleIcon />
+            </div>
+            <div className="relative z-10">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Inactive Users</p>
+                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+                    <CountUp end={metrics?.inactiveUsers || 0} duration={2} separator="," />
+                </h4>
+            </div>
+            <MetricSparkline data={sparklineData} color="#f59e0b" />
+        </div>
+    );
+};
+
+const MetricTotalNotesWidget = ({ metrics, chartData }) => {
+    const sparklineData = chartData?.map(d => ({ value: d.notes })) || [];
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 relative z-10">
+                <DatabaseIcon />
+            </div>
+            <div className="relative z-10">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Notes</p>
+                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+                    <CountUp end={metrics?.totalNotes || 0} duration={2} separator="," />
+                </h4>
+            </div>
+            <MetricSparkline data={sparklineData} color="#6366f1" />
+        </div>
+    );
+};
+
+const RadarEngagementWidget = ({ radarData }) => (
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center">
+            <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
+            Platform Radar (30d)
+        </h3>
+        <div className="h-64 w-full mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                    <PolarGrid stroke="#cbd5e1" className="dark:stroke-slate-700" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
+                    <Radar name="Activity" dataKey="value" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.4} />
+                    <RechartsTooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                        itemStyle={{ color: '#1e293b', fontWeight: 'bold' }}
+                    />
+                </RadarChart>
+            </ResponsiveContainer>
         </div>
     </div>
 );
 
-const MetricActiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
-        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400">
-            <CheckCircleIcon />
+const GlobalBroadcastWidget = ({ currentAnnouncement }) => {
+    const { data, setData, post, processing } = useForm({
+        message: currentAnnouncement || '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('admin.announcement.update'), {
+            preserveScroll: true,
+        });
+    };
+
+    const clear = () => {
+        router.post(route('admin.announcement.update'), { message: '' }, {
+            preserveScroll: true,
+            onSuccess: () => setData('message', ''),
+        });
+    };
+
+    return (
+        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 shadow-xl border border-indigo-500/30 text-white h-full hover:shadow-2xl hover:shadow-indigo-500/50 transition-shadow duration-300">
+            <div className="flex items-center justify-between mb-4 pr-10">
+                <h3 className="text-xl font-bold flex items-center">
+                    <span className="mr-2 text-indigo-200"><SpeakerIcon /></span>
+                    Global Broadcast
+                </h3>
+            </div>
+            <p className="text-sm text-indigo-200 mb-4">
+                Set a global announcement. This will be pinned to the top of all user pages.
+            </p>
+            <form onSubmit={submit}>
+                <textarea
+                    value={data.message}
+                    onChange={e => setData('message', e.target.value)}
+                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white placeholder-indigo-300/50 focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all mb-4"
+                    rows="3"
+                    placeholder="Type an announcement..."
+                ></textarea>
+                <div className="flex justify-end gap-2">
+                    {currentAnnouncement && (
+                        <button
+                            type="button"
+                            onClick={clear}
+                            disabled={processing}
+                            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold transition-colors"
+                        >
+                            Clear
+                        </button>
+                    )}
+                    <button
+                        type="submit"
+                        disabled={processing || data.message === currentAnnouncement}
+                        className="px-4 py-2 bg-white text-indigo-900 hover:bg-indigo-50 rounded-xl text-sm font-bold shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {processing ? 'Saving...' : 'Publish'}
+                    </button>
+                </div>
+            </form>
         </div>
-        <div>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Active Users</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white">{metrics?.activeUsers || 0}</h4>
+    );
+};
+
+const ActivityChartWidget = ({ chartData }) => (
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="flex items-center justify-between mb-6 pr-10">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
+                Platform Activity (Last 7 Days)
+            </h3>
+        </div>
+        <div className="w-full h-80">
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                    data={chartData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
+                    <XAxis dataKey="name" stroke="#64748b" />
+                    <YAxis stroke="#64748b" />
+                    <RechartsTooltip 
+                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f8fafc' }}
+                        itemStyle={{ color: '#f8fafc' }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="notes" name="Notes Created" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="users" name="New Users" stroke="#10b981" strokeWidth={3} />
+                </LineChart>
+            </ResponsiveContainer>
         </div>
     </div>
 );
 
-const MetricInactiveUsersWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
-        <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
-            <AlertTriangleIcon />
+const LiveContentFeedWidget = ({ latestGlobalNotes }) => (
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between mb-6 pr-10">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                <span className="mr-2 text-indigo-500"><DatabaseIcon /></span>
+                Live Content Feed
+            </h3>
         </div>
-        <div>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Inactive Users</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white">{metrics?.inactiveUsers || 0}</h4>
+        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            {!latestGlobalNotes || latestGlobalNotes.length === 0 ? (
+                <p className="text-slate-500 text-center py-4">No notes created yet.</p>
+            ) : (
+                latestGlobalNotes.map(note => (
+                    <div key={note.id} className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-colors">
+                        <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-slate-900 dark:text-white truncate pr-4">{note.title}</h4>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                {new Date(note.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                        <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
+                            <span className="text-indigo-400 mr-2"><UsersIcon /></span>
+                            <span className="truncate">{note.user?.name || 'Unknown User'}</span>
+                        </div>
+                    </div>
+                ))
+            )}
         </div>
     </div>
 );
-
-const MetricTotalNotesWidget = ({ metrics }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300">
-        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400">
-            <DatabaseIcon />
-        </div>
-        <div>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Notes</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white">{metrics?.totalNotes || 0}</h4>
-        </div>
-    </div>
-);
-
 
 const RegistrationsWidget = ({ recentUsers }) => {
     const [sortField, setSortField] = useState(null);
@@ -154,7 +336,7 @@ const RegistrationsWidget = ({ recentUsers }) => {
             </h3>
             <Link 
                 href={route('admin.users')} 
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 dark:bg-indigo-900/50 dark:text-indigo-300 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors duration-200 shadow-sm hover:shadow"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
             >
                 Manage <span className="ml-2">&rarr;</span>
             </Link>
@@ -334,7 +516,11 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
 );
 
 
-export default function Dashboard({ metrics, recentUsers, latestLogins, filters }) {
+
+export default function Dashboard({ metrics, recentUsers, latestLogins, filters, chartData, latestGlobalNotes, radarData }) {
+    const { props } = usePage();
+    const globalAnnouncement = props.global_announcement;
+
     const { patch: patchDisable } = useForm();
     const { patch: patchEnable } = useForm();
     
@@ -346,7 +532,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
         if (isRefreshing) return;
         setIsRefreshing(true);
         router.reload({
-            only: ['metrics', 'recentUsers', 'latestLogins'],
+            only: ['metrics', 'recentUsers', 'latestLogins', 'chartData', 'latestGlobalNotes'],
             preserveScroll: true,
             preserveState: true,
             onFinish: () => {
@@ -359,7 +545,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
     useEffect(() => {
         const interval = setInterval(() => {
             router.reload({
-                only: ['metrics', 'recentUsers', 'latestLogins'],
+                only: ['metrics', 'recentUsers', 'latestLogins', 'chartData', 'latestGlobalNotes'],
                 preserveScroll: true,
                 preserveState: true,
                 onFinish: () => setLastUpdated(new Date())
@@ -423,17 +609,21 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
         'metric_active_users', 
         'metric_inactive_users', 
         'metric_total_notes', 
-        'registrations', 
+        'activity_chart',
+        'radar_chart',
+        'global_broadcast',
+        'live_content_feed',
         'actions', 
+        'registrations', 
         'logins'
     ];
     
     const [widgetOrder, setWidgetOrder] = useState(() => {
         try {
-            const saved = localStorage.getItem('admin_dashboard_order_v2'); // new key since order changed
+            const saved = localStorage.getItem('admin_dashboard_order_v5');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if (parsed.includes('metric_total_users')) return parsed;
+                if (parsed.includes('metric_total_users') && parsed.includes('radar_chart')) return parsed;
             }
         } catch (e) {
             console.error('Failed to parse dashboard order', e);
@@ -465,7 +655,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
                 const oldIndex = items.indexOf(active.id);
                 const newIndex = items.indexOf(over.id);
                 const newOrder = arrayMove(items, oldIndex, newIndex);
-                localStorage.setItem('admin_dashboard_order_v2', JSON.stringify(newOrder));
+                localStorage.setItem('admin_dashboard_order_v5', JSON.stringify(newOrder));
                 return newOrder;
             });
         }
@@ -474,13 +664,21 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
     const renderWidget = (id) => {
         switch (id) {
             case 'metric_total_users':
-                return <MetricTotalUsersWidget metrics={metrics} />;
+                return <MetricTotalUsersWidget metrics={metrics} chartData={chartData} />;
             case 'metric_active_users':
-                return <MetricActiveUsersWidget metrics={metrics} />;
+                return <MetricActiveUsersWidget metrics={metrics} chartData={chartData} />;
             case 'metric_inactive_users':
-                return <MetricInactiveUsersWidget metrics={metrics} />;
+                return <MetricInactiveUsersWidget metrics={metrics} chartData={chartData} />;
             case 'metric_total_notes':
-                return <MetricTotalNotesWidget metrics={metrics} />;
+                return <MetricTotalNotesWidget metrics={metrics} chartData={chartData} />;
+            case 'radar_chart':
+                return <RadarEngagementWidget radarData={radarData} />;
+            case 'activity_chart':
+                return <ActivityChartWidget chartData={chartData} />;
+            case 'global_broadcast':
+                return <GlobalBroadcastWidget currentAnnouncement={globalAnnouncement} />;
+            case 'live_content_feed':
+                return <LiveContentFeedWidget latestGlobalNotes={latestGlobalNotes} />;
             case 'registrations':
                 return <RegistrationsWidget recentUsers={recentUsers} />;
             case 'actions':
@@ -494,8 +692,12 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters 
 
     const getColSpan = (id) => {
         if (id.startsWith('metric_')) return 'col-span-1 lg:col-span-1';
-        if (id === 'registrations') return 'col-span-1 lg:col-span-3';
-        if (id === 'actions') return 'col-span-1 lg:col-span-1';
+        if (id === 'activity_chart') return 'col-span-1 lg:col-span-3';
+        if (id === 'radar_chart') return 'col-span-1 lg:col-span-1';
+        if (id === 'global_broadcast') return 'col-span-1 lg:col-span-2';
+        if (id === 'live_content_feed') return 'col-span-1 lg:col-span-2';
+        if (id === 'actions') return 'col-span-1 lg:col-span-4';
+        if (id === 'registrations') return 'col-span-1 lg:col-span-4';
         if (id === 'logins') return 'col-span-1 lg:col-span-4';
         return 'col-span-1 lg:col-span-4';
     };
