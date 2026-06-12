@@ -41,7 +41,6 @@ Route::get('/dashboard', function () {
         ->select('tags.name', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
         ->groupBy('tags.id', 'tags.name')
         ->orderByDesc('count')
-        ->take(10)
         ->get();
 
     $totalTags = \Illuminate\Support\Facades\DB::table('note_tag')
@@ -50,6 +49,14 @@ Route::get('/dashboard', function () {
         ->distinct('note_tag.tag_id')
         ->count('note_tag.tag_id');
 
+    $chartData = collect(range(6, 0))->map(function ($daysAgo) use ($user) {
+        $date = now()->subDays($daysAgo);
+        return [
+            'name' => $date->format('M d'),
+            'notes' => $user->notes()->whereDate('created_at', $date->toDateString())->count(),
+        ];
+    })->values()->toArray();
+
     return Inertia::render('Dashboard', [
         'recentNotes' => $recentNotes,
         'stats' => [
@@ -57,7 +64,8 @@ Route::get('/dashboard', function () {
             'trashedNotes' => $trashedNotesCount,
             'totalTags' => $totalTags,
         ],
-        'topTags' => $tagCounts,
+        'allTags' => $tagCounts,
+        'chartData' => $chartData,
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -86,6 +94,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
     Route::patch('/admin/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle');
+    Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
     Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all');
     Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all');
     Route::post('/admin/users/{user}/impersonate', [ImpersonationController::class, 'store'])->name('admin.users.impersonate');
@@ -94,6 +103,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/notes/{note}', [AdminController::class, 'destroyNote'])->name('admin.notes.destroy');
     Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+    Route::post('/admin/announcement', [AdminController::class, 'updateAnnouncement'])->name('admin.announcement.update');
 });
 
 Route::post('/impersonate/leave', [ImpersonationController::class, 'destroy'])

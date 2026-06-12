@@ -23,6 +23,22 @@ class AdminController extends Controller
                 'inactiveUsers' => User::count() - User::where('is_active', true)->count(),
                 'totalNotes' => \App\Models\Note::count(),
             ],
+            'chartData' => fn () => collect(range(6, 0))->map(function ($daysAgo) {
+                $date = now()->subDays($daysAgo);
+                return [
+                    'name' => $date->format('M d'),
+                    'users' => User::whereDate('created_at', $date->toDateString())->count(),
+                    'notes' => \App\Models\Note::whereDate('created_at', $date->toDateString())->count(),
+                ];
+            })->values()->toArray(),
+            'radarData' => fn () => [
+                ['subject' => 'New Users', 'value' => User::where('created_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
+                ['subject' => 'Notes Created', 'value' => \App\Models\Note::where('created_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
+                ['subject' => 'Recent Logins', 'value' => User::where('last_login_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
+                ['subject' => 'Active Users', 'value' => User::where('is_active', true)->count(), 'fullMark' => 100],
+                ['subject' => 'Trashed Notes', 'value' => \App\Models\Note::onlyTrashed()->count(), 'fullMark' => 100],
+            ],
+            'latestGlobalNotes' => fn () => \App\Models\Note::with('user:id,name,email')->latest()->take(5)->get(),
             'recentUsers' => fn () => User::latest()->take(5)->get(),
             'latestLogins' => fn () => User::whereNotNull('last_login_at')
                 ->when($request->search_logins, function($query, $search) {
@@ -54,8 +70,15 @@ class AdminController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $heatmapData = \App\Models\User::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get(['latitude', 'longitude'])
+            ->map(fn ($user) => [(float) $user->latitude, (float) $user->longitude, 1])
+            ->toArray();
+
         return Inertia::render('Admin/Users', [
             'users' => $users,
+            'heatmapData' => $heatmapData,
             'filters' => $request->only(['search_users', 'sort', 'direction']),
         ]);
     }
@@ -71,6 +94,18 @@ class AdminController extends Controller
         ]);
 
         return back()->with('message', 'User status updated successfully.');
+    }
+
+    public function updateRole(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors('You cannot change your own role.');
+        }
+
+        $newRole = $user->role === 'admin' ? 'user' : 'admin';
+        $user->update(['role' => $newRole]);
+
+        return back()->with('message', "User role updated to {$newRole} successfully.");
     }
 
     public function disableAllUsers()
@@ -117,8 +152,27 @@ class AdminController extends Controller
 
         $notes = $query->paginate(10)->withQueryString();
 
+        // Calculate Analytics Data
+        $topAuthors = \App\Models\User::withCount('notes')
+            ->has('notes', '>', 0)
+            ->orderBy('notes_count', 'desc')
+            ->take(3)
+            ->get(['id', 'name', 'notes_count']);
+
+        $shortCount = \App\Models\Note::whereRaw('LENGTH(content) < 200')->count();
+        $mediumCount = \App\Models\Note::whereRaw('LENGTH(content) >= 200 AND LENGTH(content) < 1000')->count();
+        $longCount = \App\Models\Note::whereRaw('LENGTH(content) >= 1000')->count();
+
         return Inertia::render('Admin/Notes', [
             'notes' => $notes,
+            'analyticsData' => [
+                'topAuthors' => $topAuthors,
+                'lengths' => [
+                    ['name' => 'Short', 'value' => $shortCount],
+                    ['name' => 'Medium', 'value' => $mediumCount],
+                    ['name' => 'Long', 'value' => $longCount],
+                ]
+            ],
             'filters' => $request->only(['search_notes', 'sort', 'direction']),
         ]);
     }
@@ -167,5 +221,25 @@ class AdminController extends Controller
         \App\Models\Setting::set('app_theme', $request->app_theme);
 
         return back()->with('message', 'Theme updated successfully.');
+    }
+
+    public function updateAnnouncement(Request $request)
+    {
+        $request->validate([
+            'message' => 'nullable|string|max:1000',
+        ]);
+
+        if (empty($request->message)) {
+            // Delete it if empty
+            $setting = \App\Models\Setting::where('key', 'global_announcement')->first();
+            if ($setting) {
+                $setting->delete();
+            }
+            return back()->with('message', 'Global announcement cleared.');
+        }
+
+        \App\Models\Setting::set('global_announcement', $request->message);
+
+        return back()->with('message', 'Global announcement published successfully.');
     }
 }

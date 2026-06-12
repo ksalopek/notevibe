@@ -31,6 +31,11 @@ class User extends Authenticatable
         'role',
         'is_active',
         'last_login_at',
+        'last_login_ip',
+        'latitude',
+        'longitude',
+        'country',
+        'city',
     ];
 
     /**
