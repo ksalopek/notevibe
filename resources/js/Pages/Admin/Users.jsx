@@ -6,13 +6,17 @@ import Tooltip from '@/Components/Tooltip';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Dropdown from '@/Components/Dropdown';
+import Heatmap from '@/Components/Heatmap';
 
 const ImpersonateIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>);
 const BanIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>);
 const CheckCircleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>);
+const ShieldIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>);
+const MoreVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>);
 
-export default function Users({ auth, users, filters }) {
+export default function Users({ auth, users, filters, heatmapData }) {
     const { patch, post, delete: destroy } = useForm();
     const [searchUsers, setSearchUsers] = useState(filters?.search_users || '');
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(null);
@@ -43,6 +47,18 @@ export default function Users({ auth, users, filters }) {
         }, { preserveState: true, replace: true, preserveScroll: true, only: ['users', 'filters'] });
     };
 
+    const sortValue = `${filters?.sort || 'id'}-${filters?.direction || 'asc'}`;
+
+    const handleSortChange = (e) => {
+        const [field, direction] = e.target.value.split('-');
+        router.get(route('admin.users'), { 
+            search_users: searchUsers, 
+            sort: field, 
+            direction: direction 
+        }, { preserveState: true, replace: true, preserveScroll: true, only: ['users', 'filters'] });
+    };
+
+
     const SortIcon = ({ field }) => {
         if (filters?.sort !== field) {
             return <svg className="w-4 h-4 ml-1 opacity-20 group-hover:opacity-50 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>;
@@ -55,6 +71,10 @@ export default function Users({ auth, users, filters }) {
 
     const toggleStatus = (user) => {
         patch(route('admin.users.toggle', user.id));
+    };
+
+    const toggleRole = (user) => {
+        patch(route('admin.users.role', user.id));
     };
 
     const impersonate = (user) => {
@@ -99,14 +119,44 @@ export default function Users({ auth, users, filters }) {
                                 </p>
                             </div>
                         </div>
-                        <div className="w-full sm:w-64">
+                    </div>
+
+                    <div className="mb-8 bg-white dark:bg-gray-800 p-6 shadow-sm sm:rounded-3xl hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700/50">
+                        <div className="mb-4">
+                            <h4 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                                <span className="mr-2 text-primary-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </span>
+                                Global User Activity
+                            </h4>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Visualizing user location density based on recent activity.</p>
+                        </div>
+                        <Heatmap data={heatmapData} />
+                    </div>
+
+                    <div className="flex justify-end mb-4">
+                        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
                             <input 
                                 type="text" 
                                 placeholder="Search by name or email..." 
                                 value={searchUsers}
                                 onChange={(e) => setSearchUsers(e.target.value)}
-                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-slate-400"
+                                className="w-full sm:w-64 px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-slate-400"
                             />
+                            <select
+                                value={sortValue}
+                                onChange={handleSortChange}
+                                className="w-full sm:w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="id-desc">Newest First</option>
+                                <option value="id-asc">Oldest First</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                                <option value="email-asc">Email (A-Z)</option>
+                                <option value="email-desc">Email (Z-A)</option>
+                                <option value="role-asc">Role (A-Z)</option>
+                                <option value="role-desc">Role (Z-A)</option>
+                            </select>
                         </div>
                     </div>
 
@@ -166,31 +216,40 @@ export default function Users({ auth, users, filters }) {
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-normal break-words text-right text-sm font-medium">
                                                     {u.id !== auth.user.id && (
-                                                        <div className="flex justify-end gap-3 w-full items-center">
-                                                            <Tooltip content="Impersonate User" placement="top">
-                                                                <button
-                                                                    onClick={() => impersonate(u)}
-                                                                    className="text-indigo-500 hover:text-indigo-700 transition-colors"
-                                                                >
-                                                                    <ImpersonateIcon />
-                                                                </button>
-                                                            </Tooltip>
-                                                            <Tooltip content={u.is_active ? 'Disable User' : 'Enable User'} placement="top">
-                                                                <button
-                                                                    onClick={() => toggleStatus(u)}
-                                                                    className={`${u.is_active ? 'text-orange-500 hover:text-orange-700' : 'text-emerald-500 hover:text-emerald-700'} transition-colors`}
-                                                                >
-                                                                    {u.is_active ? <BanIcon /> : <CheckCircleIcon />}
-                                                                </button>
-                                                            </Tooltip>
-                                                            <Tooltip content="Delete User" placement="top-right">
-                                                                <button
-                                                                    onClick={() => deleteUser(u)}
-                                                                    className="text-red-500 hover:text-red-700 transition-colors"
-                                                                >
-                                                                    <TrashIcon />
-                                                                </button>
-                                                            </Tooltip>
+                                                        <div className="flex justify-end w-full items-center">
+                                                            <Dropdown>
+                                                                <Dropdown.Trigger>
+                                                                    <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                        <MoreVerticalIcon />
+                                                                    </button>
+                                                                </Dropdown.Trigger>
+                                                                <Dropdown.Content align="right" width="48">
+                                                                    <button 
+                                                                        onClick={() => toggleRole(u)}
+                                                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                    >
+                                                                        {u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => impersonate(u)}
+                                                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                    >
+                                                                        Impersonate User
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => toggleStatus(u)}
+                                                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                    >
+                                                                        {u.is_active ? 'Disable User' : 'Enable User'}
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => deleteUser(u)}
+                                                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+                                                                    >
+                                                                        Delete User
+                                                                    </button>
+                                                                </Dropdown.Content>
+                                                            </Dropdown>
                                                         </div>
                                                     )}
                                                 </td>
