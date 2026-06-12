@@ -33,7 +33,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $request->user()->update(['last_login_at' => now()]);
+        $ip = $request->ip();
+        $locationService = new \App\Services\IpLocationService();
+        $locationData = $locationService->getLocation($ip);
+
+        $updateData = ['last_login_at' => now(), 'last_login_ip' => $ip];
+        if ($locationData) {
+            $updateData = array_merge($updateData, $locationData);
+        }
+
+        $request->user()->update($updateData);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

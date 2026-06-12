@@ -39,20 +39,29 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        $ip = $request->ip();
+        $locationService = new \App\Services\IpLocationService();
+        $locationData = $locationService->getLocation($ip);
+
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'last_login_at' => now(),
-        ]);
+            'last_login_ip' => $ip,
+        ];
+
+        if ($locationData) {
+            $userData = array_merge($userData, $locationData);
+        }
+
+        $user = User::create($userData);
 
         event(new Registered($user));
         
         Mail::to($user)->send(new WelcomeEmail($user));
 
         Auth::login($user);
-
-        $request->user()->update(['last_login_at' => now()]);
 
         return redirect(route('dashboard', absolute: false));
     }

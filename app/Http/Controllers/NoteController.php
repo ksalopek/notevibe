@@ -15,7 +15,9 @@ class NoteController extends Controller
 {
     public function index(Request $request)
     {
-        $notes = Auth::user()->notes()
+        $sortBy = $request->input('sort', 'latest');
+
+        $query = Auth::user()->notes()
             ->with('tags')
             ->when($request->input('search'), function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -25,14 +27,30 @@ class NoteController extends Controller
                           $tagQuery->where('name', 'like', "%{$search}%");
                       });
                 });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            });
+
+        // Apply sorting
+        switch ($sortBy) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $notes = $query->paginate(10)->withQueryString();
 
         return Inertia::render('Notes/Index', [
             'notes' => $notes,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'sort']),
         ]);
     }
 
