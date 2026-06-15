@@ -15,11 +15,15 @@ class EnforceSessionTimeout
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $timeout = \App\Models\Setting::get('session_timeout');
-        
-        if ($timeout && is_numeric($timeout)) {
-            // Overwrite the session lifetime config for this request
-            config(['session.lifetime' => (int) $timeout]);
+        try {
+            $timeout = \App\Models\Setting::get('session_timeout');
+            
+            if ($timeout && is_numeric($timeout)) {
+                // Overwrite the session lifetime config for this request
+                config(['session.lifetime' => (int) $timeout]);
+            }
+        } catch (\Exception $e) {
+            // Ignore if DB/Table is not ready
         }
 
         return $next($request);

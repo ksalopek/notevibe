@@ -15,7 +15,12 @@ class CheckMaintenanceMode
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $isMaintenanceMode = filter_var(\App\Models\Setting::get('maintenance_mode', false), FILTER_VALIDATE_BOOLEAN);
+        $isMaintenanceMode = false;
+        try {
+            $isMaintenanceMode = filter_var(\App\Models\Setting::get('maintenance_mode', false), FILTER_VALIDATE_BOOLEAN);
+        } catch (\Exception $e) {
+            // Ignore if DB/Table is not ready
+        }
 
         $allowedRoutes = ['maintenance', 'login', 'logout', 'password.request', 'password.email', 'password.reset', 'password.store'];
 
