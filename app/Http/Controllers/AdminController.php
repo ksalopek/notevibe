@@ -197,16 +197,18 @@ class AdminController extends Controller
 
     public function settings()
     {
-        $appTheme = \App\Models\Setting::get('app_theme', 'purple');
+        $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
 
         return Inertia::render('Admin/Settings', [
-            'appTheme' => $appTheme,
+            'settings' => $settings,
+            'appTheme' => $settings['app_theme'] ?? 'purple',
         ]);
     }
 
     public function updateSettings(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
+            // Branding
             'app_theme' => [
                 'required',
                 'string',
@@ -216,11 +218,32 @@ class AdminController extends Controller
                     }
                 },
             ],
+            // Security
+            'require_2fa' => 'nullable|boolean',
+            'session_timeout' => 'nullable|integer|min:1',
+            'password_rules' => 'nullable|string|in:standard,strict',
+
+            // System
+            'maintenance_mode' => 'nullable|boolean',
+            'system_webhook_url' => 'nullable|url|max:255',
         ]);
 
-        \App\Models\Setting::set('app_theme', $request->app_theme);
+        // Save all other settings
+        foreach ($validated as $key => $value) {
+            if ($value !== null) {
+                \App\Models\Setting::set($key, $value);
+            }
+        }
+        
+        // Handle explicit booleans (in case they come through as false)
+        if ($request->has('require_2fa')) {
+             \App\Models\Setting::set('require_2fa', $request->boolean('require_2fa'));
+        }
+        if ($request->has('maintenance_mode')) {
+             \App\Models\Setting::set('maintenance_mode', $request->boolean('maintenance_mode'));
+        }
 
-        return back()->with('message', 'Theme updated successfully.');
+        return back()->with('message', 'Settings updated successfully.');
     }
 
     public function updateAnnouncement(Request $request)

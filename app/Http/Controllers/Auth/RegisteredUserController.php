@@ -61,6 +61,17 @@ class RegisteredUserController extends Controller
         
         Mail::to($user)->send(new WelcomeEmail($user));
 
+        $webhookUrl = \App\Models\Setting::get('system_webhook_url');
+        if ($webhookUrl) {
+            try {
+                \Illuminate\Support\Facades\Http::post($webhookUrl, [
+                    'text' => "🎉 New user registered: {$user->name} ({$user->email})"
+                ]);
+            } catch (\Exception $e) {
+                // Ignore webhook failures
+            }
+        }
+
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));

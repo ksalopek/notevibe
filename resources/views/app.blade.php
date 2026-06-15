@@ -29,6 +29,7 @@
         $isCustom = str_starts_with($appTheme, '#');
     @endphp
     <script>
+        window.process = { env: { NODE_ENV: '{{ app()->environment() }}' } };
         (function() {
             var theme = '{{ $appTheme }}';
             var hexColor = theme.startsWith('#') ? theme : {

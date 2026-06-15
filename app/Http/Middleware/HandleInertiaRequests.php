@@ -29,12 +29,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $appTheme = 'purple';
-        $globalAnnouncement = null;
+        $globalSettings = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
-                $appTheme = \App\Models\Setting::get('app_theme', 'purple');
-                $globalAnnouncement = \App\Models\Setting::get('global_announcement');
+                $globalSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
             }
         } catch (\Exception $e) {
             // fallback
@@ -50,8 +48,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => $request->session()->get('message'),
             ],
-            'app_theme' => $appTheme,
-            'global_announcement' => $globalAnnouncement,
+            'app_theme' => $globalSettings['app_theme'] ?? 'purple',
+            'global_announcement' => $globalSettings['global_announcement'] ?? null,
+            'global_settings' => [
+                // Branding properties removed
+            ],
         ];
     }
 }

@@ -4,23 +4,7 @@ import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import Pagination from '@/Components/Pagination';
 import Tooltip from '@/Components/Tooltip';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    TouchSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    rectSortingStrategy,
-    useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import CountUp from 'react-countup';
 
@@ -34,31 +18,24 @@ const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" h
 const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const SpeakerIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>);
 
-function SortableWidget({ id, children, className }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 50 : 'auto',
-        position: 'relative',
-    };
-
+function DraggableWidgetWrapper({ children, className }) {
     return (
-        <div ref={setNodeRef} style={style} className={`${className} ${isDragging ? 'opacity-50 scale-[1.02] shadow-2xl z-50' : ''}`}>
-            <div className="absolute top-4 right-4 z-10">
-                <Tooltip content="Drag to reorder">
+        <div 
+            className={`h-full relative group ${className || ''}`}
+            onClickCapture={(e) => {
+                if (window.__isDraggingWidget) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }}
+        >
+            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Tooltip content="Drag to move">
                     <div 
-                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
-                        {...attributes} 
-                        {...listeners}
+                        className="p-2 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle"
+                        onMouseDown={() => window.__isDraggingWidget = false}
+                        onMouseMove={() => window.__isDraggingWidget = true}
+                        onMouseUp={() => setTimeout(() => window.__isDraggingWidget = false, 100)}
                     >
                         <GripVerticalIcon />
                     </div>
@@ -69,20 +46,11 @@ function SortableWidget({ id, children, className }) {
     );
 }
 
-const MetricSparkline = ({ data, color }) => (
-    <div className="absolute inset-x-0 bottom-0 h-16 opacity-20 pointer-events-none overflow-hidden rounded-b-3xl">
-        <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-                <Line type="monotone" dataKey="value" stroke={color} strokeWidth={3} dot={false} isAnimationActive={true} />
-            </LineChart>
-        </ResponsiveContainer>
-    </div>
-);
 
-const MetricTotalUsersWidget = ({ metrics, chartData }) => {
-    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+
+const MetricTotalUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 relative">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400 relative z-10">
                 <UsersIcon />
             </div>
@@ -92,15 +60,13 @@ const MetricTotalUsersWidget = ({ metrics, chartData }) => {
                     <CountUp end={metrics?.totalUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
-            <MetricSparkline data={sparklineData} color="#3b82f6" />
         </div>
     );
 };
 
-const MetricActiveUsersWidget = ({ metrics, chartData }) => {
-    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+const MetricActiveUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-emerald-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 relative">
             <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400 relative z-10">
                 <CheckCircleIcon />
             </div>
@@ -110,15 +76,13 @@ const MetricActiveUsersWidget = ({ metrics, chartData }) => {
                     <CountUp end={metrics?.activeUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
-            <MetricSparkline data={sparklineData} color="#10b981" />
         </div>
     );
 };
 
-const MetricInactiveUsersWidget = ({ metrics, chartData }) => {
-    const sparklineData = chartData?.map(d => ({ value: d.users })) || [];
+const MetricInactiveUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-amber-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 relative">
             <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400 relative z-10">
                 <AlertTriangleIcon />
             </div>
@@ -128,15 +92,13 @@ const MetricInactiveUsersWidget = ({ metrics, chartData }) => {
                     <CountUp end={metrics?.inactiveUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
-            <MetricSparkline data={sparklineData} color="#f59e0b" />
         </div>
     );
 };
 
-const MetricTotalNotesWidget = ({ metrics, chartData }) => {
-    const sparklineData = chartData?.map(d => ({ value: d.notes })) || [];
+const MetricTotalNotesWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border-l-4 border-l-indigo-500 border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-all duration-300 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 relative">
             <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 relative z-10">
                 <DatabaseIcon />
             </div>
@@ -146,18 +108,17 @@ const MetricTotalNotesWidget = ({ metrics, chartData }) => {
                     <CountUp end={metrics?.totalNotes || 0} duration={2} separator="," />
                 </h4>
             </div>
-            <MetricSparkline data={sparklineData} color="#6366f1" />
         </div>
     );
 };
 
 const RadarEngagementWidget = ({ radarData }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center">
             <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
             Platform Radar (30d)
         </h3>
-        <div className="h-64 w-full mt-4">
+        <div className="w-full flex-1 min-h-[150px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                     <PolarGrid stroke="#cbd5e1" className="dark:stroke-slate-700" />
@@ -237,14 +198,14 @@ const GlobalBroadcastWidget = ({ currentAnnouncement }) => {
 };
 
 const ActivityChartWidget = ({ chartData }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
                 Platform Activity (Last 7 Days)
             </h3>
         </div>
-        <div className="w-full h-80">
+        <div className="w-full flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={chartData}
@@ -328,7 +289,7 @@ const RegistrationsWidget = ({ recentUsers }) => {
     };
 
     return (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col min-w-0">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><UsersIcon /></span>
@@ -342,7 +303,7 @@ const RegistrationsWidget = ({ recentUsers }) => {
             </Link>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto flex-1 w-full min-w-0">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
@@ -446,7 +407,7 @@ const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
 );
 
 const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortLogins, SortIconLogins }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col min-w-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-emerald-500"><ActivityIcon /></span>
@@ -463,7 +424,7 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
             </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto flex-1 w-full min-w-0">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
@@ -603,74 +564,46 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         }
     };
 
-    // Drag and Drop Logic
-    const defaultOrder = [
-        'metric_total_users', 
-        'metric_active_users', 
-        'metric_inactive_users', 
-        'metric_total_notes', 
-        'activity_chart',
-        'radar_chart',
-        'global_broadcast',
-        'live_content_feed',
-        'actions', 
-        'registrations', 
-        'logins'
+    const { width: containerWidth, containerRef } = useContainerWidth();
+    const defaultLayout = [
+        { i: 'metric_total_users', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'metric_active_users', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'metric_inactive_users', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'metric_total_notes', x: 3, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'activity_chart', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 2 },
+        { i: 'radar_chart', x: 3, y: 1, w: 1, h: 2, minW: 1, minH: 2 },
+        { i: 'global_broadcast', x: 0, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
+        { i: 'live_content_feed', x: 2, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
+        { i: 'actions', x: 0, y: 5, w: 4, h: 2, minW: 2, minH: 2 },
+        { i: 'registrations', x: 0, y: 7, w: 4, h: 2, minW: 3, minH: 2 },
+        { i: 'logins', x: 0, y: 9, w: 4, h: 2, minW: 3, minH: 2 }
     ];
     
-    const [widgetOrder, setWidgetOrder] = useState(() => {
+    const [layouts, setLayouts] = useState(() => {
         try {
-            const saved = localStorage.getItem('admin_dashboard_order_v5');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed.includes('metric_total_users') && parsed.includes('radar_chart')) return parsed;
-            }
+            const saved = localStorage.getItem('admin_dashboard_layout_v1');
+            if (saved) return JSON.parse(saved);
         } catch (e) {
-            console.error('Failed to parse dashboard order', e);
+            console.error('Failed to parse dashboard layout', e);
         }
-        return defaultOrder;
+        return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 5,
-            },
-        }),
-        useSensor(TouchSensor, {
-            activationConstraint: {
-                delay: 250,
-                tolerance: 5,
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
-
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-        if (over && active.id !== over.id) {
-            setWidgetOrder((items) => {
-                const oldIndex = items.indexOf(active.id);
-                const newIndex = items.indexOf(over.id);
-                const newOrder = arrayMove(items, oldIndex, newIndex);
-                localStorage.setItem('admin_dashboard_order_v5', JSON.stringify(newOrder));
-                return newOrder;
-            });
-        }
+    const handleLayoutChange = (currentLayout, allLayouts) => {
+        setLayouts(allLayouts);
+        localStorage.setItem('admin_dashboard_layout_v1', JSON.stringify(allLayouts));
     };
 
     const renderWidget = (id) => {
         switch (id) {
             case 'metric_total_users':
-                return <MetricTotalUsersWidget metrics={metrics} chartData={chartData} />;
+                return <MetricTotalUsersWidget metrics={metrics} />;
             case 'metric_active_users':
-                return <MetricActiveUsersWidget metrics={metrics} chartData={chartData} />;
+                return <MetricActiveUsersWidget metrics={metrics} />;
             case 'metric_inactive_users':
-                return <MetricInactiveUsersWidget metrics={metrics} chartData={chartData} />;
+                return <MetricInactiveUsersWidget metrics={metrics} />;
             case 'metric_total_notes':
-                return <MetricTotalNotesWidget metrics={metrics} chartData={chartData} />;
+                return <MetricTotalNotesWidget metrics={metrics} />;
             case 'radar_chart':
                 return <RadarEngagementWidget radarData={radarData} />;
             case 'activity_chart':
@@ -690,17 +623,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         }
     };
 
-    const getColSpan = (id) => {
-        if (id.startsWith('metric_')) return 'col-span-1 lg:col-span-1';
-        if (id === 'activity_chart') return 'col-span-1 lg:col-span-3';
-        if (id === 'radar_chart') return 'col-span-1 lg:col-span-1';
-        if (id === 'global_broadcast') return 'col-span-1 lg:col-span-2';
-        if (id === 'live_content_feed') return 'col-span-1 lg:col-span-2';
-        if (id === 'actions') return 'col-span-1 lg:col-span-4';
-        if (id === 'registrations') return 'col-span-1 lg:col-span-4';
-        if (id === 'logins') return 'col-span-1 lg:col-span-4';
-        return 'col-span-1 lg:col-span-4';
-    };
+    // Colspan logic is handled by react-grid-layout
 
     return (
         <AuthenticatedLayout
@@ -745,17 +668,32 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                     </div>
                 </motion.div>
 
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={widgetOrder} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-12">
-                            {widgetOrder.map(id => (
-                                <SortableWidget key={id} id={id} className={getColSpan(id)}>
-                                    {renderWidget(id)}
-                                </SortableWidget>
-                            ))}
+                <div ref={containerRef}>
+                    <ResponsiveGridLayout
+                        width={containerWidth}
+                        className="layout pb-12"
+                        layouts={layouts}
+                        onLayoutChange={handleLayoutChange}
+                        onDragStart={() => { window.__isDraggingWidget = true; }}
+                        onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                        onResizeStart={() => { window.__isDraggingWidget = true; }}
+                        onResizeStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                        breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
+                    cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+                    rowHeight={150}
+                    draggableHandle=".dashboard-drag-handle"
+                    containerPadding={[0, 0]}
+                    margin={[32, 32]}
+                >
+                    {defaultLayout.map(item => (
+                        <div key={item.i}>
+                            <DraggableWidgetWrapper>
+                                {renderWidget(item.i)}
+                            </DraggableWidgetWrapper>
                         </div>
-                    </SortableContext>
-                </DndContext>
+                    ))}
+                    </ResponsiveGridLayout>
+                </div>
 
             </div>
         </AuthenticatedLayout>
