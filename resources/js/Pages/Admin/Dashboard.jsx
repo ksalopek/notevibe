@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
+import { repackLayout } from '@/utils/gridLayoutUtils';
 import Pagination from '@/Components/Pagination';
 import Tooltip from '@/Components/Tooltip';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
@@ -15,7 +16,7 @@ const DatabaseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" h
 const AlertTriangleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>);
 const CheckCircleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
-const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
+const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const SpeakerIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>);
 
 function DraggableWidgetWrapper({ children, className }) {
@@ -128,20 +129,7 @@ const MetricTotalLoginsWidget = ({ metrics }) => {
     );
 };
 
-const AVAILABLE_WIDGETS = [
-    { id: 'metric_total_users', title: 'Total Users' },
-    { id: 'metric_active_users', title: 'Active Users' },
-    { id: 'metric_inactive_users', title: 'Inactive Users' },
-    { id: 'metric_total_notes', title: 'Total Notes' },
-    { id: 'metric_total_logins', title: 'Total Logins' },
-    { id: 'activity_chart', title: 'Platform Activity' },
-    { id: 'radar_chart', title: 'Platform Radar' },
-    { id: 'global_broadcast', title: 'Global Broadcast' },
-    { id: 'live_content_feed', title: 'Live Content Feed' },
-    { id: 'actions', title: 'Quick Actions' },
-    { id: 'registrations', title: 'Recent Registrations' },
-    { id: 'logins', title: 'Recent Logins' },
-];
+
 
 const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
@@ -661,6 +649,41 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
+    const defaultAvailableWidgets = [
+        { id: 'metric_total_users', title: 'Total Users' },
+        { id: 'metric_active_users', title: 'Active Users' },
+        { id: 'metric_inactive_users', title: 'Inactive Users' },
+        { id: 'metric_total_notes', title: 'Total Notes' },
+        { id: 'metric_total_logins', title: 'Total Logins' },
+        { id: 'activity_chart', title: 'Platform Activity' },
+        { id: 'radar_chart', title: 'Platform Radar' },
+        { id: 'global_broadcast', title: 'Global Broadcast' },
+        { id: 'live_content_feed', title: 'Live Content Feed' },
+        { id: 'actions', title: 'Quick Actions' },
+        { id: 'registrations', title: 'Recent Registrations' },
+        { id: 'logins', title: 'Recent Logins' },
+    ];
+
+    const [availableWidgets, setAvailableWidgets] = useState(() => {
+        try {
+            const saved = localStorage.getItem('admin_dashboard_widgets_v1');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return defaultAvailableWidgets;
+    });
+
+    const handleReorderWidgets = (newOrder) => {
+        setAvailableWidgets(newOrder);
+        localStorage.setItem('admin_dashboard_widgets_v1', JSON.stringify(newOrder));
+        
+        const newLayouts = {
+            lg: repackLayout(newOrder, layouts.lg, 4),
+            md: repackLayout(newOrder, layouts.md, 3),
+            sm: repackLayout(newOrder, layouts.sm, 2),
+        };
+        handleLayoutChange(newLayouts.lg, newLayouts);
+    };
+
     const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
 
     const handleToggleWidget = (id) => {
@@ -686,9 +709,9 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
             }
 
             const newLayouts = {
-                lg: [...layouts.lg, newItem],
-                md: [...layouts.md, newItem],
-                sm: [...layouts.sm, newItem],
+                lg: repackLayout(availableWidgets, [...layouts.lg, newItem], 4),
+                md: repackLayout(availableWidgets, [...layouts.md, newItem], 3),
+                sm: repackLayout(availableWidgets, [...layouts.sm, newItem], 2),
             };
             handleLayoutChange(newLayouts.lg, newLayouts);
         }
@@ -833,24 +856,30 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                        <div className="p-6 overflow-y-auto flex-1">
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                                Toggle widgets on or off to customize your dashboard layout.
+                                Toggle widgets on or off and drag them to reorder your dashboard layout.
                             </p>
-                            {AVAILABLE_WIDGETS.map((widget) => {
+                            <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="space-y-3">
+                            {availableWidgets.map((widget) => {
                                 const enabled = isWidgetEnabled(widget.id);
                                 return (
-                                    <div key={widget.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{widget.title}</span>
+                                    <Reorder.Item key={widget.id} value={widget} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-grab active:cursor-grabbing shadow-sm">
+                                        <div className="flex items-center">
+                                            <GripVerticalIcon className="mr-3 text-slate-400" />
+                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{widget.title}</span>
+                                        </div>
                                         <button
+                                            onPointerDown={(e) => e.stopPropagation()}
                                             onClick={() => handleToggleWidget(widget.id)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-600'}`}
                                         >
                                             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>
-                                    </div>
+                                    </Reorder.Item>
                                 );
                             })}
+                            </Reorder.Group>
                         </div>
                     </motion.div>
                 </div>
