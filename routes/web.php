@@ -29,7 +29,7 @@ Route::get('/maintenance', function () {
     return Inertia::render('Maintenance');
 })->name('maintenance');
 
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     $user = auth()->user();
 
     $recentNotes = $user->notes()->with('tags')->latest()->take(5)->get();
@@ -53,7 +53,12 @@ Route::get('/dashboard', function () {
         ->distinct('note_tag.tag_id')
         ->count('note_tag.tag_id');
 
-    $chartData = collect(range(6, 0))->map(function ($daysAgo) use ($user) {
+    $noteDays = (int) $request->input('note_days', 7);
+    if (!in_array($noteDays, [7, 14, 21, 30])) {
+        $noteDays = 7;
+    }
+
+    $chartData = collect(range($noteDays - 1, 0))->map(function ($daysAgo) use ($user) {
         $date = now()->subDays($daysAgo);
         return [
             'name' => $date->format('M d'),
@@ -70,6 +75,9 @@ Route::get('/dashboard', function () {
         ],
         'allTags' => $tagCounts,
         'chartData' => $chartData,
+        'filters' => [
+            'note_days' => $noteDays,
+        ],
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
