@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
+import { repackLayout } from '@/utils/gridLayoutUtils';
 import { useState, useEffect } from 'react';
 import Tooltip from '@/Components/Tooltip';
 import Modal from '@/Components/Modal';
@@ -19,18 +20,11 @@ const TagsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heigh
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>);
 const ClockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>);
 const HashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>);
-const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
+const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 
-const AVAILABLE_WIDGETS = [
-    { id: 'metric_total', title: 'Total Notes' },
-    { id: 'metric_tags', title: 'Unique Tags' },
-    { id: 'metric_trash', title: 'In Trash' },
-    { id: 'activity_chart', title: 'Note Activity' },
-    { id: 'recent', title: 'Recent Notes' },
-    { id: 'tags', title: 'Top Tags' },
-];
+
 
 function DraggableWidgetWrapper({ children, className }) {
     return (
@@ -268,6 +262,35 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
         return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
+    const defaultAvailableWidgets = [
+        { id: 'metric_total', title: 'Total Notes' },
+        { id: 'metric_tags', title: 'Unique Tags' },
+        { id: 'metric_trash', title: 'In Trash' },
+        { id: 'activity_chart', title: 'Note Activity' },
+        { id: 'recent', title: 'Recent Notes' },
+        { id: 'tags', title: 'Top Tags' },
+    ];
+
+    const [availableWidgets, setAvailableWidgets] = useState(() => {
+        try {
+            const saved = localStorage.getItem('user_dashboard_widgets_v1');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return defaultAvailableWidgets;
+    });
+
+    const handleReorderWidgets = (newOrder) => {
+        setAvailableWidgets(newOrder);
+        localStorage.setItem('user_dashboard_widgets_v1', JSON.stringify(newOrder));
+        
+        const newLayouts = {
+            lg: repackLayout(newOrder, layouts.lg, 3),
+            md: repackLayout(newOrder, layouts.md, 2),
+            sm: repackLayout(newOrder, layouts.sm, 1),
+        };
+        handleLayoutChange(newLayouts.lg, newLayouts);
+    };
+
     const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
 
     const handleToggleWidget = (id) => {
@@ -292,9 +315,9 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
             }
 
             const newLayouts = {
-                lg: [...layouts.lg, newItem],
-                md: [...layouts.md, newItem],
-                sm: [...layouts.sm, newItem],
+                lg: repackLayout(availableWidgets, [...layouts.lg, newItem], 3),
+                md: repackLayout(availableWidgets, [...layouts.md, newItem], 2),
+                sm: repackLayout(availableWidgets, [...layouts.sm, newItem], 1),
             };
             handleLayoutChange(newLayouts.lg, newLayouts);
         }
@@ -533,24 +556,30 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                        <div className="p-6 overflow-y-auto flex-1">
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                Toggle widgets on or off to customize your dashboard layout.
+                                Toggle widgets on or off and drag them to reorder your dashboard layout.
                             </p>
-                            {AVAILABLE_WIDGETS.map((widget) => {
+                            <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="space-y-3">
+                            {availableWidgets.map((widget) => {
                                 const enabled = isWidgetEnabled(widget.id);
                                 return (
-                                    <div key={widget.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{widget.title}</span>
+                                    <Reorder.Item key={widget.id} value={widget} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-grab active:cursor-grabbing shadow-sm">
+                                        <div className="flex items-center">
+                                            <GripVerticalIcon className="mr-3 text-gray-400" />
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{widget.title}</span>
+                                        </div>
                                         <button
+                                            onPointerDown={(e) => e.stopPropagation()}
                                             onClick={() => handleToggleWidget(widget.id)}
                                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}
                                         >
                                             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>
-                                    </div>
+                                    </Reorder.Item>
                                 );
                             })}
+                            </Reorder.Group>
                         </div>
                     </motion.div>
                 </div>
