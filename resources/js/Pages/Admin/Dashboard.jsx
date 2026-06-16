@@ -112,6 +112,37 @@ const MetricTotalNotesWidget = ({ metrics }) => {
     );
 };
 
+const MetricTotalLoginsWidget = ({ metrics }) => {
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 relative">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-xl text-purple-600 dark:text-purple-400 relative z-10">
+                <ActivityIcon />
+            </div>
+            <div className="relative z-10">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Logins</p>
+                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+                    <CountUp end={metrics?.totalLogins || 0} duration={2} separator="," />
+                </h4>
+            </div>
+        </div>
+    );
+};
+
+const AVAILABLE_WIDGETS = [
+    { id: 'metric_total_users', title: 'Total Users' },
+    { id: 'metric_active_users', title: 'Active Users' },
+    { id: 'metric_inactive_users', title: 'Inactive Users' },
+    { id: 'metric_total_notes', title: 'Total Notes' },
+    { id: 'metric_total_logins', title: 'Total Logins' },
+    { id: 'activity_chart', title: 'Platform Activity' },
+    { id: 'radar_chart', title: 'Platform Radar' },
+    { id: 'global_broadcast', title: 'Global Broadcast' },
+    { id: 'live_content_feed', title: 'Live Content Feed' },
+    { id: 'actions', title: 'Quick Actions' },
+    { id: 'registrations', title: 'Recent Registrations' },
+    { id: 'logins', title: 'Recent Logins' },
+];
+
 const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-2">
@@ -602,24 +633,27 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         }
     };
 
+    const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+
     const { width: containerWidth, containerRef } = useContainerWidth();
     const defaultLayout = [
         { i: 'metric_total_users', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_active_users', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_inactive_users', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_total_notes', x: 3, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-        { i: 'activity_chart', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 2 },
-        { i: 'radar_chart', x: 3, y: 1, w: 1, h: 2, minW: 1, minH: 2 },
-        { i: 'global_broadcast', x: 0, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
-        { i: 'live_content_feed', x: 2, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
-        { i: 'actions', x: 0, y: 5, w: 4, h: 2, minW: 2, minH: 2 },
-        { i: 'registrations', x: 0, y: 7, w: 4, h: 2, minW: 3, minH: 2 },
-        { i: 'logins', x: 0, y: 9, w: 4, h: 2, minW: 3, minH: 2 }
+        { i: 'metric_total_logins', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'activity_chart', x: 0, y: 2, w: 3, h: 2, minW: 2, minH: 2 },
+        { i: 'radar_chart', x: 3, y: 2, w: 1, h: 2, minW: 1, minH: 2 },
+        { i: 'global_broadcast', x: 0, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
+        { i: 'live_content_feed', x: 2, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
+        { i: 'actions', x: 0, y: 6, w: 4, h: 2, minW: 2, minH: 2 },
+        { i: 'registrations', x: 0, y: 8, w: 4, h: 2, minW: 3, minH: 2 },
+        { i: 'logins', x: 0, y: 10, w: 4, h: 2, minW: 3, minH: 2 }
     ];
     
     const [layouts, setLayouts] = useState(() => {
         try {
-            const saved = localStorage.getItem('admin_dashboard_layout_v1');
+            const saved = localStorage.getItem('admin_dashboard_layout_v2');
             if (saved) return JSON.parse(saved);
         } catch (e) {
             console.error('Failed to parse dashboard layout', e);
@@ -627,9 +661,42 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
+    const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
+
+    const handleToggleWidget = (id) => {
+        const enabled = isWidgetEnabled(id);
+        if (enabled) {
+            const newLayouts = {
+                lg: layouts.lg.filter(item => item.i !== id),
+                md: layouts.md.filter(item => item.i !== id),
+                sm: layouts.sm.filter(item => item.i !== id),
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
+        } else {
+            // Find max Y
+            const y = Math.max(0, ...layouts.lg.map(item => item.y + item.h));
+            const newItem = { i: id, x: 0, y, w: 1, h: 1, minW: 1, minH: 1 };
+            
+            if (['activity_chart', 'actions', 'registrations', 'logins'].includes(id)) {
+                newItem.w = 3; newItem.h = 2;
+            } else if (['radar_chart'].includes(id)) {
+                newItem.w = 1; newItem.h = 2;
+            } else if (['global_broadcast', 'live_content_feed'].includes(id)) {
+                newItem.w = 2; newItem.h = 2;
+            }
+
+            const newLayouts = {
+                lg: [...layouts.lg, newItem],
+                md: [...layouts.md, newItem],
+                sm: [...layouts.sm, newItem],
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
+        }
+    };
+
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
-        localStorage.setItem('admin_dashboard_layout_v1', JSON.stringify(allLayouts));
+        localStorage.setItem('admin_dashboard_layout_v2', JSON.stringify(allLayouts));
     };
 
     const renderWidget = (id) => {
@@ -642,6 +709,8 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                 return <MetricInactiveUsersWidget metrics={metrics} />;
             case 'metric_total_notes':
                 return <MetricTotalNotesWidget metrics={metrics} />;
+            case 'metric_total_logins':
+                return <MetricTotalLoginsWidget metrics={metrics} />;
             case 'radar_chart':
                 return <RadarEngagementWidget radarData={radarData} radarDays={radarDays} onRadarDaysChange={handleRadarDaysChange} />;
             case 'activity_chart':
@@ -703,6 +772,14 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                                 </svg>
                             </button>
                         </Tooltip>
+                        <Tooltip content="Customize Dashboard">
+                            <button 
+                                onClick={() => setIsCustomizeOpen(true)}
+                                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                            >
+                                <SettingsIcon />
+                            </button>
+                        </Tooltip>
                     </div>
                 </motion.div>
 
@@ -723,7 +800,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                     containerPadding={[0, 0]}
                     margin={[32, 32]}
                 >
-                    {defaultLayout.map(item => (
+                    {layouts.lg.map(item => (
                         <div key={item.i}>
                             <DraggableWidgetWrapper>
                                 {renderWidget(item.i)}
@@ -734,6 +811,50 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                 </div>
 
             </div>
+
+            {/* Slideout Drawer */}
+            {isCustomizeOpen && (
+                <div className="fixed inset-0 z-50 flex justify-end">
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCustomizeOpen(false)}></div>
+                    <motion.div 
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="w-80 bg-white dark:bg-slate-800 h-full shadow-2xl relative z-10 flex flex-col border-l border-slate-200 dark:border-slate-700"
+                    >
+                        <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                                <SettingsIcon /> <span className="ml-2">Customize</span>
+                            </h3>
+                            <button onClick={() => setIsCustomizeOpen(false)} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                Toggle widgets on or off to customize your dashboard layout.
+                            </p>
+                            {AVAILABLE_WIDGETS.map((widget) => {
+                                const enabled = isWidgetEnabled(widget.id);
+                                return (
+                                    <div key={widget.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{widget.title}</span>
+                                        <button
+                                            onClick={() => handleToggleWidget(widget.id)}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

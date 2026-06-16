@@ -21,6 +21,16 @@ const ClockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" heig
 const HashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>);
 const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
+const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+
+const AVAILABLE_WIDGETS = [
+    { id: 'metric_total', title: 'Total Notes' },
+    { id: 'metric_tags', title: 'Unique Tags' },
+    { id: 'metric_trash', title: 'In Trash' },
+    { id: 'activity_chart', title: 'Note Activity' },
+    { id: 'recent', title: 'Recent Notes' },
+    { id: 'tags', title: 'Top Tags' },
+];
 
 function DraggableWidgetWrapper({ children, className }) {
     return (
@@ -223,6 +233,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
     
     const [noteDays, setNoteDays] = useState(filters?.note_days || 7);
+    const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
 
     const handleNoteDaysChange = (e) => {
         const days = e.target.value;
@@ -249,7 +260,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     
     const [layouts, setLayouts] = useState(() => {
         try {
-            const saved = localStorage.getItem('user_dashboard_layout_v4');
+            const saved = localStorage.getItem('user_dashboard_layout_v5');
             if (saved) return JSON.parse(saved);
         } catch (e) {
             console.error('Failed to parse dashboard layout', e);
@@ -257,9 +268,41 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
         return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
+    const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
+
+    const handleToggleWidget = (id) => {
+        const enabled = isWidgetEnabled(id);
+        if (enabled) {
+            const newLayouts = {
+                lg: layouts.lg.filter(item => item.i !== id),
+                md: layouts.md.filter(item => item.i !== id),
+                sm: layouts.sm.filter(item => item.i !== id),
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
+        } else {
+            const y = Math.max(0, ...layouts.lg.map(item => item.y + item.h));
+            const newItem = { i: id, x: 0, y, w: 1, h: 1, minW: 1, minH: 1 };
+            
+            if (['activity_chart'].includes(id)) {
+                newItem.w = 3; newItem.h = 2;
+            } else if (['recent'].includes(id)) {
+                newItem.w = 2; newItem.h = 2;
+            } else if (['tags'].includes(id)) {
+                newItem.w = 1; newItem.h = 2;
+            }
+
+            const newLayouts = {
+                lg: [...layouts.lg, newItem],
+                md: [...layouts.md, newItem],
+                sm: [...layouts.sm, newItem],
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
+        }
+    };
+
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
-        localStorage.setItem('user_dashboard_layout_v4', JSON.stringify(allLayouts));
+        localStorage.setItem('user_dashboard_layout_v5', JSON.stringify(allLayouts));
     };
 
     const startEditing = (note) => {
@@ -318,14 +361,26 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="mb-8"
+                    className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
                 >
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {greeting}, {auth.user.name}! ✨
-                    </h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        Here's an overview of your notes today. Drag the handle on each widget to rearrange your dashboard.
-                    </p>
+                    <div>
+                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
+                            {greeting}, {auth.user.name}! ✨
+                        </h3>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">
+                            Here's an overview of your notes today. Drag the handle on each widget to rearrange your dashboard.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+                        <Tooltip content="Customize Dashboard">
+                            <button 
+                                onClick={() => setIsCustomizeOpen(true)}
+                                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all"
+                            >
+                                <SettingsIcon />
+                            </button>
+                        </Tooltip>
+                    </div>
                 </motion.div>
 
                 <div ref={containerRef}>
@@ -345,7 +400,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                     containerPadding={[0, 0]}
                     margin={[32, 32]}
                 >
-                    {defaultLayout.map(item => (
+                    {layouts.lg.map(item => (
                         <div key={item.i}>
                             <DraggableWidgetWrapper>
                                 {renderWidget(item.i)}
@@ -456,6 +511,50 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                     </form>
                 </div>
             </Modal>
+
+            {/* Slideout Drawer */}
+            {isCustomizeOpen && (
+                <div className="fixed inset-0 z-50 flex justify-end">
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCustomizeOpen(false)}></div>
+                    <motion.div 
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="w-80 bg-white dark:bg-gray-800 h-full shadow-2xl relative z-10 flex flex-col border-l border-gray-200 dark:border-gray-700"
+                    >
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                                <SettingsIcon /> <span className="ml-2">Customize</span>
+                            </h3>
+                            <button onClick={() => setIsCustomizeOpen(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                Toggle widgets on or off to customize your dashboard layout.
+                            </p>
+                            {AVAILABLE_WIDGETS.map((widget) => {
+                                const enabled = isWidgetEnabled(widget.id);
+                                return (
+                                    <div key={widget.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{widget.title}</span>
+                                        <button
+                                            onClick={() => handleToggleWidget(widget.id)}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }
