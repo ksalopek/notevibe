@@ -177,13 +177,23 @@ const TopTagsWidget = ({ topTags }) => (
     </div>
 );
 
-const ActivityChartWidget = ({ chartData }) => (
+const ActivityChartWidget = ({ chartData, noteDays, onNoteDaysChange }) => (
     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-primary-500"><ActivityIcon /></span>
-                Note Activity (Last 7 Days)
+                Note Activity (Last {noteDays} Days)
             </h3>
+            <select
+                value={noteDays}
+                onChange={onNoteDaysChange}
+                className="ml-4 text-sm bg-gray-50 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 cursor-pointer"
+            >
+                <option value={7}>7 Days</option>
+                <option value={14}>14 Days</option>
+                <option value={21}>21 Days</option>
+                <option value={30}>30 Days</option>
+            </select>
         </div>
         <div className="w-full flex-1 min-h-[150px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -205,12 +215,20 @@ const ActivityChartWidget = ({ chartData }) => (
     </div>
 );
 
-export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
+export default function Dashboard({ recentNotes, stats, allTags, chartData, filters }) {
     const { auth } = usePage().props;
     const [greeting, setGreeting] = useState('');
     const [showTagsModal, setShowTagsModal] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
+    
+    const [noteDays, setNoteDays] = useState(filters?.note_days || 7);
+
+    const handleNoteDaysChange = (e) => {
+        const days = e.target.value;
+        setNoteDays(days);
+        router.get(route('dashboard'), { note_days: days }, { preserveState: true, preserveScroll: true, only: ['chartData', 'filters'] });
+    };
 
     useEffect(() => {
         const hour = new Date().getHours();
@@ -270,7 +288,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
             case 'metric_trash':
                 return <MetricInTrashWidget stats={stats} />;
             case 'activity_chart':
-                return <ActivityChartWidget chartData={chartData} />;
+                return <ActivityChartWidget chartData={chartData} noteDays={noteDays} onNoteDaysChange={handleNoteDaysChange} />;
             case 'recent':
                 return <RecentNotesWidget recentNotes={recentNotes} onEdit={startEditing} />;
             case 'tags':

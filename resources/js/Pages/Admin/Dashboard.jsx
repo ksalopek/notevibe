@@ -112,12 +112,24 @@ const MetricTotalNotesWidget = ({ metrics }) => {
     );
 };
 
-const RadarEngagementWidget = ({ radarData }) => (
+const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center">
-            <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
-            Platform Radar (30d)
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
+                Platform Radar (Last {radarDays}d)
+            </h3>
+            <select
+                value={radarDays}
+                onChange={onRadarDaysChange}
+                className="ml-4 text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+                <option value={7}>7 Days</option>
+                <option value={14}>14 Days</option>
+                <option value={21}>21 Days</option>
+                <option value={30}>30 Days</option>
+            </select>
+        </div>
         <div className="w-full flex-1 min-h-[150px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -197,13 +209,23 @@ const GlobalBroadcastWidget = ({ currentAnnouncement }) => {
     );
 };
 
-const ActivityChartWidget = ({ chartData }) => (
+const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
-                Platform Activity (Last 7 Days)
+                Platform Activity (Last {activityDays} Days)
             </h3>
+            <select
+                value={activityDays}
+                onChange={onActivityDaysChange}
+                className="ml-4 text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+                <option value={7}>7 Days</option>
+                <option value={14}>14 Days</option>
+                <option value={21}>21 Days</option>
+                <option value={30}>30 Days</option>
+            </select>
         </div>
         <div className="w-full flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -221,6 +243,7 @@ const ActivityChartWidget = ({ chartData }) => (
                     <Legend />
                     <Line type="monotone" dataKey="notes" name="Notes Created" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 8 }} />
                     <Line type="monotone" dataKey="users" name="New Users" stroke="#10b981" strokeWidth={3} />
+                    <Line type="monotone" dataKey="logins" name="User Logins" stroke="#f59e0b" strokeWidth={3} />
                 </LineChart>
             </ResponsiveContainer>
         </div>
@@ -485,6 +508,21 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     const { patch: patchDisable } = useForm();
     const { patch: patchEnable } = useForm();
     
+    const [activityDays, setActivityDays] = useState(filters?.activity_days || 7);
+    const [radarDays, setRadarDays] = useState(filters?.radar_days || 30);
+
+    const handleActivityDaysChange = (e) => {
+        const days = e.target.value;
+        setActivityDays(days);
+        router.get(route('admin.index'), { search_logins: searchLogins, sort_logins: filters?.sort_logins, direction_logins: filters?.direction_logins, activity_days: days, radar_days: radarDays }, { preserveState: true, preserveScroll: true, only: ['chartData', 'filters'] });
+    };
+
+    const handleRadarDaysChange = (e) => {
+        const days = e.target.value;
+        setRadarDays(days);
+        router.get(route('admin.index'), { search_logins: searchLogins, sort_logins: filters?.sort_logins, direction_logins: filters?.direction_logins, activity_days: activityDays, radar_days: days }, { preserveState: true, preserveScroll: true, only: ['radarData', 'filters'] });
+    };
+    
     const [searchLogins, setSearchLogins] = useState(filters?.search_logins || '');
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -605,9 +643,9 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
             case 'metric_total_notes':
                 return <MetricTotalNotesWidget metrics={metrics} />;
             case 'radar_chart':
-                return <RadarEngagementWidget radarData={radarData} />;
+                return <RadarEngagementWidget radarData={radarData} radarDays={radarDays} onRadarDaysChange={handleRadarDaysChange} />;
             case 'activity_chart':
-                return <ActivityChartWidget chartData={chartData} />;
+                return <ActivityChartWidget chartData={chartData} activityDays={activityDays} onActivityDaysChange={handleActivityDaysChange} />;
             case 'global_broadcast':
                 return <GlobalBroadcastWidget currentAnnouncement={globalAnnouncement} />;
             case 'live_content_feed':
