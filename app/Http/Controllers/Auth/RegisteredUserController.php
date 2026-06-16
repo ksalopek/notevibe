@@ -74,6 +74,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        \App\Models\LoginHistory::create(['user_id' => $user->id]);
+
         return redirect(route('dashboard', absolute: false));
     }
 }

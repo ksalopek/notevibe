@@ -16,6 +16,16 @@ class AdminController extends Controller
         $sortLoginsField = $request->input('sort_logins', 'last_login_at');
         $sortLoginsDirection = $request->input('direction_logins', 'desc');
 
+        $activityDays = (int) $request->input('activity_days', 7);
+        if (!in_array($activityDays, [7, 14, 21, 30])) {
+            $activityDays = 7;
+        }
+
+        $radarDays = (int) $request->input('radar_days', 30);
+        if (!in_array($radarDays, [7, 14, 21, 30])) {
+            $radarDays = 30;
+        }
+
         return Inertia::render('Admin/Dashboard', [
             'metrics' => fn () => [
                 'totalUsers' => User::count(),
@@ -23,18 +33,19 @@ class AdminController extends Controller
                 'inactiveUsers' => User::count() - User::where('is_active', true)->count(),
                 'totalNotes' => \App\Models\Note::count(),
             ],
-            'chartData' => fn () => collect(range(6, 0))->map(function ($daysAgo) {
+            'chartData' => fn () => collect(range($activityDays - 1, 0))->map(function ($daysAgo) {
                 $date = now()->subDays($daysAgo);
                 return [
                     'name' => $date->format('M d'),
                     'users' => User::whereDate('created_at', $date->toDateString())->count(),
                     'notes' => \App\Models\Note::whereDate('created_at', $date->toDateString())->count(),
+                    'logins' => \App\Models\LoginHistory::whereDate('created_at', $date->toDateString())->distinct('user_id')->count('user_id'),
                 ];
             })->values()->toArray(),
             'radarData' => fn () => [
-                ['subject' => 'New Users', 'value' => User::where('created_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
-                ['subject' => 'Notes Created', 'value' => \App\Models\Note::where('created_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
-                ['subject' => 'Recent Logins', 'value' => User::where('last_login_at', '>=', now()->subDays(30))->count(), 'fullMark' => 100],
+                ['subject' => 'New Users', 'value' => User::where('created_at', '>=', now()->subDays($radarDays))->count(), 'fullMark' => 100],
+                ['subject' => 'Notes Created', 'value' => \App\Models\Note::where('created_at', '>=', now()->subDays($radarDays))->count(), 'fullMark' => 100],
+                ['subject' => 'Recent Logins', 'value' => User::where('last_login_at', '>=', now()->subDays($radarDays))->count(), 'fullMark' => 100],
                 ['subject' => 'Active Users', 'value' => User::where('is_active', true)->count(), 'fullMark' => 100],
                 ['subject' => 'Trashed Notes', 'value' => \App\Models\Note::onlyTrashed()->count(), 'fullMark' => 100],
             ],
@@ -50,7 +61,7 @@ class AdminController extends Controller
                 ->orderBy($sortLoginsField, $sortLoginsDirection)
                 ->paginate(10)
                 ->withQueryString(),
-            'filters' => $request->only(['search_logins', 'sort_logins', 'direction_logins']),
+            'filters' => $request->only(['search_logins', 'sort_logins', 'direction_logins', 'activity_days', 'radar_days']),
         ]);
     }
 
