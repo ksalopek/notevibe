@@ -234,7 +234,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700"
+                        className="bg-white dark:bg-slate-800 rounded-3xl overflow-visible shadow-xl border border-slate-200 dark:border-slate-700"
                     >
                         <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                             <thead className="bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">

@@ -25,6 +25,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/maintenance', function () {
+    return Inertia::render('Maintenance');
+})->name('maintenance');
+
 Route::get('/dashboard', function () {
     $user = auth()->user();
 

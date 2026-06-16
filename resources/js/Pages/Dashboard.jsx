@@ -6,22 +6,7 @@ import Tooltip from '@/Components/Tooltip';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import RichTextEditor from '@/Components/RichTextEditor';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    rectSortingStrategy,
-    useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
 
@@ -37,31 +22,21 @@ const HashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heigh
 const GripVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
 
-function SortableWidget({ id, children, className }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 50 : 'auto',
-        position: 'relative',
-    };
-
+function DraggableWidgetWrapper({ children, className }) {
     return (
-        <div ref={setNodeRef} style={style} className={`${className} ${isDragging ? 'opacity-50 scale-[1.02] shadow-2xl z-50' : ''}`}>
-            <div className="absolute top-4 right-4 z-10">
-                <Tooltip content="Drag to reorder">
+        <div 
+            className={`h-full relative group ${className || ''}`}
+            onClickCapture={(e) => {
+                if (window.__isDraggingWidget) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }}
+        >
+            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Tooltip content="Drag to move">
                     <div 
-                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm"
-                        {...attributes} 
-                        {...listeners}
+                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle"
                     >
                         <GripVerticalIcon />
                     </div>
@@ -73,8 +48,8 @@ function SortableWidget({ id, children, className }) {
 }
 
 const MetricTotalNotesWidget = ({ stats }) => (
-    <Link href={route('notes.index')} className="block h-full cursor-pointer">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+    <div className="block h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
                 <FileTextIcon />
             </div>
@@ -85,12 +60,12 @@ const MetricTotalNotesWidget = ({ stats }) => (
                 </h4>
             </div>
         </div>
-    </Link>
+    </div>
 );
 
-const MetricUniqueTagsWidget = ({ stats, onClick }) => (
-    <div onClick={onClick} className="cursor-pointer h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+const MetricUniqueTagsWidget = ({ stats }) => (
+    <div className="block h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
             <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
                 <TagsIcon />
             </div>
@@ -105,8 +80,8 @@ const MetricUniqueTagsWidget = ({ stats, onClick }) => (
 );
 
 const MetricInTrashWidget = ({ stats }) => (
-    <Link href={route('notes.trash')} className="block h-full cursor-pointer">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 h-full">
+    <div className="block h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
             <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
                 <TrashIcon />
             </div>
@@ -117,11 +92,11 @@ const MetricInTrashWidget = ({ stats }) => (
                 </h4>
             </div>
         </div>
-    </Link>
+    </div>
 );
 
 const RecentNotesWidget = ({ recentNotes, onEdit }) => (
-    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-primary-500"><ClockIcon /></span>
@@ -135,7 +110,7 @@ const RecentNotesWidget = ({ recentNotes, onEdit }) => (
             </Link>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 overflow-y-auto pr-2">
             {!recentNotes || recentNotes.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     No notes yet. Start writing!
@@ -173,13 +148,13 @@ const RecentNotesWidget = ({ recentNotes, onEdit }) => (
 );
 
 const TopTagsWidget = ({ topTags }) => (
-    <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative">
+    <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative flex flex-col">
         <div className="flex items-center mb-6 pr-10">
             <span className="mr-2 text-primary-100"><HashIcon /></span>
             <h3 className="text-xl font-bold">Top Tags</h3>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1 overflow-y-auto pr-2">
             {!topTags || topTags.length === 0 ? (
                 <div className="text-primary-100 py-4 text-sm">
                     No tags created yet.
@@ -203,14 +178,14 @@ const TopTagsWidget = ({ topTags }) => (
 );
 
 const ActivityChartWidget = ({ chartData }) => (
-    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
         <div className="flex items-center justify-between mb-6 pr-10">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-primary-500"><ActivityIcon /></span>
                 Note Activity (Last 7 Days)
             </h3>
         </div>
-        <div className="w-full h-64">
+        <div className="w-full flex-1 min-h-[150px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={chartData}
@@ -244,44 +219,29 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
         else setGreeting('Good evening');
     }, []);
 
-    // Drag and Drop Logic
-    const defaultOrder = ['metric_total', 'metric_tags', 'metric_trash', 'activity_chart', 'recent', 'tags'];
-    const [widgetOrder, setWidgetOrder] = useState(() => {
+    const { width: containerWidth, containerRef } = useContainerWidth();
+    const defaultLayout = [
+        { i: 'metric_total', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'metric_tags', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'metric_trash', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+        { i: 'activity_chart', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 1 },
+        { i: 'recent', x: 0, y: 3, w: 2, h: 2, minW: 1, minH: 1 },
+        { i: 'tags', x: 2, y: 3, w: 1, h: 2, minW: 1, minH: 1 }
+    ];
+    
+    const [layouts, setLayouts] = useState(() => {
         try {
-            const saved = localStorage.getItem('user_dashboard_order_v3'); // new key since order changed
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                // Ensure all keys exist in case they had the old layout saved
-                if (parsed.includes('metric_total')) return parsed;
-            }
+            const saved = localStorage.getItem('user_dashboard_layout_v4');
+            if (saved) return JSON.parse(saved);
         } catch (e) {
-            console.error('Failed to parse dashboard order', e);
+            console.error('Failed to parse dashboard layout', e);
         }
-        return defaultOrder;
+        return { lg: defaultLayout, md: defaultLayout, sm: defaultLayout };
     });
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 5,
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
-
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-        if (over && active.id !== over.id) {
-            setWidgetOrder((items) => {
-                const oldIndex = items.indexOf(active.id);
-                const newIndex = items.indexOf(over.id);
-                const newOrder = arrayMove(items, oldIndex, newIndex);
-                localStorage.setItem('user_dashboard_order_v3', JSON.stringify(newOrder));
-                return newOrder;
-            });
-        }
+    const handleLayoutChange = (currentLayout, allLayouts) => {
+        setLayouts(allLayouts);
+        localStorage.setItem('user_dashboard_layout_v4', JSON.stringify(allLayouts));
     };
 
     const startEditing = (note) => {
@@ -306,7 +266,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
             case 'metric_total':
                 return <MetricTotalNotesWidget stats={stats} />;
             case 'metric_tags':
-                return <MetricUniqueTagsWidget stats={stats} onClick={() => setShowTagsModal(true)} />;
+                return <MetricUniqueTagsWidget stats={stats} />;
             case 'metric_trash':
                 return <MetricInTrashWidget stats={stats} />;
             case 'activity_chart':
@@ -322,13 +282,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
         }
     };
 
-    const getColSpan = (id) => {
-        if (id.startsWith('metric_')) return 'col-span-1 lg:col-span-1';
-        if (id === 'activity_chart') return 'col-span-1 lg:col-span-3';
-        if (id === 'recent') return 'col-span-1 lg:col-span-2';
-        if (id === 'tags') return 'col-span-1 lg:col-span-1';
-        return 'col-span-1 lg:col-span-1';
-    };
+    // We no longer need getColSpan since react-grid-layout handles sizing through 'w' and 'h' in layout
 
     return (
         <AuthenticatedLayout
@@ -356,17 +310,32 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData }) {
                     </p>
                 </motion.div>
 
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={widgetOrder} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
-                            {widgetOrder.map(id => (
-                                <SortableWidget key={id} id={id} className={getColSpan(id)}>
-                                    {renderWidget(id)}
-                                </SortableWidget>
-                            ))}
+                <div ref={containerRef}>
+                    <ResponsiveGridLayout
+                        width={containerWidth}
+                        className="layout pb-12"
+                        layouts={layouts}
+                        onLayoutChange={handleLayoutChange}
+                        onDragStart={() => { window.__isDraggingWidget = true; }}
+                        onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                        onResizeStart={() => { window.__isDraggingWidget = true; }}
+                        onResizeStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                        breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
+                    cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
+                    rowHeight={150}
+                    draggableHandle=".dashboard-drag-handle"
+                    containerPadding={[0, 0]}
+                    margin={[32, 32]}
+                >
+                    {defaultLayout.map(item => (
+                        <div key={item.i}>
+                            <DraggableWidgetWrapper>
+                                {renderWidget(item.i)}
+                            </DraggableWidgetWrapper>
                         </div>
-                    </SortableContext>
-                </DndContext>
+                    ))}
+                    </ResponsiveGridLayout>
+                </div>
 
             </div>
 
