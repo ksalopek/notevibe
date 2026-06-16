@@ -32,6 +32,7 @@ class AdminController extends Controller
                 'activeUsers' => User::where('is_active', true)->count(),
                 'inactiveUsers' => User::count() - User::where('is_active', true)->count(),
                 'totalNotes' => \App\Models\Note::count(),
+                'totalLogins' => \App\Models\LoginHistory::count(),
             ],
             'chartData' => fn () => collect(range($activityDays - 1, 0))->map(function ($daysAgo) {
                 $date = now()->subDays($daysAgo);
