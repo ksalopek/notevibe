@@ -24,7 +24,7 @@ class CheckMaintenanceMode
 
         $allowedRoutes = ['maintenance', 'login', 'logout', 'password.request', 'password.email', 'password.reset', 'password.store'];
 
-        if ($isMaintenanceMode && !in_array($request->route()?->getName(), $allowedRoutes)) {
+        if ($isMaintenanceMode && !in_array($request->route()?->getName(), $allowedRoutes) && !$request->is('login')) {
             // Check if user is logged in and is admin
             if (auth()->check() && auth()->user()->role === 'admin') {
                 return $next($request);
