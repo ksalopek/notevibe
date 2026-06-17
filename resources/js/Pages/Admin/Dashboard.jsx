@@ -30,7 +30,7 @@ function DraggableWidgetWrapper({ children, className }) {
                 }
             }}
         >
-            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
                 <Tooltip content="Drag to move">
                     <div 
                         className="p-2 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle"
@@ -720,6 +720,37 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
         localStorage.setItem('admin_dashboard_layout_v2', JSON.stringify(allLayouts));
+
+        setAvailableWidgets((prev) => {
+            const sortedLayout = [...currentLayout].sort((a, b) => {
+                if (a.y === b.y) return a.x - b.x;
+                return a.y - b.y;
+            });
+            
+            const newOrder = [];
+            const addedIds = new Set();
+            
+            sortedLayout.forEach(item => {
+                const widget = prev.find(w => w.id === item.i);
+                if (widget) {
+                    newOrder.push(widget);
+                    addedIds.add(widget.id);
+                }
+            });
+            
+            prev.forEach(widget => {
+                if (!addedIds.has(widget.id)) {
+                    newOrder.push(widget);
+                }
+            });
+            
+            const isDifferent = JSON.stringify(prev) !== JSON.stringify(newOrder);
+            if (isDifferent) {
+                localStorage.setItem('admin_dashboard_widgets_v1', JSON.stringify(newOrder));
+            }
+            
+            return newOrder;
+        });
     };
 
     const renderWidget = (id) => {
@@ -812,6 +843,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                         className="layout pb-12"
                         layouts={layouts}
                         onLayoutChange={handleLayoutChange}
+                        isDraggable={containerWidth > 768}
                         onDragStart={() => { window.__isDraggingWidget = true; }}
                         onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
                         onResizeStart={() => { window.__isDraggingWidget = true; }}
