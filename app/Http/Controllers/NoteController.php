@@ -15,11 +15,21 @@ class NoteController extends Controller
 {
     public function index(Request $request)
     {
-        $sortBy = $request->input('sort', 'latest');
+        $sortBy = $request->input('sort', 'relevance');
+        $search = $request->input('search');
 
-        $query = Auth::user()->notes()
-            ->with('tags')
-            ->when($request->input('search'), function ($query, $search) {
+        $query = Auth::user()->notes()->with('tags');
+
+        if ($sortBy === 'relevance' && $search) {
+            // Sanitize search for FTS5 phrase matching
+            $ftsSearch = '"' . str_replace('"', '""', $search) . '"';
+            
+            $query->join('notes_fts', 'notes.id', '=', 'notes_fts.rowid')
+                  ->whereRaw("notes_fts MATCH ?", [$ftsSearch])
+                  ->orderByRaw("bm25(notes_fts)")
+                  ->select('notes.*');
+        } else {
+            $query->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
                       ->orWhere('content', 'like', "%{$search}%")
@@ -29,21 +39,22 @@ class NoteController extends Controller
                 });
             });
 
-        // Apply sorting
-        switch ($sortBy) {
-            case 'oldest':
-                $query->oldest();
-                break;
-            case 'a_z':
-                $query->orderBy('title', 'asc');
-                break;
-            case 'z_a':
-                $query->orderBy('title', 'desc');
-                break;
-            case 'latest':
-            default:
-                $query->latest();
-                break;
+            // Apply sorting
+            switch ($sortBy) {
+                case 'oldest':
+                    $query->oldest();
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'latest':
+                default:
+                    $query->latest();
+                    break;
+            }
         }
 
         $notes = $query->paginate(10)->withQueryString();
