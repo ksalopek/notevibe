@@ -40,7 +40,7 @@ function DraggableWidgetWrapper({ children, className }) {
             <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
                 <Tooltip content="Drag to move">
                     <div 
-                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle"
+                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle max-lg:pointer-events-none"
                     >
                         <GripVerticalIcon />
                     </div>
@@ -228,6 +228,19 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     
     const [noteDays, setNoteDays] = useState(filters?.note_days || 7);
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+    
+    const [isMobile, setIsMobile] = useState(
+        typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
+    );
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const mediaQuery = window.matchMedia('(max-width: 1023px)');
+            const handler = (e) => setIsMobile(e.matches);
+            mediaQuery.addEventListener('change', handler);
+            return () => mediaQuery.removeEventListener('change', handler);
+        }
+    }, []);
     
     const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
@@ -441,12 +454,14 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
 
                 <div ref={containerRef}>
                     <ResponsiveGridLayout
+                        key={isMobile ? 'mobile' : 'desktop'}
                         width={containerWidth}
                         className="layout pb-12"
                         layouts={layouts}
                         onLayoutChange={handleLayoutChange}
                         onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
-                        isDraggable={currentBreakpoint === 'lg'}
+                        isDraggable={!isMobile}
+                        draggableCancel={isMobile ? ".react-grid-item" : ""}
                         onDragStart={() => { window.__isDraggingWidget = true; }}
                         onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
                         onResizeStart={() => { window.__isDraggingWidget = true; }}
