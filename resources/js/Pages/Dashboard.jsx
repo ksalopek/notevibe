@@ -28,24 +28,7 @@ const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" h
 
 function DraggableWidgetWrapper({ children, className }) {
     return (
-        <div 
-            className={`h-full relative group ${className || ''}`}
-            onClickCapture={(e) => {
-                if (window.__isDraggingWidget) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            }}
-        >
-            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
-                <Tooltip content="Drag to move">
-                    <div 
-                        className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm dashboard-drag-handle max-lg:pointer-events-none"
-                    >
-                        <GripVerticalIcon />
-                    </div>
-                </Tooltip>
-            </div>
+        <div className={`relative w-full h-full group ${className || ''}`}>
             {children}
         </div>
     );
@@ -460,8 +443,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                         layouts={layouts}
                         onLayoutChange={handleLayoutChange}
                         onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
-                        isDraggable={!isMobile}
-                        draggableCancel={isMobile ? ".react-grid-item" : ""}
+                        isDraggable={false}
                         onDragStart={() => { window.__isDraggingWidget = true; }}
                         onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
                         onResizeStart={() => { window.__isDraggingWidget = true; }}
@@ -469,7 +451,6 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                         breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
                     cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
                     rowHeight={150}
-                    draggableHandle=".dashboard-drag-handle"
                     containerPadding={[0, 0]}
                     margin={[32, 32]}
                 >
