@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
-import { Responsive, WidthProvider } from 'react-grid-layout';
-const ResponsiveGridLayout = WidthProvider(Responsive);
+import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { repackLayout } from '@/utils/gridLayoutUtils';
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -13,7 +12,7 @@ import { Download } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
 const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 
 function DraggableWidgetWrapper({ children, className }) {
@@ -77,21 +76,21 @@ const downloadCSV = (data, filename) => {
 
 // Widget Components
 const MetricTotalNotes = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Total Notes</h3>
         <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.totalNotes.toLocaleString()}</p>
     </div>
 );
 
 const MetricAvgNoteLength = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Avg Note Length</h3>
         <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.avgNoteLength.toLocaleString()} chars</p>
     </div>
 );
 
 const ChartVelocity = ({ noteVelocity }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Note Velocity (Last 30 Days)</h3>
         <div className="flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -111,7 +110,7 @@ const ChartVelocity = ({ noteVelocity }) => (
 );
 
 const ChartTagCloud = ({ tagCloud }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top 20 Tags</h3>
         <div className="flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -131,7 +130,7 @@ const ChartTagCloud = ({ tagCloud }) => (
 );
 
 const ChartHeatmap = ({ activityHeatmap }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Login Activity Heatmap (Last 90 Days)</h3>
         <div className="flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -153,7 +152,7 @@ const ChartHeatmap = ({ activityHeatmap }) => (
 );
 
 const TablePowerUsers = ({ powerUsers }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Power Users Leaderboard</h3>
             <button 
@@ -194,7 +193,7 @@ const TablePowerUsers = ({ powerUsers }) => (
 );
 
 const TableAtRiskUsers = ({ atRiskUsers }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">At-Risk Users (>30 Days)</h3>
             <button 
@@ -231,7 +230,7 @@ const TableAtRiskUsers = ({ atRiskUsers }) => (
 );
 
 const TableAccessLogs = ({ accessLogs }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Access Logs</h3>
             <button 
@@ -269,7 +268,7 @@ const TableAccessLogs = ({ accessLogs }) => (
 );
 
 const TableAbandonedAccounts = ({ abandonedAccounts }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Abandoned Accounts</h3>
             <button 
@@ -304,7 +303,7 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => (
 );
 
 const TableSettingsAudit = ({ settingsAudit }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Global Settings Audit Log</h3>
             <button 
@@ -370,6 +369,7 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
             sm: defaultLayout
         };
     });
+    const { width: containerWidth, containerRef } = useContainerWidth();
     
     const [availableWidgets, setAvailableWidgets] = useState([
         { id: 'total-notes', title: 'Total Notes' },
@@ -457,7 +457,7 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
                         onClick={() => setIsCustomizeOpen(true)}
                         className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                        <SettingsIcon />
+                        <SlidersIcon />
                         <span className="hidden sm:inline">Customize</span>
                     </button>
                 </div>
@@ -468,32 +468,35 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
-                    <ResponsiveGridLayout
-                        key={isMobile ? 'mobile' : 'desktop'}
-                        className="layout pb-12"
-                        layouts={{
-                            lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
-                            md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
-                            sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
-                            xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
-                            xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
-                        }}
-                        onLayoutChange={handleLayoutChange}
-                        isDraggable={false}
-                        breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
-                        cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-                        rowHeight={150}
-                        containerPadding={[0, 0]}
-                        margin={[20, 20]}
-                    >
-                    {layouts.lg.map(item => (
-                        <div key={item.i}>
-                            <DraggableWidgetWrapper>
-                                {renderWidget(item.i)}
-                            </DraggableWidgetWrapper>
-                        </div>
-                    ))}
-                    </ResponsiveGridLayout>
+                    <div ref={containerRef}>
+                        <ResponsiveGridLayout
+                            key={isMobile ? 'mobile' : 'desktop'}
+                            width={containerWidth}
+                            className="layout pb-12"
+                            layouts={{
+                                lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
+                                md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
+                                sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
+                                xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
+                                xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
+                            }}
+                            onLayoutChange={handleLayoutChange}
+                            isDraggable={false}
+                            breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
+                            cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+                            rowHeight={150}
+                            containerPadding={[0, 0]}
+                            margin={[20, 20]}
+                        >
+                        {layouts.lg.map(item => (
+                            <div key={item.i}>
+                                <DraggableWidgetWrapper>
+                                    {renderWidget(item.i)}
+                                </DraggableWidgetWrapper>
+                            </div>
+                        ))}
+                        </ResponsiveGridLayout>
+                    </div>
                     
                 </div>
             </div>
@@ -511,7 +514,7 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
                     >
                         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                                <SettingsIcon /> <span className="ml-2">Customize</span>
+                                <SlidersIcon /> <span className="ml-2">Customize</span>
                             </h3>
                             <button onClick={() => setIsCustomizeOpen(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
