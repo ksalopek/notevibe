@@ -32,7 +32,7 @@ export default function Index({ notes, filters = {} }) {
     // 3. State for the search input and loading
     const safeFilters = Array.isArray(filters) ? {} : (filters || {});
     const initialSearch = typeof safeFilters.search === 'string' ? safeFilters.search : '';
-    const initialSort = typeof safeFilters.sort === 'string' ? safeFilters.sort : 'latest';
+    const initialSort = typeof safeFilters.sort === 'string' ? safeFilters.sort : 'relevance';
 
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [sortBy, setSortBy] = useState(initialSort);
@@ -196,6 +196,7 @@ export default function Index({ notes, filters = {} }) {
                             onChange={handleSortChange}
                             className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         >
+                            <option value="relevance">Relevance</option>
                             <option value="latest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="a_z">Alphabetical (A-Z)</option>
