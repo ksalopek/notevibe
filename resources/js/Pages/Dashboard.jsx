@@ -36,7 +36,7 @@ function DraggableWidgetWrapper({ children, className }) {
 
 const MetricTotalNotesWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
                 <FileTextIcon />
             </div>
@@ -52,7 +52,7 @@ const MetricTotalNotesWidget = ({ stats }) => (
 
 const MetricUniqueTagsWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
             <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
                 <TagsIcon />
             </div>
@@ -68,7 +68,7 @@ const MetricUniqueTagsWidget = ({ stats }) => (
 
 const MetricInTrashWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
             <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
                 <TrashIcon />
             </div>
