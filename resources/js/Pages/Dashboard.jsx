@@ -440,7 +440,13 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                         key={isMobile ? 'mobile' : 'desktop'}
                         width={containerWidth}
                         className="layout pb-12"
-                        layouts={layouts}
+                        layouts={{
+                            lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
+                            md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
+                            sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
+                            xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
+                            xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
+                        }}
                         onLayoutChange={handleLayoutChange}
                         onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
                         isDraggable={false}
