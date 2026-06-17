@@ -8,7 +8,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp } from 'lucide-react';
 
 import { applyTheme } from '@/theme';
 
@@ -76,6 +76,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <Notebook className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
                                     <span>My Notes</span>
                                 </NavLink>
+                                <NavLink href={route('analytics.index')} active={route().current('analytics.index')} className="group flex items-center gap-2">
+                                    <TrendingUp className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                                    <span>My Analytics</span>
+                                </NavLink>
                                 {/* Admin links moved to icon dropdown */}
                             </div>
                         </div>
@@ -117,6 +121,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
+                                            <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -195,6 +200,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
                                             <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
+                                            <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -234,6 +240,10 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Notebook className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
                             <span>My Notes</span>
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('analytics.index')} active={route().current('analytics.index')} className="group flex items-center gap-3">
+                            <TrendingUp className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                            <span>My Analytics</span>
+                        </ResponsiveNavLink>
                         {/* Conditionally render the Admin links for mobile */}
                         {isAdmin && (
                             <>
@@ -248,6 +258,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('admin.settings')} active={route().current('admin.settings')}>
                                     Settings
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.reporting')} active={route().current('admin.reporting')}>
+                                    Reporting
                                 </ResponsiveNavLink>
                             </>
                         )}
