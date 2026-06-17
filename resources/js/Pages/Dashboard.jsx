@@ -229,13 +229,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     const [noteDays, setNoteDays] = useState(filters?.note_days || 7);
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     
-    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
-
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
     const handleNoteDaysChange = (e) => {
         const days = e.target.value;
@@ -451,7 +445,8 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                         className="layout pb-12"
                         layouts={layouts}
                         onLayoutChange={handleLayoutChange}
-                        isDraggable={!isMobile}
+                        onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
+                        isDraggable={currentBreakpoint === 'lg'}
                         onDragStart={() => { window.__isDraggingWidget = true; }}
                         onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
                         onResizeStart={() => { window.__isDraggingWidget = true; }}
