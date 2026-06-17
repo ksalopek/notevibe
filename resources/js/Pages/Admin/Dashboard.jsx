@@ -623,13 +623,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
 
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
 
-    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
-
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
     const { width: containerWidth, containerRef } = useContainerWidth();
     const defaultLayout = [
@@ -851,7 +845,8 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                         className="layout pb-12"
                         layouts={layouts}
                         onLayoutChange={handleLayoutChange}
-                        isDraggable={!isMobile}
+                        onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
+                        isDraggable={currentBreakpoint === 'lg'}
                         onDragStart={() => { window.__isDraggingWidget = true; }}
                         onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
                         onResizeStart={() => { window.__isDraggingWidget = true; }}
