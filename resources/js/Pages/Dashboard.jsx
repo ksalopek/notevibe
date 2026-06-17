@@ -467,40 +467,52 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                     </div>
                 </motion.div>
 
-                <div ref={containerRef}>
-                    <ResponsiveGridLayout
-                        key={isMobile ? 'mobile' : 'desktop'}
-                        width={containerWidth}
-                        className="layout pb-12"
-                        layouts={{
-                            lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
-                            md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
-                            sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
-                            xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
-                            xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
-                        }}
-                        onLayoutChange={handleLayoutChange}
-                        onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
-                        isDraggable={false}
-                        onDragStart={() => { window.__isDraggingWidget = true; }}
-                        onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
-                        onResizeStart={() => { window.__isDraggingWidget = true; }}
-                        onResizeStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
-                        breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
-                    cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
-                    rowHeight={150}
-                    containerPadding={[0, 0]}
-                    margin={[32, 32]}
-                >
-                    {layouts.lg.map(item => (
-                        <div key={item.i}>
-                            <DraggableWidgetWrapper>
-                                {renderWidget(item.i)}
-                            </DraggableWidgetWrapper>
-                        </div>
-                    ))}
-                    </ResponsiveGridLayout>
-                </div>
+                {isMobile ? (
+                    <div className="flex flex-col gap-6">
+                        {availableWidgets.filter(w => isWidgetEnabled(w.id)).map(widget => (
+                            <div key={widget.id} className="w-full">
+                                <DraggableWidgetWrapper>
+                                    {renderWidget(widget.id)}
+                                </DraggableWidgetWrapper>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div ref={containerRef}>
+                        <ResponsiveGridLayout
+                            key="desktop"
+                            width={containerWidth}
+                            className="layout pb-12"
+                            layouts={{
+                                lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
+                                md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
+                                sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
+                                xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
+                                xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
+                            }}
+                            onLayoutChange={handleLayoutChange}
+                            onBreakpointChange={(bp) => setCurrentBreakpoint(bp)}
+                            isDraggable={false}
+                            onDragStart={() => { window.__isDraggingWidget = true; }}
+                            onDragStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                            onResizeStart={() => { window.__isDraggingWidget = true; }}
+                            onResizeStop={() => { setTimeout(() => { window.__isDraggingWidget = false; }, 100); }}
+                            breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
+                            cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
+                            rowHeight={150}
+                            containerPadding={[0, 0]}
+                            margin={[32, 32]}
+                        >
+                        {layouts.lg.map(item => (
+                            <div key={item.i}>
+                                <DraggableWidgetWrapper>
+                                    {renderWidget(item.i)}
+                                </DraggableWidgetWrapper>
+                            </div>
+                        ))}
+                        </ResponsiveGridLayout>
+                    </div>
+                )}
 
             </div>
 
