@@ -468,35 +468,47 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
-                    <div ref={containerRef}>
-                        <ResponsiveGridLayout
-                            key={isMobile ? 'mobile' : 'desktop'}
-                            width={containerWidth}
-                            className="layout pb-12"
-                            layouts={{
-                                lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
-                                md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
-                                sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
-                                xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
-                                xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
-                            }}
-                            onLayoutChange={handleLayoutChange}
-                            isDraggable={false}
-                            breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
-                            cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-                            rowHeight={150}
-                            containerPadding={[0, 0]}
-                            margin={[20, 20]}
-                        >
-                        {layouts.lg.map(item => (
-                            <div key={item.i}>
-                                <DraggableWidgetWrapper>
-                                    {renderWidget(item.i)}
-                                </DraggableWidgetWrapper>
-                            </div>
-                        ))}
-                        </ResponsiveGridLayout>
-                    </div>
+                    {isMobile ? (
+                        <div className="flex flex-col gap-6">
+                            {availableWidgets.filter(w => w.isVisible !== false).map(widget => (
+                                <div key={widget.id} className="w-full">
+                                    <DraggableWidgetWrapper>
+                                        {renderWidget(widget.id)}
+                                    </DraggableWidgetWrapper>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div ref={containerRef}>
+                            <ResponsiveGridLayout
+                                key="desktop"
+                                width={containerWidth}
+                                className="layout pb-12"
+                                layouts={{
+                                    lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
+                                    md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
+                                    sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
+                                    xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
+                                    xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
+                                }}
+                                onLayoutChange={handleLayoutChange}
+                                isDraggable={false}
+                                breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
+                                cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+                                rowHeight={150}
+                                containerPadding={[0, 0]}
+                                margin={[20, 20]}
+                            >
+                            {layouts.lg.map(item => (
+                                <div key={item.i}>
+                                    <DraggableWidgetWrapper>
+                                        {renderWidget(item.i)}
+                                    </DraggableWidgetWrapper>
+                                </div>
+                            ))}
+                            </ResponsiveGridLayout>
+                        </div>
+                    )}
                     
                 </div>
             </div>
