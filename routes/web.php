@@ -99,6 +99,9 @@ Route::middleware('auth')->group(function () {
 
     // AI Routes
     Route::post('/ai/enhance', [AiController::class, 'enhance'])->name('ai.enhance');
+
+    // Analytics Route
+    Route::get('/my-analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
 });
 
 // Admin Routes
@@ -116,6 +119,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
     Route::post('/admin/announcement', [AdminController::class, 'updateAnnouncement'])->name('admin.announcement.update');
+    Route::get('/admin/reporting', [\App\Http\Controllers\ReportingController::class, 'index'])->name('admin.reporting');
 });
 
 Route::post('/impersonate/leave', [ImpersonationController::class, 'destroy'])
