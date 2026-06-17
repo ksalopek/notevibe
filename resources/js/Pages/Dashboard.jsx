@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { motion, Reorder } from 'framer-motion';
+import { motion, Reorder, useDragControls } from 'framer-motion';
 import { repackLayout } from '@/utils/gridLayoutUtils';
 import { useState, useEffect } from 'react';
 import Tooltip from '@/Components/Tooltip';
@@ -33,6 +33,37 @@ function DraggableWidgetWrapper({ children, className }) {
         </div>
     );
 }
+
+const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
+    const dragControls = useDragControls();
+
+    return (
+        <Reorder.Item 
+            value={widget} 
+            dragListener={false} 
+            dragControls={dragControls} 
+            className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors shadow-sm"
+        >
+            <div className="flex items-center">
+                <div 
+                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 mr-2 touch-none"
+                    onPointerDown={(e) => dragControls.start(e)}
+                    style={{ touchAction: 'none' }}
+                >
+                    <GripVerticalIcon className="text-gray-400" />
+                </div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{widget.title}</span>
+            </div>
+            <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => onToggle(widget.id)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+            >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+        </Reorder.Item>
+    );
+};
 
 const MetricTotalNotesWidget = ({ stats }) => (
     <div className="block h-full">
@@ -598,24 +629,14 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                                 Toggle widgets on or off and drag them to reorder your dashboard layout.
                             </p>
                             <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="space-y-3">
-                            {availableWidgets.map((widget) => {
-                                const enabled = isWidgetEnabled(widget.id);
-                                return (
-                                    <Reorder.Item key={widget.id} value={widget} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-grab active:cursor-grabbing shadow-sm">
-                                        <div className="flex items-center">
-                                            <GripVerticalIcon className="mr-3 text-gray-400" />
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{widget.title}</span>
-                                        </div>
-                                        <button
-                                            onPointerDown={(e) => e.stopPropagation()}
-                                            onClick={() => handleToggleWidget(widget.id)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                                        >
-                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
-                                        </button>
-                                    </Reorder.Item>
-                                );
-                            })}
+                                {availableWidgets.map((widget) => (
+                                    <SlideoutReorderItem 
+                                        key={widget.id} 
+                                        widget={widget} 
+                                        enabled={isWidgetEnabled(widget.id)} 
+                                        onToggle={handleToggleWidget} 
+                                    />
+                                ))}
                             </Reorder.Group>
                         </div>
                     </motion.div>
