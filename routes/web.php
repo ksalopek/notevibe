@@ -91,11 +91,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/my-journal', [NoteController::class, 'store'])->name('notes.store');
     Route::put('/my-journal/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/my-journal/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+    Route::post('/my-journal/bulk', [NoteController::class, 'bulkAction'])->name('notes.bulk');
 
     // Trash Routes
     Route::get('/my-journal/trash', [NoteController::class, 'trash'])->name('notes.trash');
     Route::put('/my-journal/{id}/restore', [NoteController::class, 'restore'])->name('notes.restore');
     Route::delete('/my-journal/{id}/force-delete', [NoteController::class, 'forceDelete'])->name('notes.forceDelete');
+
+    // Archive Routes
+    Route::get('/my-journal/archived', [NoteController::class, 'archived'])->name('notes.archived');
 
     // AI Routes
     Route::post('/ai/enhance', [AiController::class, 'enhance'])->name('ai.enhance');

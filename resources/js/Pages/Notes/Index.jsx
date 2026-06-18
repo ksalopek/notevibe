@@ -11,6 +11,7 @@ import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
+import { Archive, Notebook } from 'lucide-react';
 
 const breakpointColumnsObj = {
   default: 3,
@@ -23,7 +24,7 @@ const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" c
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
-export default function Index({ notes, filters = {} }) {
+export default function Index({ notes, filters = {}, isArchiveView = false }) {
     // 1. State for the "Create" form
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
@@ -46,6 +47,31 @@ export default function Index({ notes, filters = {} }) {
     const [sortBy, setSortBy] = useState(initialSort);
     const [isLoading, setIsLoading] = useState(false);
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
+    const [selectedNotes, setSelectedNotes] = useState([]);
+
+    const handleSelectNote = (id, checked) => {
+        if (checked) {
+            setSelectedNotes(prev => [...prev, id]);
+        } else {
+            setSelectedNotes(prev => prev.filter(nId => nId !== id));
+        }
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked && notes.data && notes.data.length > 0) {
+            setSelectedNotes(notes.data.map(n => n.id));
+        } else {
+            setSelectedNotes([]);
+        }
+    };
+
+    const executeBulkAction = (action) => {
+        if (selectedNotes.length === 0) return;
+        router.post(route('notes.bulk'), { action, note_ids: selectedNotes }, {
+            preserveScroll: true,
+            onSuccess: () => setSelectedNotes([])
+        });
+    };
 
     useEffect(() => {
         localStorage.setItem('notesViewMode', viewMode);
@@ -107,10 +133,36 @@ export default function Index({ notes, filters = {} }) {
         }, { preserveScroll: true });
     };
 
+    const toggleArchive = (note) => {
+        router.put(route('notes.update', note.id), {
+            title: note.title,
+            content: note.content,
+            notes: note.notes,
+            tags: note.tags.map(tag => tag.name).join(', '),
+            is_archived: !note.is_archived
+        }, { preserveScroll: true });
+    };
+
     const handleTagClick = (tagName) => {
         // Just set the search term to the tag name and it will auto-filter
         setSearchTerm(tagName);
     };
+
+    const updateNoteContent = useCallback(debounce((noteId, field, newHtml) => {
+        const note = notes.data.find(n => n.id === noteId);
+        if (!note) return;
+        
+        // Use raw axios instead of Inertia router to prevent the progress bar 
+        // from appearing and to avoid a full page prop refresh, making it completely silent.
+        window.axios.put(route('notes.update', note.id), {
+            title: note.title,
+            content: field === 'content' ? newHtml : note.content,
+            notes: field === 'notes' ? newHtml : note.notes,
+            tags: note.tags.map(tag => tag.name).join(', '),
+        }).catch(error => {
+            console.error("Failed to silently update note content", error);
+        });
+    }, 500), [notes.data]);
 
     // --- Search Handling ---
     const debouncedSearch = useCallback(
@@ -142,14 +194,15 @@ export default function Index({ notes, filters = {} }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">My Notes</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{isArchiveView ? 'Archived Notes' : 'My Notes'}</h2>}
         >
-            <Head title="My Notes" />
+            <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* --- CREATE FORM --- */}
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
+                    {!isArchiveView && (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
                                 <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
@@ -205,8 +258,21 @@ export default function Index({ notes, filters = {} }) {
                         </form>
                     </div>
 
+                    )}
+
                     {/* --- SEARCH AND TOGGLE --- */}
                     <div className="mb-8 flex flex-col sm:flex-row gap-4">
+                        {notes.data && notes.data.length > 0 && (
+                            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
+                                <input 
+                                    type="checkbox" 
+                                    onChange={handleSelectAll} 
+                                    checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
+                                />
+                                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
+                            </div>
+                        )}
                         <input
                             type="text"
                             value={searchTerm}
@@ -260,6 +326,28 @@ export default function Index({ notes, filters = {} }) {
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                             </div>
+                        ) : notes.data.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-32 px-4 text-center bg-white/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm mt-8">
+                                <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 shadow-inner">
+                                    {isArchiveView ? (
+                                        <Archive className="w-10 h-10 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+                                    ) : (
+                                        <Notebook className="w-10 h-10 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+                                    )}
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 tracking-tight">
+                                    {searchTerm ? 'No matching notes found' : isArchiveView ? 'Your archive is empty' : 'Your journal is empty'}
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+                                    {searchTerm ? (
+                                        'We couldn\'t find any notes matching your search or filter criteria. Try adjusting your filters.'
+                                    ) : isArchiveView ? (
+                                        'You don\'t have any archived notes. Notes you archive will appear here, keeping your main workspace clean.'
+                                    ) : (
+                                        'You don\'t have any notes yet. Create your first note above to get started!'
+                                    )}
+                                </p>
+                            </div>
                         ) : (
                             <AnimatePresence mode="popLayout">
                                 {viewMode === 'grid' ? (
@@ -275,7 +363,11 @@ export default function Index({ notes, filters = {} }) {
                                                 startEditing={startEditing} 
                                                 deleteNote={deleteNote}
                                                 togglePin={togglePin}
+                                                toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
+                                                updateNoteContent={updateNoteContent}
+                                                isSelected={selectedNotes.includes(note.id)}
+                                                onSelect={handleSelectNote}
                                             />
                                         ))}
                                     </Masonry>
@@ -288,7 +380,11 @@ export default function Index({ notes, filters = {} }) {
                                                 startEditing={startEditing} 
                                                 deleteNote={deleteNote}
                                                 togglePin={togglePin}
+                                                toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
+                                                updateNoteContent={updateNoteContent}
+                                                isSelected={selectedNotes.includes(note.id)}
+                                                onSelect={handleSelectNote}
                                             />
                                         ))}
                                     </div>
@@ -393,6 +489,29 @@ export default function Index({ notes, filters = {} }) {
                 </div>
             </Modal>
 
+            <AnimatePresence>
+                {selectedNotes.length > 0 && (
+                    <motion.div 
+                        initial={{ y: 100, opacity: 0 }} 
+                        animate={{ y: 0, opacity: 1 }} 
+                        exit={{ y: 100, opacity: 0 }} 
+                        className="fixed bottom-8 left-0 right-0 z-50 pointer-events-none flex justify-center"
+                    >
+                        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+                            <div className="pointer-events-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-6 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-4">
+                                <span className="font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
+                                    {selectedNotes.length} selected
+                                </span>
+                                <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                                <button onClick={() => executeBulkAction('delete')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Delete</button>
+                                <button onClick={() => executeBulkAction(isArchiveView ? 'unarchive' : 'archive')} className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">{isArchiveView ? 'Unarchive' : 'Archive'}</button>
+                                <button onClick={() => executeBulkAction('pin')} className="text-primary-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Pin</button>
+                                <button onClick={() => executeBulkAction('unpin')} className="text-gray-500 hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Unpin</button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </AuthenticatedLayout>
     );
 }

@@ -8,7 +8,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp, Archive } from 'lucide-react';
 
 import { applyTheme } from '@/theme';
 
@@ -79,6 +79,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <NavLink href={route('analytics.index')} active={route().current('analytics.index')} className="group flex items-center gap-2">
                                     <TrendingUp className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
                                     <span>My Analytics</span>
+                                </NavLink>
+                                <NavLink href={route('notes.archived')} active={route().current('notes.archived')} className="group flex items-center gap-2">
+                                    <Archive className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.archived') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                                    <span>Archive</span>
                                 </NavLink>
                                 {/* Admin links moved to icon dropdown */}
                             </div>
@@ -243,6 +247,10 @@ export default function AuthenticatedLayout({ header, children }) {
                         <ResponsiveNavLink href={route('analytics.index')} active={route().current('analytics.index')} className="group flex items-center gap-3">
                             <TrendingUp className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
                             <span>My Analytics</span>
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('notes.archived')} active={route().current('notes.archived')} className="group flex items-center gap-3">
+                            <Archive className={`w-5 h-5 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.archived') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
+                            <span>Archive</span>
                         </ResponsiveNavLink>
                         {/* Conditionally render the Admin links for mobile */}
                         {isAdmin && (
