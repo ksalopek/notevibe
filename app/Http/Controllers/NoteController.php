@@ -21,22 +21,33 @@ class NoteController extends Controller
         $query = Auth::user()->notes()->with('tags');
 
         if ($sortBy === 'relevance' && $search) {
-            $ftsSearch = '"' . str_replace('"', '""', $search) . '"';
-            
-            $ftsSubquery = \Illuminate\Support\Facades\DB::table('notes_fts')
-                ->selectRaw('rowid, bm25(notes_fts) as score')
-                ->whereRaw("notes_fts MATCH ?", [$ftsSearch]);
+            if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
+                $ftsSearch = '"' . str_replace('"', '""', $search) . '"';
+                
+                $ftsSubquery = \Illuminate\Support\Facades\DB::table('notes_fts')
+                    ->selectRaw('rowid, bm25(notes_fts) as score')
+                    ->whereRaw("notes_fts MATCH ?", [$ftsSearch]);
 
-            $query->leftJoinSub($ftsSubquery, 'fts', 'notes.id', '=', 'fts.rowid')
-                  ->where(function ($q) use ($search) {
-                      $q->whereNotNull('fts.rowid')
-                        ->orWhereHas('tags', function ($tagQuery) use ($search) {
-                            $tagQuery->where('name', 'like', "%{$search}%");
-                        });
-                  })
-                  ->orderBy('is_pinned', 'desc')
-                  ->orderByRaw('COALESCE(fts.score, 0) ASC')
-                  ->select('notes.*');
+                $query->leftJoinSub($ftsSubquery, 'fts', 'notes.id', '=', 'fts.rowid')
+                      ->where(function ($q) use ($search) {
+                          $q->whereNotNull('fts.rowid')
+                            ->orWhereHas('tags', function ($tagQuery) use ($search) {
+                                $tagQuery->where('name', 'like', "%{$search}%");
+                            });
+                      })
+                      ->orderBy('is_pinned', 'desc')
+                      ->orderByRaw('COALESCE(fts.score, 0) ASC')
+                      ->select('notes.*');
+            } else {
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE)", [$search])
+                      ->orWhereHas('tags', function ($tagQuery) use ($search) {
+                          $tagQuery->where('name', 'like', "%{$search}%");
+                      });
+                })
+                ->orderBy('is_pinned', 'desc')
+                ->orderByRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE) DESC", [$search]);
+            }
         } else {
             $query->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
