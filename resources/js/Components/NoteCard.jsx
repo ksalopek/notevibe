@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tooltip from '@/Components/Tooltip';
+import { Pencil, Trash2 } from 'lucide-react';
 
-export default function NoteCard({ note, startEditing, deleteNote, togglePin, toggleArchive, handleTagClick, updateNoteContent }) {
+export default function NoteCard({ note, startEditing, deleteNote, togglePin, toggleArchive, handleTagClick, updateNoteContent, isSelected = false, onSelect = null }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     // Keep local state for HTML content to prevent React re-renders from wiping out optimistic checklist changes
@@ -69,8 +70,19 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
             transition={{ duration: 0.3 }}
-            className={`break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border ${note.is_pinned ? 'border-primary-400 dark:border-primary-600' : 'border-gray-200 dark:border-gray-700'} relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50`}
+            className={`break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 ${isSelected ? 'border-primary-500 ring-2 ring-primary-500 dark:ring-primary-500 dark:border-primary-500 bg-primary-50/10 dark:bg-primary-900/10' : (note.is_pinned ? 'border-primary-400 dark:border-primary-600' : 'border-gray-200 dark:border-gray-700')}`}
         >
+            {onSelect && (
+                <div className="absolute -top-3 -left-3 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                    <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={(e) => onSelect(note.id, e.target.checked)}
+                        className={`w-6 h-6 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shadow-sm ${isSelected ? 'opacity-100' : ''}`}
+                        style={{ opacity: isSelected ? 1 : undefined }}
+                    />
+                </div>
+            )}
             <div className="flex justify-between items-start mb-2">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 pr-8">{note.title}</h2>
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -94,18 +106,22 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                             </svg>
                         </button>
                     </Tooltip>
-                    <button 
-                        onClick={() => startEditing(note)} 
-                        className="px-3 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs font-bold rounded-full transition-all duration-200 border border-primary-200 dark:border-primary-800/50 shadow-sm hover:shadow"
-                    >
-                        Edit
-                    </button>
-                    <button 
-                        onClick={() => deleteNote(note.id)} 
-                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 text-xs font-bold rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
-                    >
-                        Delete
-                    </button>
+                    <Tooltip content="Edit">
+                        <button 
+                            onClick={() => startEditing(note)} 
+                            className="p-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 rounded-full transition-all duration-200 border border-primary-200 dark:border-primary-800/50 shadow-sm hover:shadow"
+                        >
+                            <Pencil className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
+                    <Tooltip content="Delete">
+                        <button 
+                            onClick={() => deleteNote(note.id)} 
+                            className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
                 </div>
                 {/* Always visible pin icon if pinned, unless hovering (hovering shows the toggle buttons) */}
                 {note.is_pinned && (

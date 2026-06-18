@@ -310,4 +310,54 @@ class NoteController extends Controller
         }
         $note->tags()->sync($tagIds);
     }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|string|in:delete,restore,force_delete,archive,unarchive,pin,unpin',
+            'note_ids' => 'required|array',
+            'note_ids.*' => 'integer|exists:notes,id',
+        ]);
+
+        $action = $request->input('action');
+        $noteIds = $request->input('note_ids');
+
+        $query = Auth::user()->notes();
+        if (in_array($action, ['restore', 'force_delete'])) {
+            $query->withTrashed();
+        }
+        $notes = $query->whereIn('id', $noteIds)->get();
+
+        foreach ($notes as $note) {
+            switch ($action) {
+                case 'delete':
+                    Gate::authorize('delete', $note);
+                    $note->delete();
+                    break;
+                case 'restore':
+                    Gate::authorize('restore', $note);
+                    $note->restore();
+                    break;
+                case 'force_delete':
+                    Gate::authorize('forceDelete', $note);
+                    $note->forceDelete();
+                    break;
+                case 'archive':
+                    $note->update(['is_archived' => true]);
+                    break;
+                case 'unarchive':
+                    $note->update(['is_archived' => false]);
+                    break;
+                case 'pin':
+                    $note->update(['is_pinned' => true]);
+                    break;
+                case 'unpin':
+                    $note->update(['is_pinned' => false]);
+                    break;
+            }
+        }
+
+        return redirect()->back()->with('message', 'Bulk action applied successfully!');
+    }
 }
+
