@@ -3,6 +3,8 @@ import { Head, router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
+import { RotateCcw, Trash2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -18,6 +20,31 @@ export default function Trash({ notes, filters }) {
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
     const [confirmingRestore, setConfirmingRestore] = useState(null);
     const [confirmingForceDelete, setConfirmingForceDelete] = useState(null);
+    const [selectedNotes, setSelectedNotes] = useState([]);
+
+    const handleSelectNote = (id, checked) => {
+        if (checked) {
+            setSelectedNotes(prev => [...prev, id]);
+        } else {
+            setSelectedNotes(prev => prev.filter(nId => nId !== id));
+        }
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked && notes.data && notes.data.length > 0) {
+            setSelectedNotes(notes.data.map(n => n.id));
+        } else {
+            setSelectedNotes([]);
+        }
+    };
+
+    const executeBulkAction = (action) => {
+        if (selectedNotes.length === 0) return;
+        router.post(route('notes.bulk'), { action, note_ids: selectedNotes }, {
+            preserveScroll: true,
+            onSuccess: () => setSelectedNotes([])
+        });
+    };
 
     useEffect(() => {
         localStorage.setItem('notesViewMode', viewMode);
@@ -85,6 +112,17 @@ export default function Trash({ notes, filters }) {
 
                     {/* --- SEARCH AND TOGGLE --- */}
                     <div className="mb-8 flex gap-4">
+                        {notes.data && notes.data.length > 0 && (
+                            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
+                                <input 
+                                    type="checkbox" 
+                                    onChange={handleSelectAll} 
+                                    checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
+                                />
+                                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
+                            </div>
+                        )}
                         <input
                             type="text"
                             value={searchTerm}
@@ -117,29 +155,48 @@ export default function Trash({ notes, filters }) {
                     </div>
 
                     {/* --- NOTES LIST --- */}
-                    <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
-                        {notes.data.length === 0 ? (
-                            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
-                                Your trash is empty.
+                    {notes.data.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-32 px-4 text-center bg-white/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm mt-8">
+                            <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 shadow-inner">
+                                <Trash2 className="w-10 h-10 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
                             </div>
-                        ) : (
-                            notes.data.map((note) => (
-                                <div key={note.id} className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group opacity-75 hover:opacity-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50">
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 tracking-tight">Your trash is empty</h3>
+                            <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+                                You don't have any deleted notes. Items you delete will appear here before being permanently removed.
+                            </p>
+                        </div>
+                    ) : (
+                        <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
+                            {notes.data.map((note) => (
+                                <div key={note.id} className={`break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 ${selectedNotes.includes(note.id) ? 'border-primary-500 ring-2 ring-primary-500 dark:ring-primary-500 dark:border-primary-500 bg-primary-50/10 dark:bg-primary-900/10 opacity-100' : 'border-gray-200 dark:border-gray-700 opacity-75 hover:opacity-100'}`}>
+                                    <div className="absolute -top-3 -left-3 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={selectedNotes.includes(note.id)}
+                                            onChange={(e) => handleSelectNote(note.id, e.target.checked)}
+                                            className={`w-6 h-6 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shadow-sm ${selectedNotes.includes(note.id) ? 'opacity-100' : ''}`}
+                                            style={{ opacity: selectedNotes.includes(note.id) ? 1 : undefined }}
+                                        />
+                                    </div>
                                     <div className="flex justify-between items-start">
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 line-through">{note.title}</h2>
                                         <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => restoreNote(note.id)} 
-                                                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full transition-all duration-200 border border-emerald-200 dark:border-emerald-800/50 shadow-sm hover:shadow"
-                                            >
-                                                Restore
-                                            </button>
-                                            <button 
-                                                onClick={() => forceDeleteNote(note.id)} 
-                                                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 text-xs font-bold rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
-                                            >
-                                                Delete Forever
-                                            </button>
+                                            <Tooltip content="Restore">
+                                                <button 
+                                                    onClick={() => restoreNote(note.id)} 
+                                                    className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full transition-all duration-200 border border-emerald-200 dark:border-emerald-800/50 shadow-sm hover:shadow"
+                                                >
+                                                    <RotateCcw className="w-4 h-4" />
+                                                </button>
+                                            </Tooltip>
+                                            <Tooltip content="Delete Forever">
+                                                <button 
+                                                    onClick={() => forceDeleteNote(note.id)} 
+                                                    className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </Tooltip>
                                         </div>
                                     </div>
                                     {/* Render content as HTML */}
@@ -150,9 +207,9 @@ export default function Trash({ notes, filters }) {
                                         Deleted: {new Date(note.deleted_at).toLocaleString()}
                                     </p>
                                 </div>
-                            ))
-                        )}
-                    </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* --- PAGINATION LINKS --- */}
                     {notes.links && notes.links.length > 3 && (
@@ -209,6 +266,27 @@ export default function Trash({ notes, filters }) {
                     </div>
                 </div>
             </Modal>
+            <AnimatePresence>
+                {selectedNotes.length > 0 && (
+                    <motion.div 
+                        initial={{ y: 100, opacity: 0 }} 
+                        animate={{ y: 0, opacity: 1 }} 
+                        exit={{ y: 100, opacity: 0 }} 
+                        className="fixed bottom-8 left-0 right-0 z-50 pointer-events-none flex justify-center"
+                    >
+                        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+                            <div className="pointer-events-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-6 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-4">
+                                <span className="font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
+                                    {selectedNotes.length} selected
+                                </span>
+                                <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                                <button onClick={() => executeBulkAction('restore')} className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Restore</button>
+                                <button onClick={() => executeBulkAction('force_delete')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Delete Forever</button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </AuthenticatedLayout>
     );
 }

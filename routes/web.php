@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/my-journal', [NoteController::class, 'store'])->name('notes.store');
     Route::put('/my-journal/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/my-journal/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+    Route::post('/my-journal/bulk', [NoteController::class, 'bulkAction'])->name('notes.bulk');
 
     // Trash Routes
     Route::get('/my-journal/trash', [NoteController::class, 'trash'])->name('notes.trash');
