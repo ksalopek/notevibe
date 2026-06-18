@@ -16,6 +16,11 @@ class Note extends Model
         'title',
         'content',
         'notes',
+        'is_pinned',
+    ];
+
+    protected $casts = [
+        'is_pinned' => 'boolean',
     ];
 
     /**
