@@ -8,7 +8,9 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook, TrendingUp, Archive } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles } from 'lucide-react';
+import ChangelogModal from '@/Components/ChangelogModal';
+import { changelogData } from '@/data/changelog';
 
 import { applyTheme } from '@/theme';
 
@@ -18,12 +20,30 @@ export default function AuthenticatedLayout({ header, children }) {
     const { user, is_impersonating, has_trashed_notes } = usePage().props.auth;
     const { app_theme, global_announcement } = usePage().props;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showChangelog, setShowChangelog] = useState(false);
 
     useEffect(() => {
         if (app_theme) {
             applyTheme(app_theme);
         }
     }, [app_theme]);
+
+    useEffect(() => {
+        const latestVersion = changelogData[0]?.version;
+        if (latestVersion) {
+            const lastSeenVersion = localStorage.getItem('notivibe_last_version_seen');
+            if (lastSeenVersion !== latestVersion) {
+                setShowChangelog(true);
+            }
+        }
+    }, []);
+
+    const closeChangelog = () => {
+        setShowChangelog(false);
+        if (changelogData[0]?.version) {
+            localStorage.setItem('notivibe_last_version_seen', changelogData[0].version);
+        }
+    };
 
     // Helper to check if the user is an admin
     const isAdmin = user && user.role === 'admin';
@@ -89,6 +109,14 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
+                            <Tooltip content="What's New" className="me-2">
+                                <button
+                                    onClick={() => setShowChangelog(true)}
+                                    className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
+                                >
+                                    <Sparkles className="w-5 h-5" />
+                                </button>
+                            </Tooltip>
                             <ThemeToggle />
                             <Tooltip content={has_trashed_notes ? "Trash Can (Contains notes)" : "Trash Can (Empty)"} className="ms-2">
                                 <Link
@@ -168,6 +196,14 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden">
+                            <Tooltip content="What's New" className="me-2">
+                                <button
+                                    onClick={() => setShowChangelog(true)}
+                                    className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
+                                >
+                                    <Sparkles className="w-5 h-5" />
+                                </button>
+                            </Tooltip>
                             <ThemeToggle />
                             <Tooltip content={has_trashed_notes ? "Trash Can (Contains notes)" : "Trash Can (Empty)"} className="ms-2 me-2">
                                 <Link
@@ -299,6 +335,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </header>
             )}
 
+            <ChangelogModal show={showChangelog} onClose={closeChangelog} />
             <main>{children}</main>
         </div>
     );
