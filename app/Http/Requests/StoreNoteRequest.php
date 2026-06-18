@@ -28,6 +28,7 @@ class StoreNoteRequest extends FormRequest
             'content' => 'required|string',
             'notes' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
+            'is_pinned' => 'nullable|boolean',
         ];
     }
 }
