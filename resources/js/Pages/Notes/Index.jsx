@@ -9,6 +9,14 @@ import Tooltip from '@/Components/Tooltip';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Masonry from 'react-masonry-css';
+import NoteCard from '@/Components/NoteCard';
+
+const breakpointColumnsObj = {
+  default: 3,
+  1024: 2,
+  768: 1
+};
 
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -87,6 +95,21 @@ export default function Index({ notes, filters = {} }) {
         router.put(route('notes.update', id), editForm, {
             onSuccess: () => setEditingNoteId(null)
         });
+    };
+
+    const togglePin = (note) => {
+        router.put(route('notes.update', note.id), {
+            title: note.title,
+            content: note.content,
+            notes: note.notes,
+            tags: note.tags.map(tag => tag.name).join(', '),
+            is_pinned: !note.is_pinned
+        }, { preserveScroll: true });
+    };
+
+    const handleTagClick = (tagName) => {
+        // Just set the search term to the tag name and it will auto-filter
+        setSearchTerm(tagName);
     };
 
     // --- Search Handling ---
@@ -227,59 +250,49 @@ export default function Index({ notes, filters = {} }) {
                     </div>
 
                     {/* --- NOTES LIST --- */}
-                    <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
+                    <div id="notes-list" className={`${viewMode === 'grid' ? '' : 'space-y-6'} scroll-mt-24`}>
                         {isLoading ? (
-                            <>
+                            <div className={viewMode === 'grid' ? "columns-1 md:columns-2 lg:columns-3 gap-6" : "space-y-6"}>
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                                 <NoteSkeleton />
-                            </>
+                            </div>
                         ) : (
                             <AnimatePresence mode="popLayout">
-                                {notes.data.map((note) => (
-                                    <motion.div 
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                                        transition={{ duration: 0.3 }}
-                                        key={note.id} 
-                                        className="break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50"
+                                {viewMode === 'grid' ? (
+                                    <Masonry
+                                        breakpointCols={breakpointColumnsObj}
+                                        className="flex w-auto -ml-6"
+                                        columnClassName="pl-6 bg-clip-padding"
                                     >
-                                        <div className="flex justify-between items-start">
-                                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{note.title}</h2>
-                                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button 
-                                                    onClick={() => startEditing(note)} 
-                                                    className="px-3 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs font-bold rounded-full transition-all duration-200 border border-primary-200 dark:border-primary-800/50 shadow-sm hover:shadow"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button 
-                                                    onClick={() => deleteNote(note.id)} 
-                                                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 text-xs font-bold rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
-                                        <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.notes }} />
-                                        {/* Display Tags */}
-                                        {note.tags && note.tags.length > 0 && (
-                                            <div className="mt-4 flex flex-wrap gap-2">
-                                                {note.tags.map(tag => (
-                                                    <span key={tag.id} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold rounded-full">
-                                                        {tag.name}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                ))}
+                                        {notes.data.map((note) => (
+                                            <NoteCard 
+                                                key={note.id} 
+                                                note={note} 
+                                                startEditing={startEditing} 
+                                                deleteNote={deleteNote}
+                                                togglePin={togglePin}
+                                                handleTagClick={handleTagClick}
+                                            />
+                                        ))}
+                                    </Masonry>
+                                ) : (
+                                    <div>
+                                        {notes.data.map((note) => (
+                                            <NoteCard 
+                                                key={note.id} 
+                                                note={note} 
+                                                startEditing={startEditing} 
+                                                deleteNote={deleteNote}
+                                                togglePin={togglePin}
+                                                handleTagClick={handleTagClick}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </AnimatePresence>
                         )}
                     </div>

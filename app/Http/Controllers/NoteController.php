@@ -21,12 +21,21 @@ class NoteController extends Controller
         $query = Auth::user()->notes()->with('tags');
 
         if ($sortBy === 'relevance' && $search) {
-            // Sanitize search for FTS5 phrase matching
             $ftsSearch = '"' . str_replace('"', '""', $search) . '"';
             
-            $query->join('notes_fts', 'notes.id', '=', 'notes_fts.rowid')
-                  ->whereRaw("notes_fts MATCH ?", [$ftsSearch])
-                  ->orderByRaw("bm25(notes_fts)")
+            $ftsSubquery = \Illuminate\Support\Facades\DB::table('notes_fts')
+                ->selectRaw('rowid, bm25(notes_fts) as score')
+                ->whereRaw("notes_fts MATCH ?", [$ftsSearch]);
+
+            $query->leftJoinSub($ftsSubquery, 'fts', 'notes.id', '=', 'fts.rowid')
+                  ->where(function ($q) use ($search) {
+                      $q->whereNotNull('fts.rowid')
+                        ->orWhereHas('tags', function ($tagQuery) use ($search) {
+                            $tagQuery->where('name', 'like', "%{$search}%");
+                        });
+                  })
+                  ->orderBy('is_pinned', 'desc')
+                  ->orderByRaw('COALESCE(fts.score, 0) ASC')
                   ->select('notes.*');
         } else {
             $query->when($search, function ($query, $search) {
@@ -38,6 +47,8 @@ class NoteController extends Controller
                       });
                 });
             });
+
+            $query->orderBy('is_pinned', 'desc');
 
             // Apply sorting
             switch ($sortBy) {
