@@ -32,6 +32,7 @@ class UpdateNoteRequest extends FormRequest
             'notes' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
             'is_pinned' => 'nullable|boolean',
+            'is_archived' => 'nullable|boolean',
         ];
     }
 }

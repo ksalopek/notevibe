@@ -97,6 +97,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/my-journal/{id}/restore', [NoteController::class, 'restore'])->name('notes.restore');
     Route::delete('/my-journal/{id}/force-delete', [NoteController::class, 'forceDelete'])->name('notes.forceDelete');
 
+    // Archive Routes
+    Route::get('/my-journal/archived', [NoteController::class, 'archived'])->name('notes.archived');
+
     // AI Routes
     Route::post('/ai/enhance', [AiController::class, 'enhance'])->name('ai.enhance');
 

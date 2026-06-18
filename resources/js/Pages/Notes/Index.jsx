@@ -23,7 +23,7 @@ const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" c
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
-export default function Index({ notes, filters = {} }) {
+export default function Index({ notes, filters = {}, isArchiveView = false }) {
     // 1. State for the "Create" form
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
@@ -107,10 +107,36 @@ export default function Index({ notes, filters = {} }) {
         }, { preserveScroll: true });
     };
 
+    const toggleArchive = (note) => {
+        router.put(route('notes.update', note.id), {
+            title: note.title,
+            content: note.content,
+            notes: note.notes,
+            tags: note.tags.map(tag => tag.name).join(', '),
+            is_archived: !note.is_archived
+        }, { preserveScroll: true });
+    };
+
     const handleTagClick = (tagName) => {
         // Just set the search term to the tag name and it will auto-filter
         setSearchTerm(tagName);
     };
+
+    const updateNoteContent = useCallback(debounce((noteId, field, newHtml) => {
+        const note = notes.data.find(n => n.id === noteId);
+        if (!note) return;
+        
+        // Use raw axios instead of Inertia router to prevent the progress bar 
+        // from appearing and to avoid a full page prop refresh, making it completely silent.
+        window.axios.put(route('notes.update', note.id), {
+            title: note.title,
+            content: field === 'content' ? newHtml : note.content,
+            notes: field === 'notes' ? newHtml : note.notes,
+            tags: note.tags.map(tag => tag.name).join(', '),
+        }).catch(error => {
+            console.error("Failed to silently update note content", error);
+        });
+    }, 500), [notes.data]);
 
     // --- Search Handling ---
     const debouncedSearch = useCallback(
@@ -142,14 +168,15 @@ export default function Index({ notes, filters = {} }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">My Notes</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{isArchiveView ? 'Archived Notes' : 'My Notes'}</h2>}
         >
-            <Head title="My Notes" />
+            <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* --- CREATE FORM --- */}
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
+                    {!isArchiveView && (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="mb-4">
                                 <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
@@ -204,6 +231,8 @@ export default function Index({ notes, filters = {} }) {
                             </button>
                         </form>
                     </div>
+
+                    )}
 
                     {/* --- SEARCH AND TOGGLE --- */}
                     <div className="mb-8 flex flex-col sm:flex-row gap-4">
@@ -275,7 +304,9 @@ export default function Index({ notes, filters = {} }) {
                                                 startEditing={startEditing} 
                                                 deleteNote={deleteNote}
                                                 togglePin={togglePin}
+                                                toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
+                                                updateNoteContent={updateNoteContent}
                                             />
                                         ))}
                                     </Masonry>
@@ -288,7 +319,9 @@ export default function Index({ notes, filters = {} }) {
                                                 startEditing={startEditing} 
                                                 deleteNote={deleteNote}
                                                 togglePin={togglePin}
+                                                toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
+                                                updateNoteContent={updateNoteContent}
                                             />
                                         ))}
                                     </div>

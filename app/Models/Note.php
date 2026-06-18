@@ -17,10 +17,14 @@ class Note extends Model
         'content',
         'notes',
         'is_pinned',
+        'is_archived',
+        'link_previews',
     ];
 
     protected $casts = [
         'is_pinned' => 'boolean',
+        'is_archived' => 'boolean',
+        'link_previews' => 'array',
     ];
 
     /**
