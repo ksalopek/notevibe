@@ -60,21 +60,21 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
 
 // Widget Components
 const MetricTotalNotes = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Total Notes</h3>
         <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.totalNotes.toLocaleString()}</p>
     </div>
 );
 
 const MetricAvgNoteLength = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Avg Note Length</h3>
         <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.avgNoteLength.toLocaleString()} chars</p>
     </div>
 );
 
 const ChartVelocity = ({ noteVelocity }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Note Velocity (Last 30 Days)</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +94,7 @@ const ChartVelocity = ({ noteVelocity }) => (
 );
 
 const ChartTagCloud = ({ tagCloud }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top 20 Tags</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -119,7 +119,7 @@ const ChartHeatmap = ({ activityHeatmap }) => {
     const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Login Activity Heatmap (Last 90 Days)</h3>
             <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -143,7 +143,7 @@ const ChartHeatmap = ({ activityHeatmap }) => {
 
 const TableWidgetUsage = ({ widgetUsage }) => {
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex justify-between items-center">
                 Dashboard Widget Usage
                 <span className="text-xs font-normal text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">Sorted by Popularity</span>
@@ -192,7 +192,7 @@ const TablePowerUsers = ({ powerUsers }) => {
         { id: 'last_login', label: 'Last Login' }
     ]);
     return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Power Users Leaderboard</h3>
             <div className="flex items-center gap-2">
@@ -253,7 +253,7 @@ const TableAtRiskUsers = ({ atRiskUsers }) => {
         { id: 'last_login', label: 'Last Login' }
     ]);
     return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">At-Risk Users (&gt;30 Days)</h3>
             <div className="flex items-center gap-2">
@@ -312,7 +312,7 @@ const TableAccessLogs = ({ accessLogs }) => {
         { id: 'time', label: 'Time' }
     ]);
     return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Access Logs</h3>
             <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => {
         { id: 'registered', label: 'Registered' }
     ]);
     return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Abandoned Accounts</h3>
             <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ const TableSettingsAudit = ({ settingsAudit }) => {
         { id: 'last_updated', label: 'Last Updated' }
     ]);
     return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Global Settings Audit Log</h3>
             <div className="flex items-center gap-2">
@@ -474,7 +474,7 @@ const TableSettingsAudit = ({ settingsAudit }) => {
 const ChartRoleDistribution = ({ roleDistribution }) => {
     const COLORS = ['#6366f1', '#10b981'];
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Role Distribution</h3>
             <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -519,7 +519,7 @@ const TableGeoDistribution = ({ geoDistribution }) => {
     );
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Geographical Distribution</h3>
                 <Tooltip content="Export CSV">
@@ -569,7 +569,7 @@ const TableGeoDistribution = ({ geoDistribution }) => {
 };
 
 const MetricPeakUsage = ({ peakUsage }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Peak Usage Time</h3>
         <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{peakUsage}</p>
         <p className="text-xs text-gray-500 mt-2">Based on 90-day login heatmap</p>
@@ -577,7 +577,7 @@ const MetricPeakUsage = ({ peakUsage }) => (
 );
 
 const ChartActiveUsers = ({ activeUsersData }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">DAU vs MAU (Last 30 Days)</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">

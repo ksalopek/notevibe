@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.16.1",
+        "date": "2026-06-19",
+        "features": [],
+        "fixes": [
+            "Fix IP address not saving and displaying in activity history"
+        ]
+    },
+    {
         "version": "v2.16.0",
         "date": "2026-06-18",
         "features": [
