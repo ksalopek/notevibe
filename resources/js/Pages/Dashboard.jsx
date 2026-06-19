@@ -671,7 +671,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                             {greeting}, {auth.user.name}! ✨
                         </h3>
                         <p className="mt-2 text-gray-600 dark:text-gray-400">
-                            Here's an overview of your notes today. Drag the handle on each widget to rearrange your dashboard.
+                            Here's an overview of your notes today. Use the customize button to rearrange your dashboard.
                         </p>
                     </div>
                     <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
