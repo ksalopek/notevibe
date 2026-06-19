@@ -504,17 +504,62 @@ const ChartRoleDistribution = ({ roleDistribution }) => {
 };
 
 const TableGeoDistribution = ({ geoDistribution }) => {
+    const [expandedRows, setExpandedRows] = useState({});
+    
+    const toggleRow = (idx) => {
+        setExpandedRows(prev => ({ ...prev, [idx]: !prev[idx] }));
+    };
+
+    const flatDataForCsv = geoDistribution.flatMap(loc => 
+        (loc.users || []).map(u => ({ 
+            Location: loc.location, 
+            Name: u.name, 
+            Email: u.email 
+        }))
+    );
+
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Geographical Distribution</h3>
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Geographical Distribution</h3>
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(flatDataForCsv, 'geo_distribution.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
             <div className="w-full flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 <div className="space-y-4">
                     {geoDistribution.length === 0 ? (
                         <p className="text-sm text-gray-500 text-center py-4">No location data available.</p>
                     ) : geoDistribution.map((loc, idx) => (
-                        <div key={idx} className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{loc.location}</span>
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{loc.count} users</span>
+                        <div key={idx} className="border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
+                            <div 
+                                className="flex justify-between items-center cursor-pointer group"
+                                onClick={() => toggleRow(idx)}
+                            >
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors flex items-center gap-2">
+                                    <svg className={`w-4 h-4 text-gray-400 transition-transform ${expandedRows[idx] ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    {loc.location}
+                                </span>
+                                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{loc.count} users</span>
+                            </div>
+                            
+                            {expandedRows[idx] && loc.users && (
+                                <div className="mt-3 ml-6 pl-4 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-2">
+                                    {loc.users.map((u, i) => (
+                                        <div key={i} className="text-xs">
+                                            <span className="font-medium text-gray-800 dark:text-gray-200">{u.name}</span>
+                                            <span className="text-gray-500 dark:text-gray-400 ml-2">{u.email}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
