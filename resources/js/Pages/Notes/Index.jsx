@@ -29,13 +29,12 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
         content: '',
-        notes: '',
         tags: '',
     });
 
     // 2. React State to track which note we are currently editing
     const [editingNoteId, setEditingNoteId] = useState(null);
-    const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
+    const [editForm, setEditForm] = useState({ title: '', content: '', tags: '' });
     const [confirmingNoteDeletion, setConfirmingNoteDeletion] = useState(null);
 
     // 3. State for the search input and loading
@@ -111,7 +110,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
         setEditForm({
             title: note.title,
             content: note.content,
-            notes: note.notes,
             tags: note.tags.map(tag => tag.name).join(', '),
         });
     };
@@ -127,7 +125,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
         router.put(route('notes.update', note.id), {
             title: note.title,
             content: note.content,
-            notes: note.notes,
             tags: note.tags.map(tag => tag.name).join(', '),
             is_pinned: !note.is_pinned
         }, { preserveScroll: true });
@@ -137,7 +134,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
         router.put(route('notes.update', note.id), {
             title: note.title,
             content: note.content,
-            notes: note.notes,
             tags: note.tags.map(tag => tag.name).join(', '),
             is_archived: !note.is_archived
         }, { preserveScroll: true });
@@ -157,7 +153,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
         window.axios.put(route('notes.update', note.id), {
             title: note.title,
             content: field === 'content' ? newHtml : note.content,
-            notes: field === 'notes' ? newHtml : note.notes,
             tags: note.tags.map(tag => tag.name).join(', '),
         }).catch(error => {
             console.error("Failed to silently update note content", error);
@@ -224,20 +219,9 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                 <RichTextEditor
                                     content={data.content}
                                     onChange={newContent => setData('content', newContent)}
-                                    className="min-h-[150px]"
+                                    className="min-h-[300px]"
                                 />
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
-                            </div>
-                            <div className="mb-4">
-                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                    <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
-                                </label>
-                                <RichTextEditor
-                                    content={data.notes}
-                                    onChange={newNotes => setData('notes', newNotes)}
-                                    className="min-h-[100px]"
-                                />
-                                {errors.notes && <div className="text-red-500 text-sm mt-1">{errors.notes}</div>}
                             </div>
                             <div className="mb-4">
                                 <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
@@ -456,17 +440,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                             <RichTextEditor
                                 content={editForm.content}
                                 onChange={newContent => setEditForm({ ...editForm, content: newContent })}
-                                className="min-h-[150px]"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
-                            </label>
-                            <RichTextEditor
-                                content={editForm.notes}
-                                onChange={newNotes => setEditForm({ ...editForm, notes: newNotes })}
-                                className="min-h-[100px]"
+                                className="min-h-[300px]"
                             />
                         </div>
                         <div className="mb-4">

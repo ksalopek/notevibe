@@ -269,7 +269,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                {notes.data.map(note => {
+                                {notes.data.map((note, index) => {
                                     const isExpanded = expandedRow === note.id;
                                     const authorName = note.user ? note.user.name : 'Unknown';
                                     const badge = getLengthBadge(note.content);
@@ -304,7 +304,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                                 <MoreVerticalIcon />
                                                             </button>
                                                         </Dropdown.Trigger>
-                                                        <Dropdown.Content align="right">
+                                                        <Dropdown.Content align={index >= notes.data.length - 2 && notes.data.length > 2 ? 'top-right' : 'right'}>
                                                             <button
                                                                 onClick={() => setExpandedRow(isExpanded ? null : note.id)}
                                                                 className="block w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -355,7 +355,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                         animate={{ opacity: 1 }}
                         className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6"
                     >
-                        {notes.data.map(note => {
+                        {notes.data.map((note, index) => {
                             const authorName = note.user ? note.user.name : 'Unknown';
                             const badge = getLengthBadge(note.content);
 
@@ -374,7 +374,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                     <MoreVerticalIcon />
                                                 </button>
                                             </Dropdown.Trigger>
-                                            <Dropdown.Content align="right">
+                                            <Dropdown.Content align={index >= notes.data.length - 2 && notes.data.length > 2 ? 'top-right' : 'right'}>
                                                 <button
                                                     onClick={() => handleDelete(note.id)}
                                                     className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center"

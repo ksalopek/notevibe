@@ -82,7 +82,6 @@ class NoteApiTest extends TestCase
         $updatedData = [
             'title' => 'Updated Title',
             'content' => 'Updated content.',
-            'notes' => 'This is an extra note.',
         ];
 
         $response = $this->actingAs($user, 'sanctum')->putJSON('/api/notes/' . $note->id,$updatedData);
@@ -92,7 +91,6 @@ class NoteApiTest extends TestCase
         $response->assertJson([
             'title' => 'Updated Title',
             'content' => 'Updated content.',
-            'notes' => 'This is an extra note.',
         ]);
 
         // Assert: Check that the database was actually updated with the new data.
