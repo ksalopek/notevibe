@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         $request->user()->update($updateData);
-        \App\Models\LoginHistory::create(['user_id' => $request->user()->id]);
+        \App\Models\LoginHistory::create(['user_id' => $request->user()->id, 'ip_address' => $ip]);
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
