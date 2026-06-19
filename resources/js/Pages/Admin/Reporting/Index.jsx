@@ -538,10 +538,10 @@ const TableGeoDistribution = ({ geoDistribution }) => {
                     ) : geoDistribution.map((loc, idx) => (
                         <div key={idx} className="border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
                             <div 
-                                className="flex justify-between items-center cursor-pointer group"
+                                className="flex justify-between items-center cursor-pointer group/row"
                                 onClick={() => toggleRow(idx)}
                             >
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover/row:text-primary-600 transition-colors flex items-center gap-2">
                                     <svg className={`w-4 h-4 text-gray-400 transition-transform ${expandedRows[idx] ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>

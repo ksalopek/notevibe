@@ -19,7 +19,6 @@ import { Download, List, Table } from 'lucide-react';
 // SVG Icons
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
-const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const EditIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className || "w-6 h-6"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
 const FileTextIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>);
 const TagsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>);
@@ -274,10 +273,10 @@ const RecentNotesWidget = ({ recentNotes, onEdit }) => {
                         </div>
                     ) : (
                         recentNotes.map(note => (
-                            <div key={note.id} onClick={() => onEdit(note)} className="block group cursor-pointer">
+                            <div key={note.id} onClick={() => onEdit(note)} className="block group/note cursor-pointer">
                                 <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
                                     <div className="flex justify-between items-start">
-                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover/note:text-primary-600 dark:group-hover/note:text-primary-400 transition-colors">
                                             {note.title}
                                         </h4>
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -422,7 +421,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     const [greeting, setGreeting] = useState('');
     const [showTagsModal, setShowTagsModal] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState(null);
-    const [editForm, setEditForm] = useState({ title: '', content: '', notes: '', tags: '' });
+    const [editForm, setEditForm] = useState({ title: '', content: '', tags: '' });
     
     const [noteDays, setNoteDays] = useState(filters?.note_days || 7);
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
@@ -611,7 +610,6 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
         setEditForm({
             title: note.title,
             content: note.content,
-            notes: note.notes,
             tags: note.tags ? note.tags.map(tag => tag.name).join(', ') : '',
         });
     };
@@ -802,19 +800,10 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                             <RichTextEditor
                                 content={editForm.content}
                                 onChange={newContent => setEditForm({ ...editForm, content: newContent })}
-                                className="min-h-[150px]"
+                                className="min-h-[300px]"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                <NotesIcon className="w-4 h-4 mr-2 text-primary-500" /> Notes
-                            </label>
-                            <RichTextEditor
-                                content={editForm.notes}
-                                onChange={newNotes => setEditForm({ ...editForm, notes: newNotes })}
-                                className="min-h-[100px]"
-                            />
-                        </div>
+
                         <div className="mb-4">
                             <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
                                 <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
