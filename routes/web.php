@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/widgets', [ProfileController::class, 'updateWidgets'])->name('profile.widgets');
+    Route::post('/profile/analytics-widgets', [ProfileController::class, 'updateAnalyticsWidgets'])->name('profile.analytics-widgets');
 
     // Notes Routes
     Route::get('/my-journal', [NoteController::class, 'index'])->name('notes.index');

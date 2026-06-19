@@ -14,6 +14,7 @@ import 'react-resizable/css/styles.css';
 import useTableColumns from '@/Hooks/useTableColumns';
 import ColumnSelector from '@/Components/ColumnSelector';
 import Tooltip from '@/Components/Tooltip';
+import { downloadCSV } from '@/utils/csvUtils';
 
 const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
 const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
@@ -56,26 +57,6 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
     );
 };
 
-const downloadCSV = (data, filename) => {
-    if (!data || data.length === 0) return;
-    const keys = Object.keys(data[0]);
-    const csvContent = [
-        keys.join(','),
-        ...data.map(row => keys.map(k => `"${String(row[k] || '').replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-};
 
 // Widget Components
 const MetricTotalNotes = ({ stats }) => (
@@ -132,27 +113,77 @@ const ChartTagCloud = ({ tagCloud }) => (
     </div>
 );
 
-const ChartHeatmap = ({ activityHeatmap }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Login Activity Heatmap (Last 90 Days)</h3>
-        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                    <XAxis type="number" dataKey="hour" name="Hour" stroke="#6B7280" fontSize={12} tickFormatter={(tick) => `${tick}:00`} domain={[0, 23]} tickCount={24} />
-                    <YAxis type="category" dataKey="day" name="Day" stroke="#6B7280" fontSize={12} />
-                    <ZAxis type="number" dataKey="count" range={[0, 400]} name="Logins" />
-                    <RechartsTooltip 
-                        cursor={{ strokeDasharray: '3 3' }} 
-                        contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
-                        itemStyle={{ color: '#34D399' }}
-                    />
-                    <Scatter name="Logins" data={activityHeatmap} fill="#34D399" opacity={0.8} />
-                </ScatterChart>
-            </ResponsiveContainer>
+const ChartHeatmap = ({ activityHeatmap }) => {
+    // Filter out zero counts so they don't clutter the DOM or mess up ZAxis scaling
+    const activeData = activityHeatmap.filter(d => d.count > 0);
+    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Login Activity Heatmap (Last 90 Days)</h3>
+            <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                        <XAxis type="number" dataKey="hour" name="Hour" stroke="#6B7280" fontSize={12} tickFormatter={(tick) => `${tick}:00`} domain={[0, 23]} tickCount={24} />
+                        <YAxis type="category" dataKey="day" name="Day" stroke="#6B7280" fontSize={12} ticks={DAYS} allowDuplicatedCategory={false} />
+                        <ZAxis type="number" dataKey="count" range={[50, 800]} name="Logins" domain={[0, 'dataMax']} />
+                        <RechartsTooltip 
+                            cursor={{ strokeDasharray: '3 3' }} 
+                            contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
+                            itemStyle={{ color: '#34D399' }}
+                        />
+                        <Scatter name="Logins" data={activeData} fill="#34D399" opacity={0.8} />
+                    </ScatterChart>
+                </ResponsiveContainer>
+            </div>
         </div>
-    </div>
-);
+    );
+};
+
+const TableWidgetUsage = ({ widgetUsage }) => {
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex justify-between items-center">
+                Dashboard Widget Usage
+                <span className="text-xs font-normal text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">Sorted by Popularity</span>
+            </h3>
+            <div className="w-full flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-4">
+                    {widgetUsage.map((widget, idx) => {
+                        const total = widget.active + widget.inactive;
+                        const percentage = total > 0 ? Math.round((widget.active / total) * 100) : 0;
+                        
+                        return (
+                            <div key={widget.id} className="relative">
+                                <div className="flex justify-between items-end mb-1">
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                        <span className="text-gray-400 font-mono text-xs w-4">{idx + 1}.</span>
+                                        {widget.title}
+                                    </span>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        <span className="font-medium text-primary-600 dark:text-primary-400">{widget.active} active</span>
+                                        {' '}/{' '}
+                                        <span className="text-gray-400">{widget.inactive} inactive</span>
+                                    </div>
+                                </div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-1 overflow-hidden flex">
+                                    <div 
+                                        className="bg-gradient-to-r from-primary-500 to-indigo-500 h-2.5 rounded-full" 
+                                        style={{ width: `${percentage}%` }}
+                                    ></div>
+                                </div>
+                                <div className="text-[10px] text-right font-medium text-gray-400 dark:text-gray-500">
+                                    {percentage}% Adoption Rate
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const TablePowerUsers = ({ powerUsers }) => {
     const { visibleColumns, toggleColumn } = useTableColumns('reporting_power_users', [
@@ -451,21 +482,29 @@ const defaultLayout = [
     { i: 'at-risk', x: 2, y: 5, w: 2, h: 2, minW: 2 },
     { i: 'access-logs', x: 0, y: 7, w: 4, h: 2, minW: 3 },
     { i: 'abandoned', x: 0, y: 9, w: 2, h: 2, minW: 2 },
-    { i: 'settings-audit', x: 2, y: 9, w: 2, h: 2, minW: 2 }
+    { i: 'settings-audit', x: 2, y: 9, w: 2, h: 2, minW: 2 },
+    { i: 'total-notes', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+    { i: 'avg-length', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+    { i: 'velocity', x: 2, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'tag-cloud', x: 0, y: 1, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'heatmap', x: 2, y: 2, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'widget-usage', x: 0, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'power-users', x: 2, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'at-risk', x: 0, y: 5, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'access-logs', x: 2, y: 6, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'abandoned', x: 0, y: 7, w: 2, h: 2, minW: 2, minH: 2 },
+    { i: 'settings-audit', x: 2, y: 8, w: 2, h: 2, minW: 2, minH: 2 },
 ];
 
-export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatmap, noteVelocity, tagCloud, accessLogs, abandonedAccounts, settingsAudit, stats }) {
+export default function Reporting({ 
+    powerUsers, atRiskUsers, activityHeatmap, noteVelocity, 
+    tagCloud, accessLogs, abandonedAccounts, settingsAudit, widgetUsage, stats 
+}) {
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [layouts, setLayouts] = useState(() => {
-        const savedLayouts = localStorage.getItem('reporting_dashboard_layouts');
-        if (savedLayouts) {
-            try {
-                return JSON.parse(savedLayouts);
-            } catch (e) {
-                console.error("Error parsing layouts", e);
-            }
-        }
+        const savedLayout = localStorage.getItem('admin_reporting_layout_v3');
+        if (savedLayout) return JSON.parse(savedLayout);
         return {
             lg: defaultLayout,
             md: defaultLayout,
@@ -474,18 +513,26 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
     });
     const { width: containerWidth, containerRef } = useContainerWidth();
     
-    const [availableWidgets, setAvailableWidgets] = useState([
-        { id: 'total-notes', title: 'Total Notes' },
-        { id: 'avg-length', title: 'Avg Note Length' },
-        { id: 'velocity', title: 'Note Velocity' },
-        { id: 'tag-cloud', title: 'Top 20 Tags' },
-        { id: 'heatmap', title: 'Activity Heatmap' },
-        { id: 'power-users', title: 'Power Users Leaderboard' },
-        { id: 'at-risk', title: 'At-Risk Users' },
-        { id: 'access-logs', title: 'Access Logs' },
-        { id: 'abandoned', title: 'Abandoned Accounts' },
-        { id: 'settings-audit', title: 'Global Settings Audit' },
-    ]);
+    const [availableWidgets, setAvailableWidgets] = useState(() => {
+        try {
+            const saved = localStorage.getItem('admin_reporting_widgets_v3');
+            return saved ? JSON.parse(saved) : [
+                { id: 'total-notes', title: 'Total Notes' },
+                { id: 'avg-length', title: 'Avg Note Length' },
+                { id: 'velocity', title: 'Note Velocity' },
+                { id: 'tag-cloud', title: 'Top Tags' },
+                { id: 'heatmap', title: 'Activity Heatmap' },
+                { id: 'widget-usage', title: 'Widget Usage' },
+                { id: 'power-users', title: 'Power Users' },
+                { id: 'at-risk', title: 'At-Risk Users' },
+                { id: 'access-logs', title: 'Access Logs' },
+                { id: 'abandoned', title: 'Abandoned Accounts' },
+                { id: 'settings-audit', title: 'Settings Audit' },
+            ];
+        } catch (e) {
+            return [];
+        }
+    });
 
     useEffect(() => {
         localStorage.setItem('reporting_dashboard_layouts', JSON.stringify(layouts));
@@ -506,6 +553,7 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
 
     const handleReorderWidgets = (newOrder) => {
         setAvailableWidgets(newOrder);
+        localStorage.setItem('admin_reporting_widgets_v3', JSON.stringify(newOrder));
         setLayouts({
             lg: repackLayout(newOrder, layouts.lg, 4),
             md: repackLayout(newOrder, layouts.md, 3),
@@ -542,6 +590,7 @@ export default function ReportingIndex({ powerUsers, atRiskUsers, activityHeatma
             case 'velocity': return <ChartVelocity noteVelocity={noteVelocity} />;
             case 'tag-cloud': return <ChartTagCloud tagCloud={tagCloud} />;
             case 'heatmap': return <ChartHeatmap activityHeatmap={activityHeatmap} />;
+            case 'widget-usage': return <TableWidgetUsage widgetUsage={widgetUsage} />;
             case 'power-users': return <TablePowerUsers powerUsers={powerUsers} />;
             case 'at-risk': return <TableAtRiskUsers atRiskUsers={atRiskUsers} />;
             case 'access-logs': return <TableAccessLogs accessLogs={accessLogs} />;

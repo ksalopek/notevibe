@@ -149,6 +149,81 @@ class ReportingController extends Controller
                 return $setting;
             });
 
+        // 10. Dashboard Widget Usage
+        $usersWithWidgets = User::whereNotNull('dashboard_widgets')->get(['dashboard_widgets']);
+        $totalConfiguredUsers = $usersWithWidgets->count();
+        $widgetCounts = [];
+        
+        // First pass: initialize all known widgets
+        $knownWidgets = [
+            // Dashboard Widgets
+            'metric_total' => 'Metric: Total Notes',
+            'metric_tags' => 'Metric: Unique Tags',
+            'metric_trash' => 'Metric: In Trash',
+            'quick_draft' => 'Quick Draft',
+            'activity_chart' => 'Note Activity',
+            'recent' => 'Recent Notes',
+            'tags' => 'Top Tags',
+            // Analytics Widgets
+            'streak' => 'Current Streak',
+            'words' => 'Total Words',
+            'notes' => 'Analytics: Total Notes',
+            'persona' => 'Writing Persona',
+            'velocity' => 'Note Velocity',
+            'topics' => 'Top Topics',
+            'productivity' => 'Productivity by Hour',
+            'busiest' => 'Busiest Day',
+        ];
+
+        foreach ($knownWidgets as $id => $title) {
+            $widgetCounts[$id] = [
+                'id' => $id,
+                'title' => $title,
+                'active' => 0,
+                'inactive' => 0
+            ];
+        }
+
+        // We should fetch both columns
+        $usersWithWidgets = User::whereNotNull('dashboard_widgets')->orWhereNotNull('analytics_widgets')->get(['dashboard_widgets', 'analytics_widgets']);
+
+        foreach ($usersWithWidgets as $user) {
+            $dashboardWidgets = is_array($user->dashboard_widgets) ? $user->dashboard_widgets : json_decode($user->dashboard_widgets, true);
+            $analyticsWidgets = is_array($user->analytics_widgets) ? $user->analytics_widgets : json_decode($user->analytics_widgets, true);
+            
+            $disabledIds = [];
+            
+            if (is_array($dashboardWidgets)) {
+                foreach ($dashboardWidgets as $widget) {
+                    if (isset($widget['id']) && isset($widget['isVisible']) && $widget['isVisible'] === false) {
+                        $disabledIds[] = $widget['id'];
+                    }
+                }
+            }
+            
+            if (is_array($analyticsWidgets)) {
+                foreach ($analyticsWidgets as $widget) {
+                    if (isset($widget['id']) && isset($widget['isVisible']) && $widget['isVisible'] === false) {
+                        $disabledIds[] = $widget['id'];
+                    }
+                }
+            }
+
+            foreach ($knownWidgets as $id => $title) {
+                if (in_array($id, $disabledIds)) {
+                    $widgetCounts[$id]['inactive']++;
+                } else {
+                    // If not explicitly disabled, it's considered active by default
+                    $widgetCounts[$id]['active']++;
+                }
+            }
+        }
+        
+        $widgetUsage = collect(array_values($widgetCounts))
+            ->sortByDesc('active')
+            ->values()
+            ->all();
+
         return Inertia::render('Admin/Reporting/Index', [
             'powerUsers' => $powerUsers,
             'atRiskUsers' => $atRiskUsers,
@@ -158,6 +233,7 @@ class ReportingController extends Controller
             'accessLogs' => $accessLogs,
             'abandonedAccounts' => $abandonedAccounts,
             'settingsAudit' => $settingsAudit,
+            'widgetUsage' => $widgetUsage,
             'stats' => [
                 'totalNotes' => $totalNotes,
                 'avgNoteLength' => $avgNoteLength,

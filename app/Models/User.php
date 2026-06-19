@@ -36,6 +36,8 @@ class User extends Authenticatable
         'longitude',
         'country',
         'city',
+        'dashboard_widgets',
+        'analytics_widgets',
     ];
 
     /**
@@ -50,6 +52,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'dashboard_widgets' => 'array',
+            'analytics_widgets' => 'array',
         ];
     }
 
