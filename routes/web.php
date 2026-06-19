@@ -108,6 +108,11 @@ Route::middleware('auth')->group(function () {
 
     // Analytics Route
     Route::get('/my-analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+
+    // Knowledge Base / Help
+    Route::get('/help', function () {
+        return Inertia::render('Help/Index');
+    })->name('help');
 });
 
 // Admin Routes
