@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.16.2",
+        "date": "2026-06-19",
+        "features": [
+            "Remove hover glow from dashboard, analytics, and admin pages"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.16.1",
         "date": "2026-06-19",
         "features": [],
