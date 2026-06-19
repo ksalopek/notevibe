@@ -11,6 +11,9 @@ import {
 import { Download } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import useTableColumns from '@/Hooks/useTableColumns';
+import ColumnSelector from '@/Components/ColumnSelector';
+import Tooltip from '@/Components/Tooltip';
 
 const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
 const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
@@ -151,65 +154,104 @@ const ChartHeatmap = ({ activityHeatmap }) => (
     </div>
 );
 
-const TablePowerUsers = ({ powerUsers }) => (
+const TablePowerUsers = ({ powerUsers }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('reporting_power_users', [
+        { id: 'name', label: 'Name' },
+        { id: 'notes', label: 'Notes' },
+        { id: 'last_login', label: 'Last Login' }
+    ]);
+    return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Power Users Leaderboard</h3>
-            <button 
-                onClick={() => downloadCSV(powerUsers, 'power_users.csv')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0"
-            >
-                <Download className="w-4 h-4" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'name', label: 'Name' },
+                        { id: 'notes', label: 'Notes' },
+                        { id: 'last_login', label: 'Last Login' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(powerUsers, 'power_users.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Login</th>
+                        {visibleColumns.includes('name') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>}
+                        {visibleColumns.includes('notes') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes</th>}
+                        {visibleColumns.includes('last_login') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Login</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {powerUsers.map((u, i) => (
                         <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                            {visibleColumns.includes('name') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                 <div className="font-medium flex items-center gap-2">
                                     <span className="text-gray-400 text-xs w-4">{i + 1}.</span>
                                     {u.name}
                                 </div>
-                            </td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.notes_count}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            </td>}
+                            {visibleColumns.includes('notes') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.notes_count}</td>}
+                            {visibleColumns.includes('last_login') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 {u.last_login_human}
-                            </td>
+                            </td>}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
-const TableAtRiskUsers = ({ atRiskUsers }) => (
+const TableAtRiskUsers = ({ atRiskUsers }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('reporting_at_risk_users', [
+        { id: 'name', label: 'Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'last_login', label: 'Last Login' }
+    ]);
+    return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">At-Risk Users (>30 Days)</h3>
-            <button 
-                onClick={() => downloadCSV(atRiskUsers, 'at_risk_users.csv')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 shrink-0"
-            >
-                <Download className="w-4 h-4" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'name', label: 'Name' },
+                        { id: 'email', label: 'Email' },
+                        { id: 'last_login', label: 'Last Login' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(atRiskUsers, 'at_risk_users.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Login</th>
+                        {visibleColumns.includes('name') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>}
+                        {visibleColumns.includes('email') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>}
+                        {visibleColumns.includes('last_login') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Login</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -218,72 +260,114 @@ const TableAtRiskUsers = ({ atRiskUsers }) => (
                     )}
                     {atRiskUsers.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{u.name}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.email}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-red-500 dark:text-red-400">{u.last_login_human}</td>
+                            {visibleColumns.includes('name') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{u.name}</td>}
+                            {visibleColumns.includes('email') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.email}</td>}
+                            {visibleColumns.includes('last_login') && <td className="px-3 py-3 whitespace-nowrap text-sm text-red-500 dark:text-red-400">{u.last_login_human}</td>}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
-const TableAccessLogs = ({ accessLogs }) => (
+const TableAccessLogs = ({ accessLogs }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('reporting_access_logs', [
+        { id: 'user', label: 'User' },
+        { id: 'email', label: 'Email' },
+        { id: 'ip', label: 'IP Address' },
+        { id: 'location', label: 'Location' },
+        { id: 'time', label: 'Time' }
+    ]);
+    return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Access Logs</h3>
-            <button 
-                onClick={() => downloadCSV(accessLogs, 'access_logs.csv')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0"
-            >
-                <Download className="w-4 h-4" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'user', label: 'User' },
+                        { id: 'email', label: 'Email' },
+                        { id: 'ip', label: 'IP Address' },
+                        { id: 'location', label: 'Location' },
+                        { id: 'time', label: 'Time' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(accessLogs, 'access_logs.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">IP Address</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</th>
+                        {visibleColumns.includes('user') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>}
+                        {visibleColumns.includes('email') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>}
+                        {visibleColumns.includes('ip') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">IP Address</th>}
+                        {visibleColumns.includes('location') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>}
+                        {visibleColumns.includes('time') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {accessLogs.map((log) => (
                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{log.user_name}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.email}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.ip}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.location}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.time}</td>
+                            {visibleColumns.includes('user') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{log.user_name}</td>}
+                            {visibleColumns.includes('email') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.email}</td>}
+                            {visibleColumns.includes('ip') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.ip}</td>}
+                            {visibleColumns.includes('location') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.location}</td>}
+                            {visibleColumns.includes('time') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.time}</td>}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
-const TableAbandonedAccounts = ({ abandonedAccounts }) => (
+const TableAbandonedAccounts = ({ abandonedAccounts }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('reporting_abandoned_accounts', [
+        { id: 'user', label: 'User' },
+        { id: 'registered', label: 'Registered' }
+    ]);
+    return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Abandoned Accounts</h3>
-            <button 
-                onClick={() => downloadCSV(abandonedAccounts, 'abandoned_accounts.csv')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0"
-            >
-                <Download className="w-4 h-4" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'user', label: 'User' },
+                        { id: 'registered', label: 'Registered' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(abandonedAccounts, 'abandoned_accounts.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registered</th>
+                        {visibleColumns.includes('user') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>}
+                        {visibleColumns.includes('registered') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registered</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -292,33 +376,51 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => (
                     )}
                     {abandonedAccounts.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{u.name} <span className="text-gray-400 font-normal block">{u.email}</span></td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.created_human}</td>
+                            {visibleColumns.includes('user') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{u.name} <span className="text-gray-400 font-normal block">{u.email}</span></td>}
+                            {visibleColumns.includes('registered') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.created_human}</td>}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
-const TableSettingsAudit = ({ settingsAudit }) => (
+const TableSettingsAudit = ({ settingsAudit }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('reporting_settings_audit', [
+        { id: 'setting_key', label: 'Setting Key' },
+        { id: 'last_updated', label: 'Last Updated' }
+    ]);
+    return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Global Settings Audit Log</h3>
-            <button 
-                onClick={() => downloadCSV(settingsAudit, 'settings_audit.csv')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0"
-            >
-                <Download className="w-4 h-4" /> Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'setting_key', label: 'Setting Key' },
+                        { id: 'last_updated', label: 'Last Updated' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Tooltip content="Export CSV">
+                    <button 
+                        onClick={() => downloadCSV(settingsAudit, 'settings_audit.csv')}
+                        className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
+                    >
+                        <Download className="w-5 h-5" />
+                    </button>
+                </Tooltip>
+            </div>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Setting Key</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
+                        {visibleColumns.includes('setting_key') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Setting Key</th>}
+                        {visibleColumns.includes('last_updated') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -327,15 +429,16 @@ const TableSettingsAudit = ({ settingsAudit }) => (
                     )}
                     {settingsAudit.map((s, idx) => (
                         <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{s.key}</td>
-                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{s.updated_human}</td>
+                            {visibleColumns.includes('setting_key') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{s.key}</td>}
+                            {visibleColumns.includes('last_updated') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{s.updated_human}</td>}
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
 // Default Layout
 const defaultLayout = [
