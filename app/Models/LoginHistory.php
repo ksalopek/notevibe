@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoginHistory extends Model
 {
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_id', 'ip_address'];
 
     public function user()
     {
