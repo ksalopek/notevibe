@@ -8,6 +8,8 @@ import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Dropdown from '@/Components/Dropdown';
 import Heatmap from '@/Components/Heatmap';
+import useTableColumns from '@/Hooks/useTableColumns';
+import ColumnSelector from '@/Components/ColumnSelector';
 
 const ImpersonateIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>);
 const BanIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>);
@@ -20,6 +22,14 @@ export default function Users({ auth, users, filters, heatmapData }) {
     const { patch, post, delete: destroy } = useForm();
     const [searchUsers, setSearchUsers] = useState(filters?.search_users || '');
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(null);
+    const { visibleColumns, toggleColumn } = useTableColumns('admin_users', [
+        { id: 'id', label: 'ID' },
+        { id: 'name', label: 'Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'role', label: 'Role' },
+        { id: 'status', label: 'Status' },
+        { id: 'actions', label: 'Actions' }
+    ]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -157,6 +167,20 @@ export default function Users({ auth, users, filters, heatmapData }) {
                                 <option value="role-asc">Role (A-Z)</option>
                                 <option value="role-desc">Role (Z-A)</option>
                             </select>
+                            <div className="flex items-center">
+                                <ColumnSelector 
+                                    columns={[
+                                        { id: 'id', label: 'ID' },
+                                        { id: 'name', label: 'Name' },
+                                        { id: 'email', label: 'Email' },
+                                        { id: 'role', label: 'Role' },
+                                        { id: 'status', label: 'Status' },
+                                        { id: 'actions', label: 'Actions' }
+                                    ]}
+                                    visibleColumns={visibleColumns}
+                                    toggleColumn={toggleColumn}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -165,34 +189,34 @@ export default function Users({ auth, users, filters, heatmapData }) {
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead>
                                     <tr>
-                                        <th className="px-4 py-3 text-left">
+                                        {visibleColumns.includes('id') && <th className="px-4 py-3 text-left">
                                             <button onClick={() => handleSort('id')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                 ID <SortIcon field="id" />
                                             </button>
-                                        </th>
-                                        <th className="px-4 py-3 text-left">
+                                        </th>}
+                                        {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
                                             <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                 Name <SortIcon field="name" />
                                             </button>
-                                        </th>
-                                        <th className="px-4 py-3 text-left">
+                                        </th>}
+                                        {visibleColumns.includes('email') && <th className="px-4 py-3 text-left">
                                             <button onClick={() => handleSort('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                 Email <SortIcon field="email" />
                                             </button>
-                                        </th>
-                                        <th className="px-4 py-3 text-left">
+                                        </th>}
+                                        {visibleColumns.includes('role') && <th className="px-4 py-3 text-left">
                                             <button onClick={() => handleSort('role')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                 Role <SortIcon field="role" />
                                             </button>
-                                        </th>
-                                        <th className="px-4 py-3 text-left">
+                                        </th>}
+                                        {visibleColumns.includes('status') && <th className="px-4 py-3 text-left">
                                             <button onClick={() => handleSort('is_active')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                 Status <SortIcon field="is_active" />
                                             </button>
-                                        </th>
-                                        <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        </th>}
+                                        {visibleColumns.includes('actions') && <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Actions
-                                        </th>
+                                        </th>}
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -203,18 +227,18 @@ export default function Users({ auth, users, filters, heatmapData }) {
                                     ) : (
                                         users.data.map((u) => (
                                             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>
-                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>
-                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>
-                                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>
-                                                <td className="px-4 py-4 whitespace-normal break-words text-sm">
+                                                {visibleColumns.includes('id') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>}
+                                                {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>}
+                                                {visibleColumns.includes('email') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>}
+                                                {visibleColumns.includes('role') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>}
+                                                {visibleColumns.includes('status') && <td className="px-4 py-4 whitespace-normal break-words text-sm">
                                                     {u.is_active ? (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">Active</span>
                                                     ) : (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">Disabled</span>
                                                     )}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-normal break-words text-right text-sm font-medium">
+                                                </td>}
+                                                {visibleColumns.includes('actions') && <td className="px-4 py-4 whitespace-normal break-words text-right text-sm font-medium">
                                                     {u.id !== auth.user.id && (
                                                         <div className="flex justify-end w-full items-center">
                                                             <Dropdown>
@@ -252,7 +276,7 @@ export default function Users({ auth, users, filters, heatmapData }) {
                                                             </Dropdown>
                                                         </div>
                                                     )}
-                                                </td>
+                                                </td>}
                                             </tr>
                                         ))
                                     )}

@@ -8,6 +8,8 @@ import Tooltip from '@/Components/Tooltip';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import CountUp from 'react-countup';
+import useTableColumns from '@/Hooks/useTableColumns';
+import ColumnSelector from '@/Components/ColumnSelector';
 
 // SVG Icons
 const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
@@ -315,6 +317,12 @@ const LiveContentFeedWidget = ({ latestGlobalNotes }) => (
 const RegistrationsWidget = ({ recentUsers }) => {
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
+    const { visibleColumns, toggleColumn } = useTableColumns('dashboard_registrations', [
+        { id: 'name', label: 'Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'status', label: 'Status' },
+        { id: 'joined', label: 'Joined' }
+    ]);
 
     const handleSort = (field) => {
         let direction = 'asc';
@@ -349,38 +357,50 @@ const RegistrationsWidget = ({ recentUsers }) => {
                 <span className="mr-2 text-indigo-500"><UsersIcon /></span>
                 Recent Registrations
             </h3>
-            <Link 
-                href={route('admin.users')} 
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
-            >
-                Manage <span className="ml-2">&rarr;</span>
-            </Link>
+            <div className="flex items-center gap-2">
+                <ColumnSelector 
+                    columns={[
+                        { id: 'name', label: 'Name' },
+                        { id: 'email', label: 'Email' },
+                        { id: 'status', label: 'Status' },
+                        { id: 'joined', label: 'Joined' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
+                />
+                <Link 
+                    href={route('admin.users')} 
+                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
+                >
+                    Manage <span className="ml-2">&rarr;</span>
+                </Link>
+            </div>
         </div>
 
         <div className="overflow-x-auto flex-1 w-full min-w-0">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
-                        <th className="px-4 py-3 text-left">
+                        {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                 Name <SortIcon field="name" />
                             </button>
-                        </th>
-                        <th className="px-4 py-3 text-left">
+                        </th>}
+                        {visibleColumns.includes('email') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSort('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                 Email <SortIcon field="email" />
                             </button>
-                        </th>
-                        <th className="px-4 py-3 text-left">
+                        </th>}
+                        {visibleColumns.includes('status') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSort('is_active')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                 Status <SortIcon field="is_active" />
                             </button>
-                        </th>
-                        <th className="px-4 py-3 text-left">
+                        </th>}
+                        {visibleColumns.includes('joined') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSort('created_at')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                 Joined <SortIcon field="created_at" />
                             </button>
-                        </th>
+                        </th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -391,27 +411,29 @@ const RegistrationsWidget = ({ recentUsers }) => {
                     ) : (
                         sortedUsers.map(user => (
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white flex items-center">
-                                    {user.is_admin && (
-                                        <Tooltip content="Admin" className="mr-2">
-                                            <span className="text-amber-500"><SettingsIcon /></span>
-                                        </Tooltip>
-                                    )}
-                                    {user.name}
-                                </td>
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
+                                {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
+                                    <div className="flex items-center">
+                                        {user.is_admin && (
+                                            <Tooltip content="Admin" className="mr-2">
+                                                <span className="text-amber-500"><SettingsIcon /></span>
+                                            </Tooltip>
+                                        )}
+                                        {user.name}
+                                    </div>
+                                </td>}
+                                {visibleColumns.includes('email') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {user.email}
-                                </td>
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm">
+                                </td>}
+                                {visibleColumns.includes('status') && <td className="px-4 py-4 whitespace-normal break-words text-sm">
                                     {user.is_active ? (
                                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
                                     ) : (
                                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Inactive</span>
                                     )}
-                                </td>
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
+                                </td>}
+                                {visibleColumns.includes('joined') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {new Date(user.created_at).toLocaleDateString()}
-                                </td>
+                                </td>}
                             </tr>
                         ))
                     )}
@@ -460,20 +482,35 @@ const ActionsWidget = ({ handleDisableAll, handleEnableAll }) => (
     </div>
 );
 
-const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortLogins, SortIconLogins }) => (
+const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortLogins, SortIconLogins }) => {
+    const { visibleColumns, toggleColumn } = useTableColumns('dashboard_logins', [
+        { id: 'name', label: 'Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'last_login', label: 'Last Login' }
+    ]);
+    return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col min-w-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-10">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-emerald-500"><ActivityIcon /></span>
                 Latest User Logins
             </h3>
-            <div className="w-full sm:w-64">
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
                 <input 
                     type="text" 
                     placeholder="Search by name or email..." 
                     value={searchLogins}
                     onChange={(e) => setSearchLogins(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-shadow placeholder-slate-400"
+                    className="w-full sm:w-48 px-4 py-2 bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-shadow placeholder-slate-400"
+                />
+                <ColumnSelector 
+                    columns={[
+                        { id: 'name', label: 'Name' },
+                        { id: 'email', label: 'Email' },
+                        { id: 'last_login', label: 'Last Login' }
+                    ]}
+                    visibleColumns={visibleColumns}
+                    toggleColumn={toggleColumn}
                 />
             </div>
         </div>
@@ -482,21 +519,21 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
                     <tr>
-                        <th className="px-4 py-3 text-left">
+                        {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSortLogins('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
                                 Name <SortIconLogins field="name" />
                             </button>
-                        </th>
-                        <th className="px-4 py-3 text-left">
+                        </th>}
+                        {visibleColumns.includes('email') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSortLogins('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
                                 Email <SortIconLogins field="email" />
                             </button>
-                        </th>
-                        <th className="px-4 py-3 text-left">
+                        </th>}
+                        {visibleColumns.includes('last_login') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSortLogins('last_login_at')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
                                 Last Login <SortIconLogins field="last_login_at" />
                             </button>
-                        </th>
+                        </th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -507,15 +544,15 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
                     ) : (
                         latestLogins.data.map(user => (
                             <tr key={`login-${user.id}`} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
+                                {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
                                     {user.name}
-                                </td>
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
+                                </td>}
+                                {visibleColumns.includes('email') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {user.email}
-                                </td>
-                                <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
+                                </td>}
+                                {visibleColumns.includes('last_login') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-slate-500 dark:text-slate-400">
                                     {new Date(user.last_login_at).toLocaleString()}
-                                </td>
+                                </td>}
                             </tr>
                         ))
                     )}
@@ -528,7 +565,8 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
             </div>
         )}
     </div>
-);
+    );
+};
 
 
 
