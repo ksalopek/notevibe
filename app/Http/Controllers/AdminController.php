@@ -51,7 +51,7 @@ class AdminController extends Controller
                 ['subject' => 'Trashed Notes', 'value' => \App\Models\Note::onlyTrashed()->count(), 'fullMark' => 100],
             ],
             'latestGlobalNotes' => fn () => \App\Models\Note::with('user:id,name,email')->latest()->take(5)->get(),
-            'recentUsers' => fn () => User::latest()->take(5)->get(),
+            'recentUsers' => fn () => User::with('roles')->latest()->take(5)->get(),
             'latestLogins' => fn () => User::whereNotNull('last_login_at')
                 ->when($request->search_logins, function($query, $search) {
                     $query->where(function($q) use ($search) {
@@ -71,7 +71,7 @@ class AdminController extends Controller
         $sortField = $request->input('sort', 'id');
         $sortDirection = $request->input('direction', 'asc');
 
-        $users = \App\Models\User::query()
+        $users = \App\Models\User::with('roles')
             ->when($request->search_users, function($query, $search) {
                 $query->where(function($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -79,7 +79,11 @@ class AdminController extends Controller
                 });
             })
             ->when($request->role && $request->role !== 'all', function($query) use ($request) {
-                $query->where('role', $request->role);
+                if ($request->role === 'admin') {
+                    $query->whereHas('roles');
+                } else {
+                    $query->whereDoesntHave('roles');
+                }
             })
             ->when($request->status && $request->status !== 'all', function($query) use ($request) {
                 $query->where('is_active', $request->status === 'active');
@@ -106,6 +110,9 @@ class AdminController extends Controller
             'heatmapData' => $heatmapData,
             'metrics' => $metrics,
             'filters' => $request->only(['search_users', 'sort', 'direction', 'role', 'status']),
+            'availableRoles' => \Spatie\Permission\Models\Role::orderBy('id')->get()->map(function($r) {
+                return ['id' => $r->id, 'name' => $r->name, 'label' => ucfirst(str_replace('_', ' ', $r->name))];
+            }),
         ]);
     }
 
@@ -122,16 +129,20 @@ class AdminController extends Controller
         return back()->with('message', 'User status updated successfully.');
     }
 
-    public function updateRole(\App\Models\User $user)
+    public function syncRoles(Request $request, \App\Models\User $user)
     {
-        if ($user->id === auth()->id()) {
-            return back()->withErrors('You cannot change your own role.');
+        $request->validate([
+            'roles' => 'array',
+            'roles.*' => 'string|exists:roles,name'
+        ]);
+
+        if ($user->id === auth()->id() && !in_array('super_admin', $request->roles ?? []) && $user->hasRole('super_admin')) {
+            return back()->withErrors('You cannot remove your own super_admin role.');
         }
 
-        $newRole = $user->role === 'admin' ? 'user' : 'admin';
-        $user->update(['role' => $newRole]);
+        $user->syncRoles($request->roles ?? []);
 
-        return back()->with('message', "User role updated to {$newRole} successfully.");
+        return back()->with('message', 'User roles updated successfully.');
     }
 
     public function disableAllUsers()
@@ -324,11 +335,13 @@ class AdminController extends Controller
                 $message = 'Selected users enabled successfully.';
                 break;
             case 'make_admin':
-                \App\Models\User::whereIn('id', $userIds)->update(['role' => 'admin']);
+                $users = \App\Models\User::whereIn('id', $userIds)->get();
+                foreach($users as $u) { $u->assignRole('user_admin'); }
                 $message = 'Selected users promoted to admin.';
                 break;
             case 'make_user':
-                \App\Models\User::whereIn('id', $userIds)->update(['role' => 'user']);
+                $users = \App\Models\User::whereIn('id', $userIds)->get();
+                foreach($users as $u) { $u->syncRoles([]); }
                 $message = 'Selected users demoted to user.';
                 break;
         }
@@ -341,7 +354,7 @@ class AdminController extends Controller
         $sortField = $request->input('sort', 'id');
         $sortDirection = $request->input('direction', 'asc');
 
-        $users = \App\Models\User::query()
+        $users = \App\Models\User::with('roles')
             ->when($request->search_users, function($query, $search) {
                 $query->where(function($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -349,7 +362,11 @@ class AdminController extends Controller
                 });
             })
             ->when($request->role && $request->role !== 'all', function($query) use ($request) {
-                $query->where('role', $request->role);
+                if ($request->role === 'admin') {
+                    $query->whereHas('roles');
+                } else {
+                    $query->whereDoesntHave('roles');
+                }
             })
             ->when($request->status && $request->status !== 'all', function($query) use ($request) {
                 $query->where('is_active', $request->status === 'active');
@@ -366,7 +383,7 @@ class AdminController extends Controller
                 $u->id,
                 $u->name,
                 $u->email,
-                $u->role,
+                $u->roles->count() > 0 ? $u->roles->pluck('name')->join(', ') : 'user',
                 $u->is_active ? 'Active' : 'Disabled',
                 $u->created_at->toDateTimeString()
             ]);

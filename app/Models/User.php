@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'role'])] // Add 'role' to fillable
+#[Fillable(['name', 'email', 'password'])] // Removed 'role' from fillable
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +29,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'is_active',
         'last_login_at',
         'last_login_ip',
@@ -66,10 +66,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has the 'admin' role.
+     * Check if the user has an admin-level role.
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->roles()->count() > 0;
+    }
+
+    /**
+     * Check if the user is a super admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
     }
 }

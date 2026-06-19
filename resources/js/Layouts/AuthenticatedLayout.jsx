@@ -17,7 +17,7 @@ import { applyTheme } from '@/theme';
 const getAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&color=7F9CF5&background=EBF4FF`;
 
 export default function AuthenticatedLayout({ header, children }) {
-    const { user, is_impersonating, has_trashed_notes } = usePage().props.auth;
+    const { user, roles, permissions, is_impersonating, has_trashed_notes } = usePage().props.auth;
     const { app_theme, global_announcement } = usePage().props;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [showChangelog, setShowChangelog] = useState(false);
@@ -50,7 +50,9 @@ export default function AuthenticatedLayout({ header, children }) {
     };
 
     // Helper to check if the user is an admin
-    const isAdmin = user && user.role === 'admin';
+    const isAdmin = roles && roles.length > 0;
+    const isSuperAdmin = roles && roles.includes('super_admin');
+    const hasPerm = (perm) => isSuperAdmin || (permissions && permissions.includes(perm));
 
     return (
         <div className="min-h-screen bg-transparent">
@@ -166,10 +168,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
                                             <Dropdown.Link href={route('admin.index')}>Command Center</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>
+                                            {hasPerm('manage_users') && <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>}
+                                            {hasPerm('manage_notes') && <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>}
+                                            {hasPerm('manage_settings') && <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>}
+                                            {hasPerm('manage_reporting') && <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>}
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -253,10 +255,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
                                             <Dropdown.Link href={route('admin.index')}>Command Center</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>
-                                            <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>
+                                            {hasPerm('manage_users') && <Dropdown.Link href={route('admin.users')}>Manage Users</Dropdown.Link>}
+                                            {hasPerm('manage_notes') && <Dropdown.Link href={route('admin.notes')}>All Notes</Dropdown.Link>}
+                                            {hasPerm('manage_settings') && <Dropdown.Link href={route('admin.settings')}>Settings</Dropdown.Link>}
+                                            {hasPerm('manage_reporting') && <Dropdown.Link href={route('admin.reporting')}>Reporting</Dropdown.Link>}
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -312,20 +314,28 @@ export default function AuthenticatedLayout({ header, children }) {
                         {isAdmin && (
                             <>
                                 <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
-                                    Admin
+                                    Command Center
                                 </ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.users')} active={route().current('admin.users')}>
-                                    Users
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.notes')} active={route().current('admin.notes')}>
-                                    All Notes
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.settings')} active={route().current('admin.settings')}>
-                                    Settings
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.reporting')} active={route().current('admin.reporting')}>
-                                    Reporting
-                                </ResponsiveNavLink>
+                                {hasPerm('manage_users') && (
+                                    <ResponsiveNavLink href={route('admin.users')} active={route().current('admin.users')}>
+                                        Manage Users
+                                    </ResponsiveNavLink>
+                                )}
+                                {hasPerm('manage_notes') && (
+                                    <ResponsiveNavLink href={route('admin.notes')} active={route().current('admin.notes')}>
+                                        All Notes
+                                    </ResponsiveNavLink>
+                                )}
+                                {hasPerm('manage_settings') && (
+                                    <ResponsiveNavLink href={route('admin.settings')} active={route().current('admin.settings')}>
+                                        Settings
+                                    </ResponsiveNavLink>
+                                )}
+                                {hasPerm('manage_reporting') && (
+                                    <ResponsiveNavLink href={route('admin.reporting')} active={route().current('admin.reporting')}>
+                                        Reporting
+                                    </ResponsiveNavLink>
+                                )}
                             </>
                         )}
                     </div>

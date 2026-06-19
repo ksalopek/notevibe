@@ -161,10 +161,21 @@ class ReportingController extends Controller
             });
 
         // 10. Role Distribution
-        $roleDistribution = User::select('role', DB::raw('count(*) as count'))
-            ->groupBy('role')
+        $roleDistribution = DB::table('model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.model_type', User::class)
+            ->select('roles.name', DB::raw('count(*) as count'))
+            ->groupBy('roles.id', 'roles.name')
             ->get()
-            ->map(fn($r) => ['name' => ucfirst($r->role), 'value' => $r->count]);
+            ->map(fn($r) => ['name' => ucfirst(str_replace('_', ' ', $r->name)), 'value' => (int) $r->count])
+            ->toArray();
+
+        $usersWithRolesCount = DB::table('model_has_roles')->where('model_type', User::class)->distinct('model_id')->count('model_id');
+        $regularUsersCount = User::count() - $usersWithRolesCount;
+
+        if ($regularUsersCount > 0) {
+            $roleDistribution[] = ['name' => 'User', 'value' => $regularUsersCount];
+        }
 
         // 11. Geo Distribution
         $usersWithLocation = User::whereNotNull('city')->whereNotNull('country')->get(['id', 'name', 'email', 'city', 'country']);

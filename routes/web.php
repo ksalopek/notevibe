@@ -118,22 +118,22 @@ Route::middleware('auth')->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::get('/admin/users/export', [AdminController::class, 'exportUsers'])->name('admin.users.export');
-    Route::post('/admin/users/bulk', [AdminController::class, 'bulkAction'])->name('admin.users.bulk');
-    Route::get('/admin/users/{user}/activity', [AdminController::class, 'userActivity'])->name('admin.users.activity');
-    Route::patch('/admin/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle');
-    Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
-    Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all');
-    Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all');
-    Route::post('/admin/users/{user}/impersonate', [ImpersonationController::class, 'store'])->name('admin.users.impersonate');
-    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
-    Route::get('/admin/notes', [AdminController::class, 'notes'])->name('admin.notes');
-    Route::delete('/admin/notes/{note}', [AdminController::class, 'destroyNote'])->name('admin.notes.destroy');
-    Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
-    Route::post('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
-    Route::post('/admin/announcement', [AdminController::class, 'updateAnnouncement'])->name('admin.announcement.update');
-    Route::get('/admin/reporting', [\App\Http\Controllers\ReportingController::class, 'index'])->name('admin.reporting');
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users')->middleware('can:manage_users');
+    Route::get('/admin/users/export', [AdminController::class, 'exportUsers'])->name('admin.users.export')->middleware('can:manage_users');
+    Route::post('/admin/users/bulk', [AdminController::class, 'bulkAction'])->name('admin.users.bulk')->middleware('can:manage_users');
+    Route::get('/admin/users/{user}/activity', [AdminController::class, 'userActivity'])->name('admin.users.activity')->middleware('can:manage_users');
+    Route::patch('/admin/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle')->middleware('can:manage_users');
+    Route::put('/admin/users/{user}/roles', [AdminController::class, 'syncRoles'])->name('admin.users.roles.sync')->middleware('can:manage_users');
+    Route::patch('/admin/users/disable-all', [AdminController::class, 'disableAllUsers'])->name('admin.users.disable-all')->middleware('can:manage_users');
+    Route::patch('/admin/users/enable-all', [AdminController::class, 'enableAllUsers'])->name('admin.users.enable-all')->middleware('can:manage_users');
+    Route::post('/admin/users/{user}/impersonate', [ImpersonationController::class, 'store'])->name('admin.users.impersonate')->middleware('can:manage_users');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy')->middleware('can:manage_users');
+    Route::get('/admin/notes', [AdminController::class, 'notes'])->name('admin.notes')->middleware('can:manage_notes');
+    Route::delete('/admin/notes/{note}', [AdminController::class, 'destroyNote'])->name('admin.notes.destroy')->middleware('can:manage_notes');
+    Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings')->middleware('can:manage_settings');
+    Route::post('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update')->middleware('can:manage_settings');
+    Route::post('/admin/announcement', [AdminController::class, 'updateAnnouncement'])->name('admin.announcement.update')->middleware('can:manage_settings');
+    Route::get('/admin/reporting', [\App\Http\Controllers\ReportingController::class, 'index'])->name('admin.reporting')->middleware('can:manage_reporting');
 });
 
 Route::post('/impersonate/leave', [ImpersonationController::class, 'destroy'])

@@ -16,7 +16,7 @@ class ReportingTest extends TestCase
 
     public function test_admin_reporting_gatekeeping_for_regular_users()
     {
-        $user = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('admin.reporting'));
 
@@ -26,7 +26,7 @@ class ReportingTest extends TestCase
 
     public function test_admin_reporting_is_accessible_by_admins()
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)->get(route('admin.reporting'));
 
@@ -46,7 +46,7 @@ class ReportingTest extends TestCase
 
     public function test_aggregation_accuracy_for_power_users_and_at_risk_users()
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->admin()->create();
 
         // Power User: Top 10 users with most notes
         $powerUser = User::factory()->create();
@@ -67,7 +67,7 @@ class ReportingTest extends TestCase
 
     public function test_security_metrics_abandoned_accounts()
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->admin()->create();
 
         // Abandoned Account: No notes, > 7 days old
         $abandonedUser = User::factory()->create([
