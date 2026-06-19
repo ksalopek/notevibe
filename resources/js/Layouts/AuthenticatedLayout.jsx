@@ -49,7 +49,15 @@ export default function AuthenticatedLayout({ header, children }) {
     const isAdmin = user && user.role === 'admin';
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="min-h-screen bg-transparent">
+            {/* Fixed subtle background image with overlay */}
+            <div 
+                className="fixed inset-0 z-[-1] bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/images/app_bg.png')" }}
+            >
+                <div className="absolute inset-0 bg-gray-50/85 dark:bg-gray-950/90 backdrop-blur-sm"></div>
+            </div>
+
             {global_announcement && (
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-white text-center shadow-md relative z-50">
                     <p className="text-sm font-semibold flex items-center justify-center gap-2">

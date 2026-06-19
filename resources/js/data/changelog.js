@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.16.3",
+        "date": "2026-06-19",
+        "features": [
+            "feat: Add topographical backgrounds to UI and welcome page"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.16.2",
         "date": "2026-06-19",
         "features": [
