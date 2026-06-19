@@ -78,6 +78,12 @@ class AdminController extends Controller
                       ->orWhere('email', 'like', "%{$search}%");
                 });
             })
+            ->when($request->role && $request->role !== 'all', function($query) use ($request) {
+                $query->where('role', $request->role);
+            })
+            ->when($request->status && $request->status !== 'all', function($query) use ($request) {
+                $query->where('is_active', $request->status === 'active');
+            })
             ->orderBy($sortField, $sortDirection)
             ->paginate(10)
             ->withQueryString();
@@ -88,10 +94,18 @@ class AdminController extends Controller
             ->map(fn ($user) => [(float) $user->latitude, (float) $user->longitude, 1])
             ->toArray();
 
+        $metrics = [
+            'totalUsers' => \App\Models\User::count(),
+            'newUsersThisWeek' => \App\Models\User::where('created_at', '>=', now()->subDays(7))->count(),
+            'activeUsers' => \App\Models\User::where('is_active', true)->count(),
+            'disabledUsers' => \App\Models\User::where('is_active', false)->count(),
+        ];
+
         return Inertia::render('Admin/Users', [
             'users' => $users,
             'heatmapData' => $heatmapData,
-            'filters' => $request->only(['search_users', 'sort', 'direction']),
+            'metrics' => $metrics,
+            'filters' => $request->only(['search_users', 'sort', 'direction', 'role', 'status']),
         ]);
     }
 
@@ -276,5 +290,129 @@ class AdminController extends Controller
         \App\Models\Setting::set('global_announcement', $request->message);
 
         return back()->with('message', 'Global announcement published successfully.');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'userIds' => 'required|array',
+            'userIds.*' => 'integer|exists:users,id',
+            'action' => 'required|string|in:delete,disable,enable,make_admin,make_user'
+        ]);
+
+        $userIds = $request->userIds;
+        
+        // Prevent action on self
+        if (in_array(auth()->id(), $userIds)) {
+            $userIds = array_diff($userIds, [auth()->id()]);
+            if (empty($userIds)) {
+                return back()->withErrors('You cannot perform this action on your own account.');
+            }
+        }
+
+        switch ($request->action) {
+            case 'delete':
+                \App\Models\User::whereIn('id', $userIds)->delete();
+                $message = 'Selected users deleted successfully.';
+                break;
+            case 'disable':
+                \App\Models\User::whereIn('id', $userIds)->update(['is_active' => false]);
+                $message = 'Selected users disabled successfully.';
+                break;
+            case 'enable':
+                \App\Models\User::whereIn('id', $userIds)->update(['is_active' => true]);
+                $message = 'Selected users enabled successfully.';
+                break;
+            case 'make_admin':
+                \App\Models\User::whereIn('id', $userIds)->update(['role' => 'admin']);
+                $message = 'Selected users promoted to admin.';
+                break;
+            case 'make_user':
+                \App\Models\User::whereIn('id', $userIds)->update(['role' => 'user']);
+                $message = 'Selected users demoted to user.';
+                break;
+        }
+
+        return back()->with('message', $message ?? 'Bulk action completed.');
+    }
+
+    public function exportUsers(Request $request)
+    {
+        $sortField = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+
+        $users = \App\Models\User::query()
+            ->when($request->search_users, function($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->role && $request->role !== 'all', function($query) use ($request) {
+                $query->where('role', $request->role);
+            })
+            ->when($request->status && $request->status !== 'all', function($query) use ($request) {
+                $query->where('is_active', $request->status === 'active');
+            })
+            ->orderBy($sortField, $sortDirection)
+            ->get();
+
+        $filename = "users_export_" . now()->format('Y_m_d_His') . ".csv";
+        $handle = fopen('php://temp', 'w+');
+        
+        fputcsv($handle, ['ID', 'Name', 'Email', 'Role', 'Status', 'Joined At']);
+        foreach ($users as $u) {
+            fputcsv($handle, [
+                $u->id,
+                $u->name,
+                $u->email,
+                $u->role,
+                $u->is_active ? 'Active' : 'Disabled',
+                $u->created_at->toDateTimeString()
+            ]);
+        }
+        
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+        
+        return response($content)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
+    public function userActivity(\App\Models\User $user)
+    {
+        $logins = \App\Models\LoginHistory::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(50)
+            ->get()
+            ->map(function($login) {
+                return [
+                    'type' => 'login',
+                    'action' => 'Logged in',
+                    'details' => "IP: {$login->ip_address}",
+                    'date' => $login->created_at
+                ];
+            });
+
+        $notes = \App\Models\Note::where('user_id', $user->id)
+            ->withTrashed()
+            ->orderBy('created_at', 'desc')
+            ->take(50)
+            ->get()
+            ->map(function($note) {
+                $status = $note->trashed() ? 'Deleted note' : 'Created note';
+                return [
+                    'type' => 'note',
+                    'action' => $status,
+                    'details' => "Title: {$note->title}",
+                    'date' => $note->created_at
+                ];
+            });
+
+        $activity = collect($logins)->merge($notes)->sortByDesc('date')->values()->take(50);
+        
+        return response()->json($activity);
     }
 }
