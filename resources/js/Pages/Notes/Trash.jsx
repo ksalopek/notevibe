@@ -9,6 +9,7 @@ import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SimpleNoteCard from '@/Components/SimpleNoteCard';
 
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -103,10 +104,10 @@ export default function Trash({ notes, filters }) {
             <Head title="Trash" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                     {/* --- SEARCH AND TOGGLE --- */}
-                    <div className="mb-8 flex gap-4">
+                    <div className="mb-8 flex flex-wrap items-center gap-4">
                         {notes.data && notes.data.length > 0 && (
                             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
                                 <input 
@@ -123,7 +124,7 @@ export default function Trash({ notes, filters }) {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search trashed notes..."
-                            className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                            className="w-full order-last sm:order-none sm:w-auto sm:flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         />
                         <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
                             <Tooltip content="Grid View">
@@ -163,19 +164,15 @@ export default function Trash({ notes, filters }) {
                     ) : (
                         <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
                             {notes.data.map((note) => (
-                                <div key={note.id} className={`break-inside-avoid mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 ${selectedNotes.includes(note.id) ? 'border-primary-500 ring-2 ring-primary-500 dark:ring-primary-500 dark:border-primary-500 bg-primary-50/10 dark:bg-primary-900/10 opacity-100' : 'border-gray-200 dark:border-gray-700 opacity-75 hover:opacity-100'}`}>
-                                    <div className="absolute -top-3 -left-3 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={selectedNotes.includes(note.id)}
-                                            onChange={(e) => handleSelectNote(note.id, e.target.checked)}
-                                            className={`w-6 h-6 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shadow-sm ${selectedNotes.includes(note.id) ? 'opacity-100' : ''}`}
-                                            style={{ opacity: selectedNotes.includes(note.id) ? 1 : undefined }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-start">
-                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 line-through">{note.title}</h2>
-                                        <div className="flex gap-2">
+                                <SimpleNoteCard
+                                    key={note.id}
+                                    note={note}
+                                    isSelected={selectedNotes.includes(note.id)}
+                                    onSelect={handleSelectNote}
+                                    isDeleted={true}
+                                    badge={`Deleted: ${new Date(note.deleted_at).toLocaleString()}`}
+                                    actions={
+                                        <>
                                             <Tooltip content="Restore">
                                                 <button 
                                                     onClick={() => restoreNote(note.id)} 
@@ -192,16 +189,9 @@ export default function Trash({ notes, filters }) {
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </Tooltip>
-                                        </div>
-                                    </div>
-                                    {/* Render content as HTML */}
-                                    <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.content }} />
-                                    {/* Render notes as HTML */}
-                                    <div className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: note.notes }} />
-                                    <p className="mt-4 text-xs text-red-500 dark:text-red-400 font-semibold">
-                                        Deleted: {new Date(note.deleted_at).toLocaleString()}
-                                    </p>
-                                </div>
+                                        </>
+                                    }
+                                />
                             ))}
                         </div>
                     )}

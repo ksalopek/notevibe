@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.18.1",
+        "date": "2026-06-19",
+        "features": [
+            "UI Polish: Refine trash and help menus"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.18.0",
         "date": "2026-06-19",
         "features": [
