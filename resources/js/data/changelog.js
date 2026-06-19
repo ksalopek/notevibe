@@ -1,5 +1,17 @@
 export const changelogData = [
     {
+        "version": "v2.17.0",
+        "date": "2026-06-19",
+        "features": [
+            "feat: Implement comprehensive Role-Based Access Control (RBAC) with Spatie",
+            "feat: Add granular user roles (super_admin, admin, user_admin, content_admin, settings_admin)",
+            "feat: Add new 'Manage Roles' interface for administrators",
+            "feat: Dynamically render Command Center navigation based on Spatie permissions",
+            "feat: Restrict Quick Actions and Global Broadcast widgets to super_admin only"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.16.6",
         "date": "2026-06-19",
         "features": [],
