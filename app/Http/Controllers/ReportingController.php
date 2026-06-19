@@ -167,14 +167,18 @@ class ReportingController extends Controller
             ->map(fn($r) => ['name' => ucfirst($r->role), 'value' => $r->count]);
 
         // 11. Geo Distribution
-        $geoDistribution = User::whereNotNull('city')
-            ->whereNotNull('country')
-            ->select('city', 'country', DB::raw('count(*) as count'))
-            ->groupBy('city', 'country')
-            ->orderByDesc('count')
-            ->take(10)
-            ->get()
-            ->map(fn($g) => ['location' => $g->city . ', ' . $g->country, 'count' => $g->count]);
+        $usersWithLocation = User::whereNotNull('city')->whereNotNull('country')->get(['id', 'name', 'email', 'city', 'country']);
+        $groupedByLocation = $usersWithLocation->groupBy(function($user) {
+            return $user->city . ', ' . $user->country;
+        });
+        
+        $geoDistribution = $groupedByLocation->map(function($users, $location) {
+            return [
+                'location' => $location,
+                'count' => $users->count(),
+                'users' => $users->map(fn($u) => ['name' => $u->name, 'email' => $u->email])->values()->all()
+            ];
+        })->sortByDesc('count')->take(10)->values()->all();
 
         // 12. Active Users Data (DAU vs MAU)
         $activeUsersData = [];

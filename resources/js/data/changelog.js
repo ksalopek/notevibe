@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.15.1",
+        "date": "2026-06-18",
+        "features": [
+            "feat: enhance geo distribution with user list and CSV export"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.15.0",
         "date": "2026-06-18",
         "features": [
