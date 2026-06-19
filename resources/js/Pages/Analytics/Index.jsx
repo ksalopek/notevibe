@@ -99,7 +99,7 @@ const MetricPersona = ({ persona }) => (
 const ChartVelocity = ({ velocityChart }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Note Velocity (Last 30 Days)</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={velocityChart}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
@@ -119,10 +119,10 @@ const ChartVelocity = ({ velocityChart }) => (
 const ChartTopics = ({ tagDistribution }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top Topics</h3>
-        <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px] flex flex-col items-center justify-center">
             {tagDistribution.length > 0 ? (
                 <>
-                    <div className="flex-1 w-full min-h-[150px]">
+                    <div className="w-full flex-1 min-h-[150px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -164,7 +164,7 @@ const ChartTopics = ({ tagDistribution }) => (
 const ChartProductivity = ({ hourChart }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Productivity by Hour</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={hourChart}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} vertical={false} />
@@ -185,7 +185,7 @@ const ChartProductivity = ({ hourChart }) => (
 const ChartBusiest = ({ busiestDayChart }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Busiest Day of the Week</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={busiestDayChart}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} vertical={false} />

@@ -92,7 +92,7 @@ const MetricAvgNoteLength = ({ stats }) => (
 const ChartVelocity = ({ noteVelocity }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Note Velocity (Last 30 Days)</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={noteVelocity}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
@@ -112,7 +112,7 @@ const ChartVelocity = ({ noteVelocity }) => (
 const ChartTagCloud = ({ tagCloud }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top 20 Tags</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={tagCloud} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} horizontal={false} />
@@ -132,7 +132,7 @@ const ChartTagCloud = ({ tagCloud }) => (
 const ChartHeatmap = ({ activityHeatmap }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Login Activity Heatmap (Last 90 Days)</h3>
-        <div className="flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />

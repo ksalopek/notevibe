@@ -198,7 +198,7 @@ const TopTagsWidget = ({ topTags }) => (
 
 const ActivityChartWidget = ({ chartData, noteDays, onNoteDaysChange }) => (
     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
-        <div className="flex items-center justify-between mb-6 pr-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pr-10 gap-4">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-primary-500"><ActivityIcon /></span>
                 Note Activity (Last {noteDays} Days)
@@ -206,7 +206,7 @@ const ActivityChartWidget = ({ chartData, noteDays, onNoteDaysChange }) => (
             <select
                 value={noteDays}
                 onChange={onNoteDaysChange}
-                className="ml-4 text-sm bg-gray-50 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                className="w-full sm:w-auto text-sm bg-gray-50 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 cursor-pointer"
             >
                 <option value={7}>7 Days</option>
                 <option value={14}>14 Days</option>
@@ -214,7 +214,7 @@ const ActivityChartWidget = ({ chartData, noteDays, onNoteDaysChange }) => (
                 <option value={30}>30 Days</option>
             </select>
         </div>
-        <div className="w-full flex-1 min-h-[150px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[150px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={chartData}
