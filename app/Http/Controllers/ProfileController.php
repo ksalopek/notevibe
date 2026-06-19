@@ -60,4 +60,36 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Update the user's dashboard widgets configuration.
+     */
+    public function updateWidgets(Request $request)
+    {
+        $request->validate([
+            'widgets' => ['required', 'array'],
+        ]);
+
+        $request->user()->update([
+            'dashboard_widgets' => $request->widgets,
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * Update the user's analytics widgets configuration.
+     */
+    public function updateAnalyticsWidgets(Request $request)
+    {
+        $request->validate([
+            'widgets' => ['required', 'array'],
+        ]);
+
+        $request->user()->update([
+            'analytics_widgets' => $request->widgets,
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
 }
