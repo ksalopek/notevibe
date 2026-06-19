@@ -236,9 +236,14 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                 />
                                 {errors.tags && <div className="text-red-500 text-sm mt-1">{errors.tags}</div>}
                             </div>
-                            <button type="submit" disabled={processing} className="w-full bg-emerald-600 text-white font-bold text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-emerald-700 transition-all">
-                                {processing ? 'Saving...' : 'Save Note'}
-                            </button>
+                            <div className="flex justify-end pt-2">
+                                <button type="submit" disabled={processing} className="inline-flex items-center justify-center gap-2 bg-primary-600 dark:bg-primary-500 text-white font-semibold text-sm px-6 py-2.5 rounded-full shadow-md hover:bg-primary-700 dark:hover:bg-primary-600 hover:shadow-lg transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    {processing ? 'Saving...' : 'Create Note'}
+                                </button>
+                            </div>
                         </form>
                     </div>
 
