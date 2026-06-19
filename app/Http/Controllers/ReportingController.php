@@ -60,15 +60,26 @@ class ReportingController extends Controller
         
         // Flatten heatmap data for Recharts
         $heatmapFlat = [];
+        $peakHour = 0;
+        $peakDay = 'Mon';
+        $maxCount = 0;
         foreach ($days as $day) {
             foreach (range(0, 23) as $hour) {
+                $count = $heatmapData[$day][$hour];
                 $heatmapFlat[] = [
                     'day' => $day,
                     'hour' => $hour,
-                    'count' => $heatmapData[$day][$hour],
+                    'count' => $count,
                 ];
+                if ($count > $maxCount) {
+                    $maxCount = $count;
+                    $peakHour = $hour;
+                    $peakDay = $day;
+                }
             }
         }
+        
+        $peakUsage = $maxCount > 0 ? "{$peakDay} at " . \Carbon\Carbon::createFromTime($peakHour)->format('g:i A') : 'No data';
 
         // 4. Note Velocity (last 30 days)
         // Group in PHP to be DB agnostic
@@ -149,6 +160,43 @@ class ReportingController extends Controller
                 return $setting;
             });
 
+        // 10. Role Distribution
+        $roleDistribution = User::select('role', DB::raw('count(*) as count'))
+            ->groupBy('role')
+            ->get()
+            ->map(fn($r) => ['name' => ucfirst($r->role), 'value' => $r->count]);
+
+        // 11. Geo Distribution
+        $geoDistribution = User::whereNotNull('city')
+            ->whereNotNull('country')
+            ->select('city', 'country', DB::raw('count(*) as count'))
+            ->groupBy('city', 'country')
+            ->orderByDesc('count')
+            ->take(10)
+            ->get()
+            ->map(fn($g) => ['location' => $g->city . ', ' . $g->country, 'count' => $g->count]);
+
+        // 12. Active Users Data (DAU vs MAU)
+        $activeUsersData = [];
+        $loginsLast60Days = LoginHistory::where('created_at', '>=', now()->subDays(60))
+            ->get(['user_id', 'created_at']);
+            
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $startOfDay = now()->subDays($i)->startOfDay();
+            $endOfDay = now()->subDays($i)->endOfDay();
+            
+            $dau = $loginsLast60Days->whereBetween('created_at', [$startOfDay, $endOfDay])->pluck('user_id')->unique()->count();
+            $thirtyDaysAgo = $endOfDay->copy()->subDays(30);
+            $mau = $loginsLast60Days->whereBetween('created_at', [$thirtyDaysAgo, $endOfDay])->pluck('user_id')->unique()->count();
+            
+            $activeUsersData[] = [
+                'date' => \Carbon\Carbon::parse($date)->format('M d'),
+                'dau' => $dau,
+                'mau' => $mau
+            ];
+        }
+
         // 10. Dashboard Widget Usage
         $usersWithWidgets = User::whereNotNull('dashboard_widgets')->get(['dashboard_widgets']);
         $totalConfiguredUsers = $usersWithWidgets->count();
@@ -228,12 +276,16 @@ class ReportingController extends Controller
             'powerUsers' => $powerUsers,
             'atRiskUsers' => $atRiskUsers,
             'activityHeatmap' => $heatmapFlat,
+            'peakUsage' => $peakUsage,
             'noteVelocity' => $velocityFlat,
             'tagCloud' => $tagCloud,
             'accessLogs' => $accessLogs,
             'abandonedAccounts' => $abandonedAccounts,
             'settingsAudit' => $settingsAudit,
             'widgetUsage' => $widgetUsage,
+            'roleDistribution' => $roleDistribution,
+            'geoDistribution' => $geoDistribution,
+            'activeUsersData' => $activeUsersData,
             'stats' => [
                 'totalNotes' => $totalNotes,
                 'avgNoteLength' => $avgNoteLength,

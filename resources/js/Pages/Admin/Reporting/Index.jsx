@@ -6,7 +6,7 @@ import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-gri
 import { repackLayout } from '@/utils/gridLayoutUtils';
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-    BarChart, Bar, ScatterChart, Scatter, ZAxis
+    BarChart, Bar, ScatterChart, Scatter, ZAxis, PieChart, Pie, Cell, ComposedChart, Legend
 } from 'recharts';
 import { Download } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
@@ -255,7 +255,7 @@ const TableAtRiskUsers = ({ atRiskUsers }) => {
     return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
         <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">At-Risk Users (>30 Days)</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">At-Risk Users (&gt;30 Days)</h3>
             <div className="flex items-center gap-2">
                 <ColumnSelector 
                     columns={[
@@ -471,18 +471,105 @@ const TableSettingsAudit = ({ settingsAudit }) => {
     );
 };
 
+const ChartRoleDistribution = ({ roleDistribution }) => {
+    const COLORS = ['#6366f1', '#10b981'];
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Role Distribution</h3>
+            <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={roleDistribution}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                        >
+                            {roleDistribution.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <RechartsTooltip 
+                            contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
+                        />
+                        <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+};
+
+const TableGeoDistribution = ({ geoDistribution }) => {
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 overflow-hidden">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Geographical Distribution</h3>
+            <div className="w-full flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-4">
+                    {geoDistribution.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-4">No location data available.</p>
+                    ) : geoDistribution.map((loc, idx) => (
+                        <div key={idx} className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{loc.location}</span>
+                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{loc.count} users</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const MetricPeakUsage = ({ peakUsage }) => (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Peak Usage Time</h3>
+        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{peakUsage}</p>
+        <p className="text-xs text-gray-500 mt-2">Based on 90-day login heatmap</p>
+    </div>
+);
+
+const ChartActiveUsers = ({ activeUsersData }) => (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">DAU vs MAU (Last 30 Days)</h3>
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={activeUsersData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis dataKey="date" stroke="#6B7280" fontSize={12} tickMargin={10} minTickGap={20} />
+                    <YAxis yAxisId="left" stroke="#6B7280" fontSize={12} />
+                    <YAxis yAxisId="right" orientation="right" stroke="#6B7280" fontSize={12} />
+                    <RechartsTooltip 
+                        contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
+                    />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="dau" name="Daily Active Users" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="mau" name="Monthly Active Users" stroke="#6366f1" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                </ComposedChart>
+            </ResponsiveContainer>
+        </div>
+    </div>
+);
+
 // Default Layout
 const defaultLayout = [
     { i: 'total-notes', x: 0, y: 0, w: 2, h: 1, minW: 2 },
     { i: 'avg-length', x: 2, y: 0, w: 2, h: 1, minW: 2 },
-    { i: 'velocity', x: 0, y: 1, w: 2, h: 2, minW: 2 },
-    { i: 'tag-cloud', x: 2, y: 1, w: 2, h: 2, minW: 2 },
-    { i: 'heatmap', x: 0, y: 3, w: 4, h: 2, minW: 3 },
-    { i: 'power-users', x: 0, y: 5, w: 2, h: 2, minW: 2 },
-    { i: 'at-risk', x: 2, y: 5, w: 2, h: 2, minW: 2 },
-    { i: 'access-logs', x: 0, y: 7, w: 4, h: 2, minW: 3 },
-    { i: 'abandoned', x: 0, y: 9, w: 2, h: 2, minW: 2 },
-    { i: 'settings-audit', x: 2, y: 9, w: 2, h: 2, minW: 2 },
+    { i: 'peak-usage', x: 0, y: 1, w: 2, h: 1, minW: 2 },
+    { i: 'role-distribution', x: 2, y: 1, w: 2, h: 2, minW: 2 },
+    { i: 'velocity', x: 0, y: 2, w: 2, h: 2, minW: 2 },
+    { i: 'active-users', x: 2, y: 3, w: 2, h: 2, minW: 2 },
+    { i: 'tag-cloud', x: 0, y: 4, w: 2, h: 2, minW: 2 },
+    { i: 'geo-distribution', x: 2, y: 5, w: 2, h: 2, minW: 2 },
+    { i: 'heatmap', x: 0, y: 7, w: 4, h: 2, minW: 3 },
+    { i: 'power-users', x: 0, y: 9, w: 2, h: 2, minW: 2 },
+    { i: 'at-risk', x: 2, y: 9, w: 2, h: 2, minW: 2 },
+    { i: 'access-logs', x: 0, y: 11, w: 4, h: 2, minW: 3 },
+    { i: 'abandoned', x: 0, y: 13, w: 2, h: 2, minW: 2 },
+    { i: 'settings-audit', x: 2, y: 13, w: 2, h: 2, minW: 2 },
+    { i: 'widget-usage', x: 0, y: 15, w: 4, h: 2, minW: 2 },
     { i: 'total-notes', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
     { i: 'avg-length', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
     { i: 'velocity', x: 2, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
@@ -498,7 +585,8 @@ const defaultLayout = [
 
 export default function Reporting({ 
     powerUsers, atRiskUsers, activityHeatmap, noteVelocity, 
-    tagCloud, accessLogs, abandonedAccounts, settingsAudit, widgetUsage, stats 
+    tagCloud, accessLogs, abandonedAccounts, settingsAudit, widgetUsage, stats,
+    roleDistribution, geoDistribution, peakUsage, activeUsersData
 }) {
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
@@ -519,8 +607,12 @@ export default function Reporting({
             return saved ? JSON.parse(saved) : [
                 { id: 'total-notes', title: 'Total Notes' },
                 { id: 'avg-length', title: 'Avg Note Length' },
+                { id: 'peak-usage', title: 'Peak Usage Time' },
+                { id: 'role-distribution', title: 'Role Distribution' },
                 { id: 'velocity', title: 'Note Velocity' },
+                { id: 'active-users', title: 'DAU vs MAU' },
                 { id: 'tag-cloud', title: 'Top Tags' },
+                { id: 'geo-distribution', title: 'Geographical Distribution' },
                 { id: 'heatmap', title: 'Activity Heatmap' },
                 { id: 'widget-usage', title: 'Widget Usage' },
                 { id: 'power-users', title: 'Power Users' },
@@ -596,6 +688,10 @@ export default function Reporting({
             case 'access-logs': return <TableAccessLogs accessLogs={accessLogs} />;
             case 'abandoned': return <TableAbandonedAccounts abandonedAccounts={abandonedAccounts} />;
             case 'settings-audit': return <TableSettingsAudit settingsAudit={settingsAudit} />;
+            case 'role-distribution': return <ChartRoleDistribution roleDistribution={roleDistribution} />;
+            case 'geo-distribution': return <TableGeoDistribution geoDistribution={geoDistribution} />;
+            case 'peak-usage': return <MetricPeakUsage peakUsage={peakUsage} />;
+            case 'active-users': return <ChartActiveUsers activeUsersData={activeUsersData} />;
             default: return null;
         }
     };
