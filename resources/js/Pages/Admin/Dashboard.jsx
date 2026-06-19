@@ -145,7 +145,7 @@ const MetricTotalLoginsWidget = ({ metrics }) => {
 
 const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
                 Platform Radar (Last {radarDays}d)
@@ -153,7 +153,7 @@ const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
             <select
                 value={radarDays}
                 onChange={onRadarDaysChange}
-                className="ml-4 text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                className="w-full sm:w-auto text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
             >
                 <option value={7}>7 Days</option>
                 <option value={14}>14 Days</option>
@@ -161,7 +161,7 @@ const RadarEngagementWidget = ({ radarData, radarDays, onRadarDaysChange }) => (
                 <option value={30}>30 Days</option>
             </select>
         </div>
-        <div className="w-full flex-1 min-h-[150px] mt-4">
+        <div className="w-full h-[300px] mt-4 lg:flex-1 lg:h-auto lg:min-h-[150px]">
             <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                     <PolarGrid stroke="#cbd5e1" className="dark:stroke-slate-700" />
@@ -242,7 +242,7 @@ const GlobalBroadcastWidget = ({ currentAnnouncement }) => {
 
 const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
-        <div className="flex items-center justify-between mb-6 pr-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pr-10 gap-4">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                 <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
                 Platform Activity (Last {activityDays} Days)
@@ -250,7 +250,7 @@ const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) 
             <select
                 value={activityDays}
                 onChange={onActivityDaysChange}
-                className="ml-4 text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                className="w-full sm:w-auto text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
             >
                 <option value={7}>7 Days</option>
                 <option value={14}>14 Days</option>
@@ -258,7 +258,7 @@ const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) 
                 <option value={30}>30 Days</option>
             </select>
         </div>
-        <div className="w-full flex-1 min-h-[200px]">
+        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={chartData}

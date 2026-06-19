@@ -234,9 +234,10 @@ export default function Notes({ notes, filters, analyticsData }) {
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="bg-white dark:bg-slate-800 rounded-3xl overflow-visible shadow-xl border border-slate-200 dark:border-slate-700"
+                        className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 w-full"
                     >
-                        <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <div className="overflow-x-auto w-full min-h-[300px]">
+                            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                             <thead className="bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Note Info</th>
@@ -319,6 +320,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                 })}
                             </tbody>
                         </table>
+                        </div>
                         {notes && notes.links && notes.data.length > 0 && (
                             <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 flex justify-center">
                                 <Pagination links={notes.links} only={['notes']} />
