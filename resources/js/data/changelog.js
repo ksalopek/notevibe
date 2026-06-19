@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.16.0",
+        "date": "2026-06-18",
+        "features": [
+            "feat: add built-in knowledge base and help center"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.15.1",
         "date": "2026-06-18",
         "features": [
