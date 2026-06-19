@@ -861,7 +861,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         >
             <Head title="Admin Command Center" />
 
-            <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 bg-slate-50 dark:bg-slate-900 min-h-screen">
+            <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 bg-transparent min-h-screen">
                 
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}

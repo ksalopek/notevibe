@@ -6,8 +6,14 @@ export default function Welcome({ auth, appVersion }) {
     return (
         <>
             <Head title="Welcome" />
-            <div className="bg-gray-50 text-black/50 dark:bg-zinc-950 dark:text-white/50">
-                <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-primary-500 selection:text-white">
+            <div 
+                className="relative bg-gray-50 text-black/50 dark:bg-zinc-950 dark:text-white/50 min-h-screen bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/images/welcome_bg.png')" }}
+            >
+                {/* Background overlay for readability */}
+                <div className="absolute inset-0 bg-white/80 dark:bg-black/70 backdrop-blur-sm"></div>
+
+                <div className="relative z-10 flex min-h-screen flex-col items-center justify-center selection:bg-primary-500 selection:text-white">
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
                         <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
                             <div className="flex lg:col-start-2 lg:justify-center">
