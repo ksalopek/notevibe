@@ -29,7 +29,6 @@ class UpdateNoteRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'notes' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
             'is_pinned' => 'nullable|boolean',
             'is_archived' => 'nullable|boolean',

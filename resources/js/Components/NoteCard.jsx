@@ -8,13 +8,11 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
 
     // Keep local state for HTML content to prevent React re-renders from wiping out optimistic checklist changes
     const [localContent, setLocalContent] = React.useState('');
-    const [localNotes, setLocalNotes] = React.useState('');
 
     React.useEffect(() => {
         // Tiptap saves checkboxes as disabled="disabled". We must remove this so they can be clicked.
         setLocalContent(note.content ? note.content.replace(/<input type="checkbox" disabled="disabled"/g, '<input type="checkbox"').replace(/<input type="checkbox" disabled/g, '<input type="checkbox"') : '');
-        setLocalNotes(note.notes ? note.notes.replace(/<input type="checkbox" disabled="disabled"/g, '<input type="checkbox"').replace(/<input type="checkbox" disabled/g, '<input type="checkbox"') : '');
-    }, [note.content, note.notes]);
+    }, [note.content]);
 
     const lastEdited = new Date(note.updated_at).toLocaleString(undefined, {
         month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
@@ -28,7 +26,7 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
             const li = checkbox.closest('li[data-type="taskItem"]');
             if (li) {
                 const isChecked = checkbox.checked;
-                const currentHtml = field === 'content' ? localContent : localNotes;
+                const currentHtml = localContent;
                 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(currentHtml, 'text/html');
@@ -51,8 +49,7 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                     const newHtml = doc.body.innerHTML;
                     
                     // Update local state so it immediately visually reflects the change and survives re-renders
-                    if (field === 'content') setLocalContent(newHtml);
-                    else setLocalNotes(newHtml);
+                    setLocalContent(newHtml);
 
                     // Call the debounce handler from props to save to backend
                     if (updateNoteContent) {
@@ -84,7 +81,7 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                 </div>
             )}
             <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 pr-8">{note.title}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 pr-8">{note.title}</h2>
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <Tooltip content={note.is_pinned ? "Unpin" : "Pin"}>
                         <button 
@@ -152,8 +149,14 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                     </a>
                 )}
 
-                <div onClick={(e) => handleContentClick(e, 'content')} className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: localContent }} />
-                <div onClick={(e) => handleContentClick(e, 'notes')} className="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: localNotes }} />
+                {localContent && localContent !== '<p></p>' && (
+                    <div 
+                        onClick={(e) => handleContentClick(e, 'content')} 
+                        className="prose prose-slate dark:prose-invert prose-sm sm:prose-base max-w-none leading-relaxed mt-4 text-slate-700 dark:text-slate-300 [&_input[type='checkbox']]:rounded [&_input[type='checkbox']]:text-primary-600 [&_input[type='checkbox']]:border-slate-300 dark:[&_input[type='checkbox']]:border-slate-600 dark:[&_input[type='checkbox']]:bg-slate-800 [&_input[type='checkbox']]:focus:ring-primary-500 [&_input[type='checkbox']]:w-4 [&_input[type='checkbox']]:h-4 [&_input[type='checkbox']]:cursor-pointer [&_input[type='checkbox']]:transition-colors [&_li[data-checked='true']]:text-slate-400 dark:[&_li[data-checked='true']]:text-slate-500 [&_li[data-checked='true']]:line-through" 
+                        dangerouslySetInnerHTML={{ __html: localContent }} 
+                    />
+                )}
+
                 
                 {!isExpanded && (
                     <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none" />
