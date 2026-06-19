@@ -1,10 +1,33 @@
 export const changelogData = [
     {
+        "version": "v2.14.0",
+        "date": "2026-06-18",
+        "features": [
+            "feat: implement comprehensive widget usage tracking"
+        ],
+        "fixes": []
+    },
+    {
+        "version": "v2.13.0",
+        "date": "2026-06-18",
+        "features": [
+            "feat:"
+        ],
+        "fixes": []
+    },
+    {
+        "version": "v2.12.1",
+        "date": "2026-06-18",
+        "features": [],
+        "fixes": [
+            "fix: mobile layout overflow in charts and tables"
+        ]
+    },
+    {
         "version": "v2.12.0",
         "date": "2026-06-18",
         "features": [
-            "Introduced NoteVibe Changelog popup to keep users informed about new releases.",
-            "Historical changelog data now completely tracks all previous releases."
+            "feat:"
         ],
         "fixes": []
     },
