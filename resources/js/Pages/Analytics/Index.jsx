@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { repackLayout } from '@/utils/gridLayoutUtils';
+import axios from 'axios';
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     BarChart, Bar, PieChart, Pie, Cell
@@ -234,8 +235,7 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
     });
     const { width: containerWidth, containerRef } = useContainerWidth();
     
-    // Default order of available widgets for the slideout
-    const [availableWidgets, setAvailableWidgets] = useState([
+    const defaultAvailableWidgets = [
         { id: 'streak', title: 'Current Streak' },
         { id: 'words', title: 'Total Words' },
         { id: 'notes', title: 'Total Notes' },
@@ -244,7 +244,24 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
         { id: 'topics', title: 'Top Topics' },
         { id: 'productivity', title: 'Productivity by Hour' },
         { id: 'busiest', title: 'Busiest Day' },
-    ]);
+    ];
+
+    const [availableWidgets, setAvailableWidgets] = useState(() => {
+        try {
+            const saved = localStorage.getItem('user_analytics_widgets_v1');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return defaultAvailableWidgets;
+    });
+
+    const syncWidgetsToBackend = (widgetsToSync) => {
+        axios.post(route('profile.analytics-widgets'), { widgets: widgetsToSync })
+            .catch(err => console.error('Failed to sync widget preferences', err));
+    };
+
+    useEffect(() => {
+        syncWidgetsToBackend(availableWidgets);
+    }, []);
 
     useEffect(() => {
         localStorage.setItem('analytics_dashboard_layouts', JSON.stringify(layouts));
@@ -261,36 +278,87 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
 
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
+        localStorage.setItem('analytics_dashboard_layouts', JSON.stringify(allLayouts));
+
+        setAvailableWidgets((prev) => {
+            const sortedLayout = [...currentLayout].sort((a, b) => {
+                if (a.y === b.y) return a.x - b.x;
+                return a.y - b.y;
+            });
+            
+            const newOrder = [];
+            sortedLayout.forEach(item => {
+                const widget = prev.find(w => w.id === item.i);
+                if (widget) newOrder.push(widget);
+            });
+            
+            prev.forEach(widget => {
+                if (!newOrder.find(w => w.id === widget.id)) {
+                    newOrder.push(widget);
+                }
+            });
+            
+            const isDifferent = JSON.stringify(prev) !== JSON.stringify(newOrder);
+            if (isDifferent) {
+                localStorage.setItem('user_analytics_widgets_v1', JSON.stringify(newOrder));
+                syncWidgetsToBackend(newOrder);
+            }
+            
+            return newOrder;
+        });
     };
 
     const handleReorderWidgets = (newOrder) => {
         setAvailableWidgets(newOrder);
-        setLayouts({
-            lg: repackLayout(newOrder, layouts.lg, 4),
-            md: repackLayout(newOrder, layouts.md, 2),
-            sm: repackLayout(newOrder, layouts.sm, 1),
-        });
+        localStorage.setItem('user_analytics_widgets_v1', JSON.stringify(newOrder));
+        syncWidgetsToBackend(newOrder);
+
+        const activeWidgets = newOrder.filter(w => w.isVisible !== false);
+        const filterLayout = (layout) => layout.filter(item => activeWidgets.find(w => w.id === item.i));
+
+        const newLayouts = {
+            lg: repackLayout(activeWidgets, filterLayout(layouts.lg), 4),
+            md: repackLayout(activeWidgets, filterLayout(layouts.md), 2),
+            sm: repackLayout(activeWidgets, filterLayout(layouts.sm), 1),
+        };
+        handleLayoutChange(newLayouts.lg, newLayouts);
     };
 
-    const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
+    const isWidgetEnabled = (id) => {
+        const widget = availableWidgets.find(w => w.id === id);
+        return widget ? (widget.isVisible !== false) : true;
+    };
 
     const handleToggleWidget = (id) => {
-        if (isWidgetEnabled(id)) {
-            setLayouts({
+        const isEnabling = !isWidgetEnabled(id);
+        const newOrder = availableWidgets.map(w => 
+            w.id === id ? { ...w, isVisible: isEnabling } : w
+        );
+        
+        setAvailableWidgets(newOrder);
+        localStorage.setItem('user_analytics_widgets_v1', JSON.stringify(newOrder));
+        syncWidgetsToBackend(newOrder);
+
+        if (!isEnabling) {
+            const newLayouts = {
                 lg: layouts.lg.filter(item => item.i !== id),
                 md: layouts.md.filter(item => item.i !== id),
                 sm: layouts.sm.filter(item => item.i !== id),
-            });
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
         } else {
             const y = Math.max(0, ...layouts.lg.map(item => item.y + item.h));
             const newItem = defaultLayout.find(item => item.i === id) || {
                 i: id, x: 0, y: y, w: id === 'streak' || id === 'words' || id === 'notes' || id === 'persona' ? 1 : 2, h: id === 'streak' || id === 'words' || id === 'notes' || id === 'persona' ? 1 : 2
             };
-            setLayouts({
-                lg: repackLayout(availableWidgets, [...layouts.lg, newItem], 4),
-                md: repackLayout(availableWidgets, [...layouts.md, newItem], 2),
-                sm: repackLayout(availableWidgets, [...layouts.sm, newItem], 1),
-            });
+            const activeWidgets = newOrder.filter(w => w.isVisible !== false);
+            
+            const newLayouts = {
+                lg: repackLayout(activeWidgets, [...layouts.lg, newItem], 4),
+                md: repackLayout(activeWidgets, [...layouts.md, newItem], 2),
+                sm: repackLayout(activeWidgets, [...layouts.sm, newItem], 1),
+            };
+            handleLayoutChange(newLayouts.lg, newLayouts);
         }
     };
 

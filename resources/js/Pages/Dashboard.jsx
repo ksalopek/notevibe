@@ -1,8 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { repackLayout } from '@/utils/gridLayoutUtils';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Tooltip from '@/Components/Tooltip';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -10,11 +11,16 @@ import RichTextEditor from '@/Components/RichTextEditor';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
+import useTableColumns from '@/Hooks/useTableColumns';
+import ColumnSelector from '@/Components/ColumnSelector';
+import { downloadCSV } from '@/utils/csvUtils';
+import { Download, List, Table } from 'lucide-react';
 
 // SVG Icons
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
+const EditIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className || "w-6 h-6"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
 const FileTextIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>);
 const TagsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>);
@@ -22,10 +28,8 @@ const ClockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" heig
 const HashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>);
 const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
 const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
-const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
-
-
 
 function DraggableWidgetWrapper({ children, className }) {
     return (
@@ -63,6 +67,64 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
         </Reorder.Item>
+    );
+};
+
+const QuickDraftWidget = () => {
+    const { data, setData, post, processing, reset, errors } = useForm({
+        title: '',
+        content: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('notes.store'), {
+            preserveScroll: true,
+            onSuccess: () => reset(),
+        });
+    };
+
+    return (
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
+            <div className="flex items-center justify-between mb-4 pr-10">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <span className="mr-2 text-primary-500"><EditIcon className="w-6 h-6" /></span>
+                    Quick Draft
+                </h3>
+            </div>
+            <form onSubmit={submit} className="flex flex-col flex-1 gap-3 h-full">
+                <div>
+                    <input
+                        type="text"
+                        value={data.title}
+                        onChange={e => setData('title', e.target.value)}
+                        placeholder="Note title..."
+                        className="w-full bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all placeholder-gray-400 dark:placeholder-gray-500"
+                        required
+                    />
+                    {errors.title && <div className="text-red-500 text-xs mt-1">{errors.title}</div>}
+                </div>
+                <div className="flex-1 flex flex-col min-h-0">
+                    <textarea
+                        value={data.content}
+                        onChange={e => setData('content', e.target.value)}
+                        placeholder="Jot down a quick thought..."
+                        className="w-full h-full flex-1 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all placeholder-gray-400 dark:placeholder-gray-500 resize-none"
+                        required
+                    />
+                    {errors.content && <div className="text-red-500 text-xs mt-1">{errors.content}</div>}
+                </div>
+                <div className="flex justify-end pt-1 shrink-0">
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-white bg-primary-600 rounded-full hover:bg-primary-500 transition-colors duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {processing ? 'Saving...' : 'Save Draft'}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 
@@ -114,57 +176,178 @@ const MetricInTrashWidget = ({ stats }) => (
     </div>
 );
 
-const RecentNotesWidget = ({ recentNotes, onEdit }) => (
-    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
-        <div className="flex items-center justify-between mb-6 pr-10">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                <span className="mr-2 text-primary-500"><ClockIcon /></span>
-                Recent Notes
-            </h3>
-            <Link 
-                href={route('notes.index')} 
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
-            >
-                View all <span className="ml-2">&rarr;</span>
-            </Link>
-        </div>
+const RecentNotesWidget = ({ recentNotes, onEdit }) => {
+    const [viewMode, setViewMode] = useState(localStorage.getItem('dashboard_recent_notes_viewMode') || 'list');
+    
+    const { visibleColumns, toggleColumn } = useTableColumns('dashboard_recent_notes', [
+        { id: 'title', label: 'Title' },
+        { id: 'content', label: 'Preview' },
+        { id: 'tags', label: 'Tags' },
+        { id: 'word_count', label: 'Word Count' },
+        { id: 'created_at', label: 'Created At' },
+        { id: 'updated_at', label: 'Last Updated' }
+    ]);
 
-        <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-            {!recentNotes || recentNotes.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No notes yet. Start writing!
+    const handleExport = () => {
+        const exportData = recentNotes.map(n => ({
+            Title: n.title,
+            Preview: n.content?.replace(/(<([^>]+)>)/gi, "").substring(0, 50) + '...',
+            Tags: n.tags ? n.tags.map(t => t.name).join(' | ') : '',
+            'Word Count': n.content ? n.content.replace(/(<([^>]+)>)/gi, "").split(/\s+/).filter(w => w.length > 0).length : 0,
+            'Created At': new Date(n.created_at).toLocaleString(),
+            'Last Updated': new Date(n.updated_at).toLocaleString()
+        }));
+        downloadCSV(exportData, 'recent_notes.csv');
+    };
+
+    const handleViewChange = (mode) => {
+        setViewMode(mode);
+        localStorage.setItem('dashboard_recent_notes_viewMode', mode);
+    };
+
+    return (
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <span className="mr-2 text-primary-500"><ClockIcon /></span>
+                    Recent Notes
+                </h3>
+                <div className="flex flex-wrap items-center gap-2">
+                    {viewMode === 'table' && (
+                        <div className="flex items-center gap-2 mr-2">
+                            <ColumnSelector 
+                                columns={[
+                                    { id: 'title', label: 'Title' },
+                                    { id: 'content', label: 'Preview' },
+                                    { id: 'tags', label: 'Tags' },
+                                    { id: 'word_count', label: 'Word Count' },
+                                    { id: 'created_at', label: 'Created At' },
+                                    { id: 'updated_at', label: 'Last Updated' }
+                                ]}
+                                visibleColumns={visibleColumns}
+                                toggleColumn={toggleColumn}
+                            />
+                            <Tooltip content="Export CSV">
+                                <button 
+                                    onClick={handleExport}
+                                    className="inline-flex items-center justify-center p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50 shrink-0 shadow-sm hover:shadow-md"
+                                >
+                                    <Download className="w-5 h-5" />
+                                </button>
+                            </Tooltip>
+                        </div>
+                    )}
+                    
+                    <div className="flex bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1 mr-2">
+                        <Tooltip content="List View">
+                            <button
+                                onClick={() => handleViewChange('list')}
+                                className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                            >
+                                <List className="w-4 h-4" />
+                            </button>
+                        </Tooltip>
+                        <Tooltip content="Table View">
+                            <button
+                                onClick={() => handleViewChange('table')}
+                                className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                            >
+                                <Table className="w-4 h-4" />
+                            </button>
+                        </Tooltip>
+                    </div>
+
+                    <Link 
+                        href={route('notes.index')} 
+                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
+                    >
+                        View all <span className="ml-2">&rarr;</span>
+                    </Link>
+                </div>
+            </div>
+
+            {viewMode === 'list' ? (
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                    {!recentNotes || recentNotes.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            No notes yet. Start writing!
+                        </div>
+                    ) : (
+                        recentNotes.map(note => (
+                            <div key={note.id} onClick={() => onEdit(note)} className="block group cursor-pointer">
+                                <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <div className="flex justify-between items-start">
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                            {note.title}
+                                        </h4>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {new Date(note.updated_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                                        {note.content?.replace(/(<([^>]+)>)/gi, "") || "No content"}
+                                    </p>
+                                    {note.tags && note.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                            {note.tags.map(tag => (
+                                                <span key={tag.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
+                                                    {tag.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             ) : (
-                recentNotes.map(note => (
-                    <div key={note.id} onClick={() => onEdit(note)} className="block group cursor-pointer">
-                        <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 shadow-sm hover:shadow-md">
-                            <div className="flex justify-between items-start">
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                    {note.title}
-                                </h4>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {new Date(note.updated_at).toLocaleDateString()}
-                                </span>
-                            </div>
-                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                                {note.content?.replace(/(<([^>]+)>)/gi, "") || "No content"}
-                            </p>
-                            {note.tags && note.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {note.tags.map(tag => (
-                                        <span key={tag.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
-                                            {tag.name}
-                                        </span>
-                                    ))}
-                                </div>
+                <div className="overflow-x-auto flex-1 w-full min-w-0">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead>
+                            <tr>
+                                {visibleColumns.includes('title') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>}
+                                {visibleColumns.includes('content') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Preview</th>}
+                                {visibleColumns.includes('tags') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tags</th>}
+                                {visibleColumns.includes('word_count') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Words</th>}
+                                {visibleColumns.includes('created_at') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>}
+                                {visibleColumns.includes('updated_at') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Updated</th>}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {!recentNotes || recentNotes.length === 0 ? (
+                                <tr><td colSpan="6" className="px-3 py-8 text-center text-gray-500">No recent notes.</td></tr>
+                            ) : (
+                                recentNotes.map(note => (
+                                    <tr key={note.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        {visibleColumns.includes('title') && <td className="px-3 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium whitespace-normal break-words">
+                                            {note.title}
+                                        </td>}
+                                        {visibleColumns.includes('content') && <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
+                                            {note.content?.replace(/(<([^>]+)>)/gi, "") || "No content"}
+                                        </td>}
+                                        {visibleColumns.includes('tags') && <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                            {note.tags && note.tags.length > 0 ? note.tags.map(t => t.name).join(', ') : '-'}
+                                        </td>}
+                                        {visibleColumns.includes('word_count') && <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                            {note.content ? note.content.replace(/(<([^>]+)>)/gi, "").split(/\s+/).filter(w => w.length > 0).length : 0}
+                                        </td>}
+                                        {visibleColumns.includes('created_at') && <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                            {new Date(note.created_at).toLocaleDateString()}
+                                        </td>}
+                                        {visibleColumns.includes('updated_at') && <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                            {new Date(note.updated_at).toLocaleDateString()}
+                                        </td>}
+                                    </tr>
+                                ))
                             )}
-                        </div>
-                    </div>
-                ))
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
-    </div>
-);
+    );
+};
 
 const TopTagsWidget = ({ topTags }) => (
     <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative flex flex-col">
@@ -277,14 +460,15 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
         { i: 'metric_total', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_tags', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_trash', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-        { i: 'activity_chart', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 1 },
+        { i: 'quick_draft', x: 0, y: 1, w: 1, h: 2, minW: 1, minH: 2 },
+        { i: 'activity_chart', x: 1, y: 1, w: 2, h: 2, minW: 2, minH: 1 },
         { i: 'recent', x: 0, y: 3, w: 2, h: 2, minW: 1, minH: 1 },
         { i: 'tags', x: 2, y: 3, w: 1, h: 2, minW: 1, minH: 1 }
     ];
     
     const [layouts, setLayouts] = useState(() => {
         try {
-            const saved = localStorage.getItem('user_dashboard_layout_v5');
+            const saved = localStorage.getItem('user_dashboard_layout_v11');
             if (saved) return JSON.parse(saved);
         } catch (e) {
             console.error('Failed to parse dashboard layout', e);
@@ -296,6 +480,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
         { id: 'metric_total', title: 'Total Notes' },
         { id: 'metric_tags', title: 'Unique Tags' },
         { id: 'metric_trash', title: 'In Trash' },
+        { id: 'quick_draft', title: 'Quick Draft' },
         { id: 'activity_chart', title: 'Note Activity' },
         { id: 'recent', title: 'Recent Notes' },
         { id: 'tags', title: 'Top Tags' },
@@ -303,35 +488,64 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
 
     const [availableWidgets, setAvailableWidgets] = useState(() => {
         try {
-            const saved = localStorage.getItem('user_dashboard_widgets_v1');
+            const saved = localStorage.getItem('user_dashboard_widgets_v7');
             if (saved) return JSON.parse(saved);
         } catch (e) {}
         return defaultAvailableWidgets;
     });
 
+    // Sync widgets to backend
+    const syncWidgetsToBackend = (widgetsToSync) => {
+        axios.post(route('profile.widgets'), { widgets: widgetsToSync })
+            .catch(err => console.error('Failed to sync widget preferences', err));
+    };
+
+    // Sync on initial load to ensure backend is up to date
+    useEffect(() => {
+        syncWidgetsToBackend(availableWidgets);
+    }, []);
+
     const handleReorderWidgets = (newOrder) => {
         setAvailableWidgets(newOrder);
-        localStorage.setItem('user_dashboard_widgets_v1', JSON.stringify(newOrder));
+        localStorage.setItem('user_dashboard_widgets_v7', JSON.stringify(newOrder));
+        syncWidgetsToBackend(newOrder);
+        
+        const activeWidgets = newOrder.filter(w => w.isVisible !== false);
+        
+        const filterLayout = (layout) => layout.filter(item => activeWidgets.find(w => w.id === item.i));
         
         const newLayouts = {
-            lg: repackLayout(newOrder, layouts.lg, 3),
-            md: repackLayout(newOrder, layouts.md, 2),
-            sm: repackLayout(newOrder, layouts.sm, 1),
+            lg: repackLayout(activeWidgets, filterLayout(layouts.lg), 4),
+            md: repackLayout(activeWidgets, filterLayout(layouts.md), 3),
+            sm: repackLayout(activeWidgets, filterLayout(layouts.sm), 2),
         };
         handleLayoutChange(newLayouts.lg, newLayouts);
     };
 
-    const isWidgetEnabled = (id) => layouts.lg.some(item => item.i === id);
+    const isWidgetEnabled = (id) => {
+        const widget = availableWidgets.find(w => w.id === id);
+        return widget ? (widget.isVisible !== false) : true;
+    };
 
     const handleToggleWidget = (id) => {
-        const enabled = isWidgetEnabled(id);
-        if (enabled) {
+        const isEnabling = !isWidgetEnabled(id);
+        const newOrder = availableWidgets.map(w => 
+            w.id === id ? { ...w, isVisible: isEnabling } : w
+        );
+        
+        setAvailableWidgets(newOrder);
+        localStorage.setItem('user_dashboard_widgets_v7', JSON.stringify(newOrder));
+        syncWidgetsToBackend(newOrder);
+
+        if (!isEnabling) {
+            // Removing
             const newLayouts = {
                 lg: layouts.lg.filter(item => item.i !== id),
                 md: layouts.md.filter(item => item.i !== id),
                 sm: layouts.sm.filter(item => item.i !== id),
             };
             handleLayoutChange(newLayouts.lg, newLayouts);
+            localStorage.setItem('user_dashboard_layout_v11', JSON.stringify(newLayouts));
         } else {
             const y = Math.max(0, ...layouts.lg.map(item => item.y + item.h));
             const newItem = { i: id, x: 0, y, w: 1, h: 1, minW: 1, minH: 1 };
@@ -340,6 +554,8 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                 newItem.w = 3; newItem.h = 2;
             } else if (['recent'].includes(id)) {
                 newItem.w = 2; newItem.h = 2;
+            } else if (['quick_draft'].includes(id)) {
+                newItem.w = 1; newItem.h = 2;
             } else if (['tags'].includes(id)) {
                 newItem.w = 1; newItem.h = 2;
             }
@@ -355,7 +571,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
 
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
-        localStorage.setItem('user_dashboard_layout_v5', JSON.stringify(allLayouts));
+        localStorage.setItem('user_dashboard_layout_v11', JSON.stringify(allLayouts));
 
         setAvailableWidgets((prev) => {
             const sortedLayout = [...currentLayout].sort((a, b) => {
@@ -382,7 +598,8 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
             
             const isDifferent = JSON.stringify(prev) !== JSON.stringify(newOrder);
             if (isDifferent) {
-                localStorage.setItem('user_dashboard_widgets_v1', JSON.stringify(newOrder));
+                localStorage.setItem('user_dashboard_widgets_v7', JSON.stringify(newOrder));
+                syncWidgetsToBackend(newOrder);
             }
             
             return newOrder;
@@ -416,6 +633,8 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                 return <MetricInTrashWidget stats={stats} />;
             case 'activity_chart':
                 return <ActivityChartWidget chartData={chartData} noteDays={noteDays} onNoteDaysChange={handleNoteDaysChange} />;
+            case 'quick_draft':
+                return <QuickDraftWidget />;
             case 'recent':
                 return <RecentNotesWidget recentNotes={recentNotes} onEdit={startEditing} />;
             case 'tags':
