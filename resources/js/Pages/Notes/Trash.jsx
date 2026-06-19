@@ -96,12 +96,7 @@ export default function Trash({ notes, filters }) {
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Trash Can</h2>
-                    <Link 
-                        href={route('notes.index')} 
-                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-colors duration-200 shadow-sm hover:shadow"
-                    >
-                        <span className="mr-2">&larr;</span> Back to Notes
-                    </Link>
+
                 </div>
             }
         >
