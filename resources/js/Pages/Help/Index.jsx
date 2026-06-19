@@ -10,6 +10,7 @@ const documentation = [
         icon: <BookOpen className="w-5 h-5" />,
         content: (
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/getting_started.png" alt="Getting Started" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
                 <p>Welcome to <strong>NoteVibe</strong>! This platform is designed to help you capture your thoughts, organize your notes, and track your writing productivity over time.</p>
                 <p>Use the navigation bar at the top to access the different sections of the application. Your content is automatically synced and securely stored.</p>
                 <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800">
@@ -25,6 +26,7 @@ const documentation = [
         icon: <LayoutDashboard className="w-5 h-5" />,
         content: (
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/dashboard.png" alt="Dashboard" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
                 <p>Your Dashboard is your personal command center. It gives you a bird's-eye view of your recent activity and key metrics.</p>
                 <ul className="list-disc pl-5 space-y-2">
                     <li><strong>Customization:</strong> Click the "Customize" button in the top right to toggle widgets on or off. You can drag and drop widgets to arrange them however you like!</li>
@@ -41,6 +43,7 @@ const documentation = [
         icon: <Notebook className="w-5 h-5" />,
         content: (
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/notes.png" alt="My Notes" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
                 <p>The "My Notes" section is where you spend most of your time writing and organizing your thoughts.</p>
                 <ul className="list-disc pl-5 space-y-2">
                     <li><strong>Rich Text Editor:</strong> Format your notes with bold, italics, lists, code blocks, and clickable URLs using the toolbar or standard Markdown shortcuts.</li>
@@ -57,6 +60,7 @@ const documentation = [
         icon: <TrendingUp className="w-5 h-5" />,
         content: (
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/analytics.png" alt="My Analytics" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
                 <p>The Analytics page tracks your writing habits and helps you stay motivated.</p>
                 <ul className="list-disc pl-5 space-y-2">
                     <li><strong>Current Streak:</strong> Tracks how many consecutive days you've created or edited a note. Don't break the chain!</li>
@@ -78,6 +82,7 @@ const adminDocumentation = {
             <p className="font-medium text-amber-600 dark:text-amber-400 border-b border-amber-200 dark:border-amber-900/50 pb-2 mb-4">
                 This section is only visible to Administrators.
             </p>
+            <img src="/images/help/admin.png" alt="Admin Guide" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 mt-6">Manage Users</h4>
             <p>View all registered users, reset passwords, change roles, or suspend accounts. You can also export user lists to CSV or impersonate a user to troubleshoot their specific issues.</p>
             

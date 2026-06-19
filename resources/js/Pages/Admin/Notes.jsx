@@ -92,7 +92,7 @@ export default function Notes({ notes, filters, analyticsData }) {
         <AuthenticatedLayout header={<h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">Admin - All Notes</h2>}>
             <Head title="Admin Notes" />
             
-            <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 bg-slate-50 dark:bg-slate-900 min-h-screen">
+            <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 bg-transparent min-h-screen">
                 
                 {/* Header */}
                 <motion.div 
