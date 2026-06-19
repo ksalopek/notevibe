@@ -1,5 +1,16 @@
 export const changelogData = [
     {
+        "version": "v2.14.3",
+        "date": "2026-06-18",
+        "features": [
+            "UI Polish: Refine save note button design",
+            "chore: generate changelog for v2.14.2",
+            "chore: generate changelog for v2.14.2",
+            "chore: automate changelog generation on release"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.14.2",
         "date": "2026-06-18",
         "features": [
