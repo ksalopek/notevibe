@@ -3,6 +3,29 @@
 @tailwind utilities;
 
 @layer base {
+@media (max-width: 639px) {
+  html, body, #app {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer base {
   :root, .theme-purple {
     --color-primary-50: 250 245 255;
     --color-primary-100: 243 232 255;
