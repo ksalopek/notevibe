@@ -225,7 +225,7 @@ export default function Users({ auth, users, filters, heatmapData }) {
                                             <td colSpan="6" className="px-6 py-8 text-center text-gray-500">No users found.</td>
                                         </tr>
                                     ) : (
-                                        users.data.map((u) => (
+                                        users.data.map((u, index) => (
                                             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                                 {visibleColumns.includes('id') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>}
                                                 {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>}
@@ -247,7 +247,7 @@ export default function Users({ auth, users, filters, heatmapData }) {
                                                                         <MoreVerticalIcon />
                                                                     </button>
                                                                 </Dropdown.Trigger>
-                                                                <Dropdown.Content align="right" width="48">
+                                                                <Dropdown.Content align={index >= users.data.length - 2 && users.data.length > 2 ? "top-right" : "right"} width="48">
                                                                     <button 
                                                                         onClick={() => toggleRole(u)}
                                                                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"

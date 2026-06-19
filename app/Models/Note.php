@@ -15,7 +15,6 @@ class Note extends Model
     protected $fillable = [
         'title',
         'content',
-        'notes',
         'is_pinned',
         'is_archived',
         'link_previews',
