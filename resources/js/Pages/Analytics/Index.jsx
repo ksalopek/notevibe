@@ -58,7 +58,7 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
 
 // Widget Components
 const MetricStreak = ({ streak }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
         <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full mb-3">
             <Flame className="w-8 h-8 text-orange-500" />
         </div>
@@ -68,7 +68,7 @@ const MetricStreak = ({ streak }) => (
 );
 
 const MetricWords = ({ totalWords }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
         <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-full mb-3">
             <Type className="w-8 h-8 text-indigo-500" />
         </div>
@@ -78,7 +78,7 @@ const MetricWords = ({ totalWords }) => (
 );
 
 const MetricNotes = ({ totalNotes }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
         <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full mb-3">
             <PenTool className="w-8 h-8 text-emerald-500" />
         </div>
@@ -88,7 +88,7 @@ const MetricNotes = ({ totalNotes }) => (
 );
 
 const MetricPersona = ({ persona }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
         <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mb-3">
             <Zap className="w-8 h-8 text-purple-500" />
         </div>
@@ -98,7 +98,7 @@ const MetricPersona = ({ persona }) => (
 );
 
 const ChartVelocity = ({ velocityChart }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Note Velocity (Last 30 Days)</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -118,7 +118,7 @@ const ChartVelocity = ({ velocityChart }) => (
 );
 
 const ChartTopics = ({ tagDistribution }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top Topics</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px] flex flex-col items-center justify-center">
             {tagDistribution.length > 0 ? (
@@ -163,7 +163,7 @@ const ChartTopics = ({ tagDistribution }) => (
 );
 
 const ChartProductivity = ({ hourChart }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Productivity by Hour</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -184,7 +184,7 @@ const ChartProductivity = ({ hourChart }) => (
 );
 
 const ChartBusiest = ({ busiestDayChart }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Busiest Day of the Week</h3>
         <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
