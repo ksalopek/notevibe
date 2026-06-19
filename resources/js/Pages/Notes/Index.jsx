@@ -11,7 +11,8 @@ import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
-import { Archive, Notebook } from 'lucide-react';
+import SimpleNoteCard from '@/Components/SimpleNoteCard';
+import { Archive, Notebook, Trash2 } from 'lucide-react';
 
 const breakpointColumnsObj = {
   default: 3,
@@ -194,7 +195,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
             <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* --- CREATE FORM --- */}
                     {!isArchiveView && (
                         <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
@@ -250,7 +251,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                     )}
 
                     {/* --- SEARCH AND TOGGLE --- */}
-                    <div className="mb-8 flex flex-col sm:flex-row gap-4">
+                    <div className="mb-8 flex flex-wrap items-center gap-4">
                         {notes.data && notes.data.length > 0 && (
                             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
                                 <input 
@@ -267,12 +268,12 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search notes..."
-                            className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                            className="w-full order-last sm:order-none sm:w-auto sm:flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         />
                         <select
                             value={sortBy}
                             onChange={handleSortChange}
-                            className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                            className="flex-1 sm:flex-none border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                         >
                             <option value="relevance">Relevance</option>
                             <option value="latest">Newest First</option>
@@ -336,6 +337,37 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                         'You don\'t have any notes yet. Create your first note above to get started!'
                                     )}
                                 </p>
+                            </div>
+                        ) : isArchiveView ? (
+                            <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
+                                {notes.data.map((note) => (
+                                    <SimpleNoteCard
+                                        key={note.id}
+                                        note={note}
+                                        isSelected={selectedNotes.includes(note.id)}
+                                        onSelect={handleSelectNote}
+                                        actions={
+                                            <>
+                                                <Tooltip content="Unarchive">
+                                                    <button 
+                                                        onClick={() => toggleArchive(note)} 
+                                                        className="p-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full transition-all duration-200 border border-amber-200 dark:border-amber-800/50 shadow-sm hover:shadow"
+                                                    >
+                                                        <Archive className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
+                                                <Tooltip content="Move to Trash">
+                                                    <button 
+                                                        onClick={() => deleteNote(note.id)} 
+                                                        className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
+                                            </>
+                                        }
+                                    />
+                                ))}
                             </div>
                         ) : (
                             <AnimatePresence mode="popLayout">

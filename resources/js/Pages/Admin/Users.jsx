@@ -179,7 +179,7 @@ export default function Users({ auth, users, filters, heatmapData, metrics, avai
             <Head title="Manage Users" />
 
             <div className="py-12 relative">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                         <div className="flex items-center">
