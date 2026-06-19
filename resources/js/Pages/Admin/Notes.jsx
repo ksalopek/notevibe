@@ -8,6 +8,8 @@ import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Dropdown from '@/Components/Dropdown';
+import useTableColumns from '@/Hooks/useTableColumns';
+import ColumnSelector from '@/Components/ColumnSelector';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const DatabaseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>);
@@ -29,6 +31,12 @@ export default function Notes({ notes, filters, analyticsData }) {
     const [viewMode, setViewMode] = useState(localStorage.getItem('adminNotesViewMode') || 'table');
     const [expandedRow, setExpandedRow] = useState(null);
     const [confirmingNoteDeletion, setConfirmingNoteDeletion] = useState(null);
+    const { visibleColumns, toggleColumn } = useTableColumns('admin_notes', [
+        { id: 'note_info', label: 'Note Info' },
+        { id: 'author', label: 'Author' },
+        { id: 'created_at', label: 'Created At' },
+        { id: 'actions', label: 'Actions' }
+    ]);
 
     const currentSortValue = `${filters?.sort || 'created_at'}-${filters?.direction || 'desc'}`;
     const [sortValue, setSortValue] = useState(currentSortValue);
@@ -206,6 +214,20 @@ export default function Notes({ notes, filters, analyticsData }) {
                             <option value="author-desc">Author (Z-A)</option>
                         </select>
                         <div className="flex bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-1">
+                            {viewMode === 'table' && (
+                                <div className="border-r border-slate-200 dark:border-slate-700 pr-1 mr-1 flex items-center">
+                                    <ColumnSelector 
+                                        columns={[
+                                            { id: 'note_info', label: 'Note Info' },
+                                            { id: 'author', label: 'Author' },
+                                            { id: 'created_at', label: 'Created At' },
+                                            { id: 'actions', label: 'Actions' }
+                                        ]}
+                                        visibleColumns={visibleColumns}
+                                        toggleColumn={toggleColumn}
+                                    />
+                                </div>
+                            )}
                             <Tooltip content="Table View">
                                 <button
                                     onClick={() => setViewMode('table')}
@@ -240,10 +262,10 @@ export default function Notes({ notes, filters, analyticsData }) {
                             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                             <thead className="bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Note Info</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Author</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Created At</th>
-                                    <th className="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                                    {visibleColumns.includes('note_info') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Note Info</th>}
+                                    {visibleColumns.includes('author') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Author</th>}
+                                    {visibleColumns.includes('created_at') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Created At</th>}
+                                    {visibleColumns.includes('actions') && <th className="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -258,24 +280,24 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                 onClick={() => setExpandedRow(isExpanded ? null : note.id)}
                                                 className={`cursor-pointer transition-colors ${isExpanded ? 'bg-primary-50/50 dark:bg-primary-900/10' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
                                             >
-                                                <td className="px-6 py-4">
+                                                {visibleColumns.includes('note_info') && <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full tracking-wider ${badge.color}`}>
                                                             {badge.label}
                                                         </span>
                                                         <span className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-1">{note.title}</span>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4">
+                                                </td>}
+                                                {visibleColumns.includes('author') && <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img src={getAvatar(authorName)} alt={authorName} className="w-8 h-8 rounded-full shadow-sm" />
                                                         <span className="text-sm text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">{authorName}</span>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                                </td>}
+                                                {visibleColumns.includes('created_at') && <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                                     {new Date(note.created_at).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                                                </td>}
+                                                {visibleColumns.includes('actions') && <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
                                                     <Dropdown>
                                                         <Dropdown.Trigger>
                                                             <button className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
@@ -297,12 +319,12 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                             </button>
                                                         </Dropdown.Content>
                                                     </Dropdown>
-                                                </td>
+                                                </td>}
                                             </tr>
                                             <AnimatePresence>
                                                 {isExpanded && (
                                                     <tr>
-                                                        <td colSpan="4" className="p-0 border-0">
+                                                        <td colSpan={visibleColumns.length || 1} className="p-0 border-0">
                                                             <motion.div
                                                                 initial={{ height: 0, opacity: 0 }}
                                                                 animate={{ height: 'auto', opacity: 1 }}

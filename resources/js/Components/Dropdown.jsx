@@ -39,6 +39,7 @@ const Content = ({
     align = 'right',
     width = '48',
     contentClasses = 'py-1 bg-white dark:bg-gray-700',
+    autoClose = true,
     children,
 }) => {
     const { open, setOpen } = useContext(DropDownContext);
@@ -70,7 +71,13 @@ const Content = ({
             >
                 <div
                     className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => {
+                        if (autoClose) {
+                            setOpen(false);
+                        } else {
+                            e.stopPropagation();
+                        }
+                    }}
                 >
                     <div
                         className={
