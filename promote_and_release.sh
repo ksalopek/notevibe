@@ -69,6 +69,15 @@ if ! git merge --no-ff $RELEASE_BRANCH -m "Merge release branch '$RELEASE_BRANCH
     fi
 fi
 git tag -a $VERSION -m "Release version $VERSION"
+
+# Generate and commit changelog
+echo "Generating changelog for $VERSION..."
+node generate_changelog.cjs
+git add resources/js/data/changelog.js
+git commit -m "Bump changelog for $VERSION"
+# Force update the tag to include the changelog commit
+git tag -a -f $VERSION -m "Release version $VERSION"
+
 git push origin $MAIN_BRANCH
 git push origin $VERSION
 echo "✅ '$MAIN_BRANCH' is now tagged and up-to-date with release '$VERSION'."

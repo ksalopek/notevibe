@@ -1,5 +1,23 @@
 export const changelogData = [
     {
+        "version": "v2.14.2",
+        "date": "2026-06-18",
+        "features": [
+            "feat: remove notes field and enhance note UI"
+        ],
+        "fixes": [
+            "chore: fix script line endings"
+        ]
+    },
+    {
+        "version": "v2.14.1",
+        "date": "2026-06-18",
+        "features": [
+            "docs: update changelog for v2.14.0"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.14.0",
         "date": "2026-06-18",
         "features": [

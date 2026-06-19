@@ -29,7 +29,7 @@ for (let i = 0; i < tags.length; i++) {
         const msg = commit.substring(commit.indexOf(' ') + 1);
         const lower = msg.toLowerCase();
         
-        if (lower.startsWith('merge') || lower.startsWith('bump version')) return;
+        if (lower.startsWith('merge') || lower.startsWith('bump version') || lower.startsWith('bump changelog')) return;
         
         if (lower.includes('fix') || lower.includes('bug') || lower.includes('resolve')) {
             fixes.push(msg);
