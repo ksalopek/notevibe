@@ -413,7 +413,7 @@ const RegistrationsWidget = ({ recentUsers }) => {
                             <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm font-medium text-slate-900 dark:text-white">
                                     <div className="flex items-center">
-                                        {user.is_admin && (
+                                        {user.roles && user.roles.length > 0 && (
                                             <Tooltip content="Admin" className="mr-2">
                                                 <span className="text-amber-500"><SettingsIcon /></span>
                                             </Tooltip>
@@ -689,6 +689,9 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
     const { width: containerWidth, containerRef } = useContainerWidth();
+    const { roles } = usePage().props.auth;
+    const isSuperAdmin = roles && roles.includes('super_admin');
+
     const defaultLayout = [
         { i: 'metric_total_users', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'metric_active_users', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
@@ -697,9 +700,9 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         { i: 'metric_total_logins', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
         { i: 'activity_chart', x: 0, y: 2, w: 3, h: 2, minW: 2, minH: 2 },
         { i: 'radar_chart', x: 3, y: 2, w: 1, h: 2, minW: 1, minH: 2 },
-        { i: 'global_broadcast', x: 0, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
+        ...(isSuperAdmin ? [{ i: 'global_broadcast', x: 0, y: 4, w: 2, h: 2, minW: 2, minH: 2 }] : []),
         { i: 'live_content_feed', x: 2, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
-        { i: 'actions', x: 0, y: 6, w: 4, h: 2, minW: 2, minH: 2 },
+        ...(isSuperAdmin ? [{ i: 'actions', x: 0, y: 6, w: 4, h: 2, minW: 2, minH: 2 }] : []),
         { i: 'registrations', x: 0, y: 8, w: 4, h: 2, minW: 3, minH: 2 },
         { i: 'logins', x: 0, y: 10, w: 4, h: 2, minW: 3, minH: 2 }
     ];
@@ -707,7 +710,34 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     const [layouts, setLayouts] = useState(() => {
         try {
             const saved = localStorage.getItem('admin_dashboard_layout_v2');
-            if (saved) return JSON.parse(saved);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (!isSuperAdmin) {
+                    parsed.lg = parsed.lg.filter(item => item.i !== 'global_broadcast' && item.i !== 'actions');
+                    parsed.md = parsed.md.filter(item => item.i !== 'global_broadcast' && item.i !== 'actions');
+                    parsed.sm = parsed.sm.filter(item => item.i !== 'global_broadcast' && item.i !== 'actions');
+                } else {
+                    const savedWidgets = localStorage.getItem('admin_dashboard_widgets_v1');
+                    if (savedWidgets) {
+                        const parsedWidgets = JSON.parse(savedWidgets);
+                        const hadGlobalBroadcast = parsedWidgets.some(w => w.id === 'global_broadcast');
+                        const hadActions = parsedWidgets.some(w => w.id === 'actions');
+                        
+                        let maxY = Math.max(0, ...parsed.lg.map(item => item.y + item.h));
+                        
+                        const injectWidget = (id, w, h, minW, minH) => {
+                            if (!parsed.lg.some(item => item.i === id)) parsed.lg.push({ i: id, x: 0, y: maxY, w, h, minW, minH });
+                            if (!parsed.md.some(item => item.i === id)) parsed.md.push({ i: id, x: 0, y: maxY, w, h, minW, minH });
+                            if (!parsed.sm.some(item => item.i === id)) parsed.sm.push({ i: id, x: 0, y: maxY, w, h, minW, minH });
+                            maxY += h;
+                        };
+
+                        if (!hadGlobalBroadcast) injectWidget('global_broadcast', 2, 2, 2, 2);
+                        if (!hadActions) injectWidget('actions', 4, 2, 2, 2);
+                    }
+                }
+                return parsed;
+            }
         } catch (e) {
             console.error('Failed to parse dashboard layout', e);
         }
@@ -722,19 +752,27 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         { id: 'metric_total_logins', title: 'Total Logins' },
         { id: 'activity_chart', title: 'Platform Activity' },
         { id: 'radar_chart', title: 'Platform Radar' },
-        { id: 'global_broadcast', title: 'Global Broadcast' },
+        ...(isSuperAdmin ? [{ id: 'global_broadcast', title: 'Global Broadcast' }] : []),
         { id: 'live_content_feed', title: 'Live Content Feed' },
-        { id: 'actions', title: 'Quick Actions' },
+        ...(isSuperAdmin ? [{ id: 'actions', title: 'Quick Actions' }] : []),
         { id: 'registrations', title: 'Recent Registrations' },
         { id: 'logins', title: 'Recent Logins' },
     ];
 
     const [availableWidgets, setAvailableWidgets] = useState(() => {
+        let widgets = defaultAvailableWidgets;
         try {
             const saved = localStorage.getItem('admin_dashboard_widgets_v1');
-            if (saved) return JSON.parse(saved);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                const validIds = new Set(defaultAvailableWidgets.map(w => w.id));
+                const filteredParsed = parsed.filter(w => validIds.has(w.id));
+                const parsedIds = new Set(filteredParsed.map(w => w.id));
+                const missing = defaultAvailableWidgets.filter(w => !parsedIds.has(w.id));
+                widgets = [...filteredParsed, ...missing];
+            }
         } catch (e) {}
-        return defaultAvailableWidgets;
+        return widgets;
     });
 
     const handleReorderWidgets = (newOrder) => {

@@ -30,7 +30,6 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role' => 'user', // Default role for new users
             'is_active' => true,
         ];
     }
@@ -40,9 +39,10 @@ class UserFactory extends Factory
      */
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'role' => 'admin',
-        ]);
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin']);
+            $user->assignRole($role);
+        });
     }
 
     /**

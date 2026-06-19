@@ -42,8 +42,11 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'roles' => $request->user() ? $request->user()->roles->pluck('name') : [],
+                'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name') : [],
                 'is_impersonating' => $request->session()->has('impersonated_by'),
                 'has_trashed_notes' => $request->user() ? \App\Models\Note::onlyTrashed()->where('user_id', $request->user()->id)->exists() : false,
+                'has_archived_notes' => $request->user() ? \App\Models\Note::where('is_archived', true)->where('user_id', $request->user()->id)->exists() : false,
             ],
             'flash' => [
                 'message' => $request->session()->get('message'),

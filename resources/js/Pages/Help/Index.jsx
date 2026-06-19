@@ -102,8 +102,8 @@ const adminDocumentation = {
 };
 
 export default function HelpIndex() {
-    const { user } = usePage().props.auth;
-    const isAdmin = user && user.role === 'admin';
+    const { user, roles } = usePage().props.auth;
+    const isAdmin = roles && roles.length > 0;
     
     // Combine user docs with admin docs if applicable
     const allDocs = isAdmin ? [...documentation, adminDocumentation] : documentation;

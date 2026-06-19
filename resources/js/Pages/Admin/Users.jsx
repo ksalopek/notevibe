@@ -20,12 +20,14 @@ const ShieldIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" hei
 const MoreVerticalIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>);
 const DownloadIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>);
 
-export default function Users({ auth, users, filters, heatmapData, metrics }) {
+export default function Users({ auth, users, filters, heatmapData, metrics, availableRoles }) {
     const { patch, post, delete: destroy } = useForm();
     const [searchUsers, setSearchUsers] = useState(filters?.search_users || '');
     const [roleFilter, setRoleFilter] = useState(filters?.role || 'all');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(null);
+    const [managingRolesUser, setManagingRolesUser] = useState(null);
+    const [selectedRoles, setSelectedRoles] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [viewingActivityLog, setViewingActivityLog] = useState(null);
     const [activityData, setActivityData] = useState([]);
@@ -137,9 +139,7 @@ export default function Users({ auth, users, filters, heatmapData, metrics }) {
         patch(route('admin.users.toggle', user.id));
     };
 
-    const toggleRole = (user) => {
-        patch(route('admin.users.role', user.id));
-    };
+    // Removed toggleRole, now handled by modal
 
     const impersonate = (user) => {
         post(route('admin.users.impersonate', user.id));
@@ -377,7 +377,7 @@ export default function Users({ auth, users, filters, heatmapData, metrics }) {
                                                 {visibleColumns.includes('id') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.id}</td>}
                                                 {visibleColumns.includes('name') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.name}</td>}
                                                 {visibleColumns.includes('email') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.email}</td>}
-                                                {visibleColumns.includes('role') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.role}</td>}
+                                                {visibleColumns.includes('role') && <td className="px-4 py-4 whitespace-normal break-words text-sm text-gray-900 dark:text-gray-100">{u.roles && u.roles.length > 0 ? u.roles.map(r => r.name).join(', ') : 'user'}</td>}
                                                 {visibleColumns.includes('status') && <td className="px-4 py-4 whitespace-normal break-words text-sm">
                                                     {u.is_active ? (
                                                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">Active</span>
@@ -402,10 +402,13 @@ export default function Users({ auth, users, filters, heatmapData, metrics }) {
                                                                         View Activity Log
                                                                     </button>
                                                                     <button 
-                                                                        onClick={() => toggleRole(u)}
+                                                                        onClick={() => {
+                                                                            setManagingRolesUser(u);
+                                                                            setSelectedRoles(u.roles ? u.roles.map(r => r.name) : []);
+                                                                        }}
                                                                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                                                     >
-                                                                        {u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
+                                                                        Manage Roles
                                                                     </button>
                                                                     <button 
                                                                         onClick={() => impersonate(u)}
@@ -494,6 +497,80 @@ export default function Users({ auth, users, filters, heatmapData, metrics }) {
                         <DangerButton className="ml-3" onClick={executeDelete}>
                             Delete User
                         </DangerButton>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={!!managingRolesUser} onClose={() => setManagingRolesUser(null)} maxWidth="md">
+                <div className="p-6 bg-white dark:bg-slate-900">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                        Manage Roles: {managingRolesUser?.name}
+                    </h2>
+                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        <label className="flex items-start pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center h-5">
+                                <input
+                                    type="checkbox"
+                                    className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    checked={selectedRoles.length === 0}
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedRoles([]);
+                                        }
+                                    }}
+                                    disabled={managingRolesUser?.id === auth.user.id && managingRolesUser?.roles?.some(r => r.name === 'super_admin')}
+                                />
+                            </div>
+                            <div className="ml-3 text-sm flex flex-col justify-center">
+                                <span className="font-bold text-slate-900 dark:text-slate-100">Standard User</span>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Has no admin privileges.</p>
+                                {managingRolesUser?.id === auth.user.id && managingRolesUser?.roles?.some(r => r.name === 'super_admin') && (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">You cannot remove your own super_admin access.</p>
+                                )}
+                            </div>
+                        </label>
+                        {availableRoles && availableRoles.map((role) => (
+                            <label key={role.id} className="flex items-start">
+                                <div className="flex items-center h-5">
+                                    <input
+                                        type="checkbox"
+                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        checked={selectedRoles.includes(role.name)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedRoles([...selectedRoles, role.name]);
+                                            } else {
+                                                setSelectedRoles(selectedRoles.filter((name) => name !== role.name));
+                                            }
+                                        }}
+                                        disabled={managingRolesUser?.id === auth.user.id && role.name === 'super_admin'}
+                                    />
+                                </div>
+                                <div className="ml-3 text-sm flex flex-col justify-center">
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">{role.label}</span>
+                                    {managingRolesUser?.id === auth.user.id && role.name === 'super_admin' && (
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">You cannot remove your own super_admin access.</p>
+                                    )}
+                                </div>
+                            </label>
+                        ))}
+                        {(!availableRoles || availableRoles.length === 0) && (
+                            <p className="text-sm text-slate-500">No additional roles available.</p>
+                        )}
+                    </div>
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setManagingRolesUser(null)}>Cancel</SecondaryButton>
+                        <button
+                            onClick={() => {
+                                router.put(route('admin.users.roles.sync', managingRolesUser.id), { roles: selectedRoles }, {
+                                    preserveScroll: true,
+                                    onSuccess: () => setManagingRolesUser(null),
+                                });
+                            }}
+                            className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                        >
+                            Save Roles
+                        </button>
                     </div>
                 </div>
             </Modal>
