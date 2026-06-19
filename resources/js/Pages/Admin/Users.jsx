@@ -299,7 +299,7 @@ export default function Users({ auth, users, filters, heatmapData, metrics }) {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg hover:shadow-lg hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 w-full overflow-hidden relative">
+                    <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg hover:shadow-lg transition-shadow duration-300 w-full overflow-hidden relative">
                         {/* Floating Action Bar */}
                         {selectedUsers.length > 0 && (
                             <div className="absolute top-0 left-0 w-full h-12 bg-indigo-50 dark:bg-indigo-900/50 flex items-center justify-between px-6 z-10 border-b border-indigo-100 dark:border-indigo-800">

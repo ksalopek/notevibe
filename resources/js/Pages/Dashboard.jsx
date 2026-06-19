@@ -85,7 +85,7 @@ const QuickDraftWidget = () => {
     };
 
     return (
-        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col">
             <div className="flex items-center justify-between mb-4 pr-10">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                     <span className="mr-2 text-primary-500"><EditIcon className="w-6 h-6" /></span>
@@ -130,7 +130,7 @@ const QuickDraftWidget = () => {
 
 const MetricTotalNotesWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
                 <FileTextIcon />
             </div>
@@ -146,7 +146,7 @@ const MetricTotalNotesWidget = ({ stats }) => (
 
 const MetricUniqueTagsWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
             <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
                 <TagsIcon />
             </div>
@@ -162,7 +162,7 @@ const MetricUniqueTagsWidget = ({ stats }) => (
 
 const MetricInTrashWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
             <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
                 <TrashIcon />
             </div>
@@ -206,7 +206,7 @@ const RecentNotesWidget = ({ recentNotes, onEdit }) => {
     };
 
     return (
-        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pr-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                     <span className="mr-2 text-primary-500"><ClockIcon /></span>
@@ -350,7 +350,7 @@ const RecentNotesWidget = ({ recentNotes, onEdit }) => {
 };
 
 const TopTagsWidget = ({ topTags }) => (
-    <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:shadow-primary-500/50 transition-shadow duration-300 text-white h-full relative flex flex-col">
+    <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300 text-white h-full relative flex flex-col">
         <div className="flex items-center mb-6 pr-10">
             <span className="mr-2 text-primary-100"><HashIcon /></span>
             <h3 className="text-xl font-bold">Top Tags</h3>
@@ -380,7 +380,7 @@ const TopTagsWidget = ({ topTags }) => (
 );
 
 const ActivityChartWidget = ({ chartData, noteDays, onNoteDaysChange }) => (
-    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl hover:shadow-primary-500/50 dark:hover:shadow-primary-500/50 transition-shadow duration-300 flex flex-col">
+    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pr-10 gap-4">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <span className="mr-2 text-primary-500"><ActivityIcon /></span>
