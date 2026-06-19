@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.16.6",
+        "date": "2026-06-19",
+        "features": [],
+        "fixes": [
+            "Fix changelog popping up mid-session"
+        ]
+    },
+    {
         "version": "v2.16.5",
         "date": "2026-06-19",
         "features": [],
