@@ -74,7 +74,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        \App\Models\LoginHistory::create(['user_id' => $user->id]);
+        \App\Models\LoginHistory::create(['user_id' => $user->id, 'ip_address' => $ip]);
 
         return redirect(route('dashboard', absolute: false));
     }
