@@ -32,9 +32,13 @@ export default function AuthenticatedLayout({ header, children }) {
         const latestVersion = changelogData[0]?.version;
         if (latestVersion) {
             const lastSeenVersion = localStorage.getItem('notivibe_last_version_seen');
-            if (lastSeenVersion !== latestVersion) {
+            const hasCheckedThisSession = sessionStorage.getItem('notivibe_changelog_checked');
+            
+            if (lastSeenVersion !== latestVersion && !hasCheckedThisSession) {
                 setShowChangelog(true);
             }
+            
+            sessionStorage.setItem('notivibe_changelog_checked', 'true');
         }
     }, []);
 
