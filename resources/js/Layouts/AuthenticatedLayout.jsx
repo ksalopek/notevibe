@@ -118,9 +118,17 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <Archive className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.archived') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill={has_archived_notes ? 'currentColor' : 'none'} />
                                     Archive
                                 </NavLink>
-                                <NavLink href={route('help')} active={route().current('help')} className="group gap-2">
-                                    <BookOpen className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('help') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
-                                    Help
+                                <NavLink href={route('notes.trash')} active={route().current('notes.trash')} className="group gap-2">
+                                    {has_trashed_notes ? (
+                                        <svg className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    )}
+                                    Trash
                                 </NavLink>
                             </div>
                         </div>
@@ -134,35 +142,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <Sparkles className="w-5 h-5" />
                                 </button>
                             </Tooltip>
-                            <div className="sm:hidden">
-                                <Tooltip content="Help">
-                                    <Link
-                                        href={route('help')}
-                                        className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
-                                    >
-                                        <BookOpen className="w-5 h-5" />
-                                    </Link>
-                                </Tooltip>
-                            </div>
+                            <Tooltip content="Help">
+                                <Link
+                                    href={route('help')}
+                                    className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
+                                >
+                                    <BookOpen className="w-5 h-5" />
+                                </Link>
+                            </Tooltip>
                             <ThemeToggle />
-                            <div className="hidden sm:block">
-                                <Tooltip content={has_trashed_notes ? "Trash Can (Contains notes)" : "Trash Can (Empty)"}>
-                                    <Link
-                                        href={route('notes.trash')}
-                                        className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
-                                    >
-                                        {has_trashed_notes ? (
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path fillRule="evenodd" clipRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        )}
-                                    </Link>
-                                </Tooltip>
-                            </div>
                             {isAdmin && (
                                 <div className="relative">
                                     <Dropdown>
