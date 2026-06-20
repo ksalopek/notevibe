@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notivibe-cache-v1';
+const CACHE_NAME = 'notevibe-cache-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
