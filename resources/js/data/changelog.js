@@ -1,5 +1,14 @@
 export const changelogData = [
     {
+        "version": "v2.18.3",
+        "date": "2026-06-19",
+        "features": [
+            "Enhancement: Full-screen mobile menu overlay and auto-redirect authenticated users to dashboard",
+            "chore: remove old release scripts"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.18.2",
         "date": "2026-06-19",
         "features": [
