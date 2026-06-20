@@ -658,30 +658,27 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
 
             <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
                 
+                <div className="flex justify-end mb-2">
+                    <button 
+                        onClick={() => setIsCustomizeOpen(true)}
+                        className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        <SlidersIcon />
+                        <span className="hidden sm:inline">Customize</span>
+                    </button>
+                </div>
                 {/* Greeting Section */}
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                    className="mb-8"
                 >
-                    <div>
-                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {greeting}, {auth.user.name}! ✨
-                        </h3>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">
-                            Here's an overview of your notes today. Use the customize button to rearrange your dashboard.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                        <Tooltip content="Customize Dashboard">
-                            <button 
-                                onClick={() => setIsCustomizeOpen(true)}
-                                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all"
-                            >
-                                <SlidersIcon />
-                            </button>
-                        </Tooltip>
-                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {greeting}, {auth.user.name}! ✨
+                    </h3>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                        Here's an overview of your notes today. Use the customize button to rearrange your dashboard.
+                    </p>
                 </motion.div>
 
                 {isMobile ? (
