@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.19.0",
+        "date": "2026-06-20",
+        "features": [
+            "feat: Add PWA support with manifest and service worker"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v2.18.4",
         "date": "2026-06-20",
         "features": [],
