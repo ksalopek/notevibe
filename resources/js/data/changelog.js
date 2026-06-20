@@ -1,5 +1,15 @@
 export const changelogData = [
     {
+        "version": "v2.18.5",
+        "date": "2026-06-20",
+        "features": [
+            "feat: Add PWA support with manifest and service worker"
+        ],
+        "fixes": [
+            "fix: update PWA app name to NoteVibe and fix tests"
+        ]
+    },
+    {
         "version": "v2.18.4",
         "date": "2026-06-20",
         "features": [],
