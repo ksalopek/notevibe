@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
     // Check config first (for production), fallback to git command (for local dev)
     $version = config('version.app_version');
     if (!$version) {
