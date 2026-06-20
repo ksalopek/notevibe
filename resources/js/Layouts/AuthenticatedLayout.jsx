@@ -8,7 +8,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X } from 'lucide-react';
 import ChangelogModal from '@/Components/ChangelogModal';
 import { changelogData } from '@/data/changelog';
 
@@ -21,6 +21,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const { app_theme, global_announcement } = usePage().props;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [showChangelog, setShowChangelog] = useState(false);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     useEffect(() => {
         if (app_theme) {
@@ -95,13 +96,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            <div className="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <div className="hidden space-x-8 sm:-my-px sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')} className="group gap-2">
                                     <LayoutDashboard className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
                                     Dashboard
@@ -134,8 +129,9 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="flex items-center space-x-2 sm:space-x-4">
-                            <Tooltip content="What's New">
-                                <button
+                            <div className="hidden sm:flex items-center space-x-2 sm:space-x-4">
+                                <Tooltip content="What's New">
+                                    <button
                                     onClick={() => setShowChangelog(true)}
                                     className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 dark:focus:text-gray-300"
                                 >
@@ -175,6 +171,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown>
                                 </div>
                             )}
+                            </div>
                             <div className="relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -240,30 +237,142 @@ export default function AuthenticatedLayout({ header, children }) {
                         <TrendingUp className="w-5 h-5" />
                         <span className="text-[9px] font-medium truncate">Analytics</span>
                     </Link>
-                    <Link 
-                        href={route('notes.archived')} 
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('notes.archived') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-                    >
-                        <Archive className="w-5 h-5" fill={has_archived_notes ? 'currentColor' : 'none'} />
-                        <span className="text-[9px] font-medium truncate">Archive</span>
-                    </Link>
-                    <Link 
-                        href={route('notes.trash')} 
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-                    >
-                        {has_trashed_notes ? (
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" />
-                            </svg>
-                        ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        )}
-                        <span className="text-[9px] font-medium truncate">Trash</span>
-                    </Link>
+                    <div className="flex flex-col items-center justify-center w-full h-full">
+                        <button 
+                            onClick={() => setShowMobileMenu(true)}
+                            className={`flex flex-col items-center justify-center w-full h-full space-y-1 focus:outline-none ${showMobileMenu || route().current('admin.*') || route().current('notes.archived') || route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+                        >
+                            <Menu className="w-5 h-5" />
+                            <span className="text-[9px] font-medium truncate">Menu</span>
+                        </button>
+                    </div>
                 </div>
             </nav>
+
+            {/* Full Screen Mobile Menu */}
+            {showMobileMenu && (
+                <div className="fixed inset-0 z-[100] bg-white dark:bg-gray-900 sm:hidden flex flex-col overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200">
+                    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                        <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
+                        <button 
+                            onClick={() => setShowMobileMenu(false)}
+                            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="p-4 space-y-6">
+                        {/* Utilities */}
+                        <div>
+                            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Utilities</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    onClick={() => { setShowMobileMenu(false); setShowChangelog(true); }}
+                                    className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl space-y-2 active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                >
+                                    <Sparkles className="w-6 h-6 text-primary-500" />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">What's New</span>
+                                </button>
+                                <Link
+                                    href={route('help')}
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl space-y-2 active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                >
+                                    <BookOpen className="w-6 h-6 text-primary-500" />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Help</span>
+                                </Link>
+                                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl space-y-2 col-span-2 sm:col-span-1">
+                                    <ThemeToggle />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white mt-1">Theme</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        <div>
+                            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Notes</h3>
+                            <div className="space-y-2">
+                                <Link
+                                    href={route('notes.archived')}
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                >
+                                    <Archive className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" fill={has_archived_notes ? 'currentColor' : 'none'} />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Archive</span>
+                                </Link>
+                                <Link
+                                    href={route('notes.trash')}
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                >
+                                    {has_trashed_notes ? (
+                                        <svg className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    )}
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Trash</span>
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Admin */}
+                        {isAdmin && (
+                            <div>
+                                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Admin</h3>
+                                <div className="space-y-2">
+                                    <Link
+                                        href={route('admin.index')}
+                                        onClick={() => setShowMobileMenu(false)}
+                                        className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                    >
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">Command Center</span>
+                                    </Link>
+                                    {hasPerm('manage_users') && (
+                                        <Link
+                                            href={route('admin.users')}
+                                            onClick={() => setShowMobileMenu(false)}
+                                            className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                        >
+                                            <span className="text-sm font-medium text-gray-900 dark:text-white">Manage Users</span>
+                                        </Link>
+                                    )}
+                                    {hasPerm('manage_notes') && (
+                                        <Link
+                                            href={route('admin.notes')}
+                                            onClick={() => setShowMobileMenu(false)}
+                                            className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                        >
+                                            <span className="text-sm font-medium text-gray-900 dark:text-white">All Notes</span>
+                                        </Link>
+                                    )}
+                                    {hasPerm('manage_settings') && (
+                                        <Link
+                                            href={route('admin.settings')}
+                                            onClick={() => setShowMobileMenu(false)}
+                                            className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                        >
+                                            <span className="text-sm font-medium text-gray-900 dark:text-white">Settings</span>
+                                        </Link>
+                                    )}
+                                    {hasPerm('manage_reporting') && (
+                                        <Link
+                                            href={route('admin.reporting')}
+                                            onClick={() => setShowMobileMenu(false)}
+                                            className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                        >
+                                            <span className="text-sm font-medium text-gray-900 dark:text-white">Reporting</span>
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
