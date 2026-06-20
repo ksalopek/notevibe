@@ -192,19 +192,20 @@ export default function Notes({ notes, filters, analyticsData }) {
                 <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col sm:flex-row gap-4 justify-end w-full"
+                    className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full"
                 >
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                         <input 
                             type="text" 
                             placeholder="Search notes or authors..." 
                             value={searchNotes}
                             onChange={(e) => setSearchNotes(e.target.value)}
-                            className="w-full sm:w-64 px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 transition-shadow placeholder-slate-400"
+                            className="flex-1 min-w-[200px] md:flex-none md:w-64 px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 transition-shadow placeholder-slate-400"
                         />
                         <select
                             value={sortValue}
                             onChange={handleSortChange}
-                            className="w-full sm:w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                            className="w-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500"
                         >
                             <option value="created_at-desc">Newest First</option>
                             <option value="created_at-asc">Oldest First</option>
@@ -213,6 +214,9 @@ export default function Notes({ notes, filters, analyticsData }) {
                             <option value="author-asc">Author (A-Z)</option>
                             <option value="author-desc">Author (Z-A)</option>
                         </select>
+                    </div>
+
+                    <div className="flex items-center gap-3 ml-auto w-full lg:w-auto justify-end">
                         <div className="flex bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-1">
                             {viewMode === 'table' && (
                                 <div className="border-r border-slate-200 dark:border-slate-700 pr-1 mr-1 flex items-center">
@@ -245,6 +249,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                 </button>
                             </Tooltip>
                         </div>
+                    </div>
                 </motion.div>
 
                 {/* Content Area */}

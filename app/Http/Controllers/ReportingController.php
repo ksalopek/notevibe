@@ -13,12 +13,12 @@ class ReportingController extends Controller
 {
     public function index()
     {
-        // 1. Power Users (Top 10 users with most notes)
+        // 1. Power Users (Top users with most notes)
         $powerUsers = User::withCount('notes')
             ->orderByDesc('notes_count')
-            ->take(10)
-            ->get(['id', 'name', 'email', 'last_login_at', 'notes_count'])
-            ->map(function ($user) {
+            ->paginate(5, ['id', 'name', 'email', 'last_login_at'], 'power_page')
+            ->withQueryString()
+            ->through(function ($user) {
                 $user->last_login_human = $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never';
                 return $user;
             });
@@ -125,12 +125,12 @@ class ReportingController extends Controller
         }
         $avgNoteLength = count($sampleNotes) > 0 ? round($totalLength / count($sampleNotes)) : 0;
 
-        // 7. Security: Access Logs (last 20 logins)
+        // 7. Security: Access Logs (paginated)
         $accessLogs = LoginHistory::with('user:id,name,email,last_login_ip,city,country')
             ->orderByDesc('created_at')
-            ->take(20)
-            ->get()
-            ->map(function ($log) {
+            ->paginate(5, ['*'], 'logs_page')
+            ->withQueryString()
+            ->through(function ($log) {
                 return [
                     'id' => $log->id,
                     'user_name' => $log->user->name ?? 'Unknown',
@@ -145,8 +145,9 @@ class ReportingController extends Controller
         $abandonedAccounts = User::doesntHave('notes')
             ->where('created_at', '<', now()->subDays(7))
             ->orderBy('created_at')
-            ->get(['id', 'name', 'email', 'created_at'])
-            ->map(function ($user) {
+            ->paginate(5, ['id', 'name', 'email', 'created_at'], 'abandoned_page')
+            ->withQueryString()
+            ->through(function ($user) {
                 $user->created_human = $user->created_at->diffForHumans();
                 return $user;
             });
