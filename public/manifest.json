@@ -1,6 +1,6 @@
 {
-  "name": "NotiVibe",
-  "short_name": "NotiVibe",
+  "name": "NoteVibe",
+  "short_name": "NoteVibe",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

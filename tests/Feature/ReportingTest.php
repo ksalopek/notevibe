@@ -60,7 +60,7 @@ class ReportingTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.reporting'));
 
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('powerUsers.0.id', $powerUser->id)
+            ->where('powerUsers.data.0.id', $powerUser->id)
             ->where('atRiskUsers.0.id', $atRiskUser->id)
         );
     }
@@ -78,7 +78,7 @@ class ReportingTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.reporting'));
 
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('abandonedAccounts.0.id', $abandonedUser->id)
+            ->where('abandonedAccounts.data.0.id', $abandonedUser->id)
         );
     }
 }
