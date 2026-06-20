@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.18.4",
+        "date": "2026-06-20",
+        "features": [],
+        "fixes": [
+            "Fix notes filter layout, pagination, and dashboard widget resizing bugs"
+        ]
+    },
+    {
         "version": "v2.18.3",
         "date": "2026-06-19",
         "features": [
