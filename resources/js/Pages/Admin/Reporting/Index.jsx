@@ -15,6 +15,7 @@ import useTableColumns from '@/Hooks/useTableColumns';
 import ColumnSelector from '@/Components/ColumnSelector';
 import Tooltip from '@/Components/Tooltip';
 import { downloadCSV } from '@/utils/csvUtils';
+import Pagination from '@/Components/Pagination';
 
 const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
 const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>);
@@ -207,7 +208,7 @@ const TablePowerUsers = ({ powerUsers }) => {
                 />
                 <Tooltip content="Export CSV">
                     <button 
-                        onClick={() => downloadCSV(powerUsers, 'power_users.csv')}
+                        onClick={() => downloadCSV(powerUsers.data, 'power_users.csv')}
                         className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
                     >
                         <Download className="w-5 h-5" />
@@ -225,11 +226,10 @@ const TablePowerUsers = ({ powerUsers }) => {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {powerUsers.map((u, i) => (
+                    {powerUsers.data.map((u, i) => (
                         <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             {visibleColumns.includes('name') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                 <div className="font-medium flex items-center gap-2">
-                                    <span className="text-gray-400 text-xs w-4">{i + 1}.</span>
                                     {u.name}
                                 </div>
                             </td>}
@@ -241,6 +241,9 @@ const TablePowerUsers = ({ powerUsers }) => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <div className="mt-4">
+            <Pagination links={powerUsers.links} />
         </div>
     </div>
     );
@@ -329,7 +332,7 @@ const TableAccessLogs = ({ accessLogs }) => {
                 />
                 <Tooltip content="Export CSV">
                     <button 
-                        onClick={() => downloadCSV(accessLogs, 'access_logs.csv')}
+                        onClick={() => downloadCSV(accessLogs.data, 'access_logs.csv')}
                         className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
                     >
                         <Download className="w-5 h-5" />
@@ -349,7 +352,7 @@ const TableAccessLogs = ({ accessLogs }) => {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {accessLogs.map((log) => (
+                    {accessLogs.data.map((log) => (
                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             {visibleColumns.includes('user') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{log.user_name}</td>}
                             {visibleColumns.includes('email') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.email}</td>}
@@ -360,6 +363,9 @@ const TableAccessLogs = ({ accessLogs }) => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <div className="mt-4">
+            <Pagination links={accessLogs.links} />
         </div>
     </div>
     );
@@ -385,7 +391,7 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => {
                 />
                 <Tooltip content="Export CSV">
                     <button 
-                        onClick={() => downloadCSV(abandonedAccounts, 'abandoned_accounts.csv')}
+                        onClick={() => downloadCSV(abandonedAccounts.data, 'abandoned_accounts.csv')}
                         className="inline-flex items-center justify-center p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 shrink-0 shadow-sm hover:shadow-md"
                     >
                         <Download className="w-5 h-5" />
@@ -402,10 +408,10 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {abandonedAccounts.length === 0 && (
+                    {abandonedAccounts.data.length === 0 && (
                         <tr><td colSpan={2} className="px-3 py-6 text-center text-sm text-gray-500">No abandoned accounts found.</td></tr>
                     )}
-                    {abandonedAccounts.map((u) => (
+                    {abandonedAccounts.data.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             {visibleColumns.includes('user') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{u.name} <span className="text-gray-400 font-normal block">{u.email}</span></td>}
                             {visibleColumns.includes('registered') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{u.created_human}</td>}
@@ -413,6 +419,9 @@ const TableAbandonedAccounts = ({ abandonedAccounts }) => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <div className="mt-4">
+            <Pagination links={abandonedAccounts.links} />
         </div>
     </div>
     );
@@ -615,17 +624,6 @@ const defaultLayout = [
     { i: 'abandoned', x: 0, y: 13, w: 2, h: 2, minW: 2 },
     { i: 'settings-audit', x: 2, y: 13, w: 2, h: 2, minW: 2 },
     { i: 'widget-usage', x: 0, y: 15, w: 4, h: 2, minW: 2 },
-    { i: 'total-notes', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-    { i: 'avg-length', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-    { i: 'velocity', x: 2, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'tag-cloud', x: 0, y: 1, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'heatmap', x: 2, y: 2, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'widget-usage', x: 0, y: 3, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'power-users', x: 2, y: 4, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'at-risk', x: 0, y: 5, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'access-logs', x: 2, y: 6, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'abandoned', x: 0, y: 7, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'settings-audit', x: 2, y: 8, w: 2, h: 2, minW: 2, minH: 2 },
 ];
 
 export default function Reporting({ 
@@ -636,7 +634,7 @@ export default function Reporting({
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [layouts, setLayouts] = useState(() => {
-        const savedLayout = localStorage.getItem('admin_reporting_layout_v3');
+        const savedLayout = localStorage.getItem('admin_reporting_layout_v4');
         if (savedLayout) return JSON.parse(savedLayout);
         return {
             lg: defaultLayout,
@@ -672,7 +670,7 @@ export default function Reporting({
     });
 
     useEffect(() => {
-        localStorage.setItem('reporting_dashboard_layouts', JSON.stringify(layouts));
+        localStorage.setItem('admin_reporting_layout_v4', JSON.stringify(layouts));
     }, [layouts]);
 
     useEffect(() => {
@@ -744,22 +742,22 @@ export default function Reporting({
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Platform Reporting & Analytics</h2>
-                    <button 
-                        onClick={() => setIsCustomizeOpen(true)}
-                        className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        <SlidersIcon />
-                        <span className="hidden sm:inline">Customize</span>
-                    </button>
-                </div>
+                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Platform Reporting & Analytics</h2>
             }
         >
             <Head title="Reporting" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-end mb-6">
+                        <button 
+                            onClick={() => setIsCustomizeOpen(true)}
+                            className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            <SlidersIcon />
+                            <span className="hidden sm:inline">Customize</span>
+                        </button>
+                    </div>
                     
                     {isMobile ? (
                         <div className="flex flex-col gap-6">
@@ -777,22 +775,15 @@ export default function Reporting({
                                 key="desktop"
                                 width={containerWidth}
                                 className="layout pb-12"
-                                layouts={{
-                                    lg: layouts.lg.map(item => ({ ...item, isDraggable: false })),
-                                    md: layouts.md?.map(item => ({ ...item, isDraggable: false })) || [],
-                                    sm: layouts.sm?.map(item => ({ ...item, isDraggable: false })) || [],
-                                    xs: layouts.xs?.map(item => ({ ...item, isDraggable: false })) || [],
-                                    xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false })) || []
-                                }}
+                                layouts={layouts}
                                 onLayoutChange={handleLayoutChange}
-                                isDraggable={false}
                                 breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
                                 cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
                                 rowHeight={150}
                                 containerPadding={[0, 0]}
                                 margin={[20, 20]}
                             >
-                            {layouts.lg.map(item => (
+                            {(layouts.lg || []).map(item => (
                                 <div key={item.i}>
                                     <DraggableWidgetWrapper>
                                         {renderWidget(item.i)}
