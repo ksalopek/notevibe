@@ -379,22 +379,22 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">My Analytics</h2>
-                    <button 
-                        onClick={() => setIsCustomizeOpen(true)}
-                        className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        <SlidersIcon />
-                        <span className="hidden sm:inline">Customize</span>
-                    </button>
-                </div>
+                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">My Analytics</h2>
             }
         >
             <Head title="My Analytics" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-end mb-6">
+                        <button 
+                            onClick={() => setIsCustomizeOpen(true)}
+                            className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            <SlidersIcon />
+                            <span className="hidden sm:inline">Customize</span>
+                        </button>
+                    </div>
                     
                     {isMobile ? (
                         <div className="flex flex-col gap-6">

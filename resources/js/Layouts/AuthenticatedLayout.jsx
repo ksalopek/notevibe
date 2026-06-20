@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
@@ -22,6 +22,20 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [showChangelog, setShowChangelog] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const headerRef = useRef(null);
+
+    useEffect(() => {
+        if (!headerRef.current) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsScrolled(!entry.isIntersecting);
+            },
+            { rootMargin: '-64px 0px 0px 0px', threshold: 0 }
+        );
+        observer.observe(headerRef.current);
+        return () => observer.disconnect();
+    }, [header]);
 
     useEffect(() => {
         if (app_theme) {
@@ -95,7 +109,7 @@ export default function AuthenticatedLayout({ header, children }) {
             <nav className="shrink-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 dark:border-gray-700/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex">
+                        <div className="flex flex-1 items-center overflow-hidden">
                             <div className="hidden space-x-8 sm:-my-px sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')} className="group gap-2">
                                     <LayoutDashboard className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
@@ -126,6 +140,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Trash
                                 </NavLink>
                             </div>
+                            {header && (
+                                <div className={`sm:hidden transition-all duration-300 ease-in-out flex items-center ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+                                    <div className="truncate font-semibold text-gray-800 dark:text-gray-200 [&>h2]:text-lg [&>h2]:truncate [&>h2]:leading-tight [&>h2]:m-0">
+                                        {header}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-center space-x-2 sm:space-x-4">
@@ -204,7 +225,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
             <div className="flex-1 overflow-y-auto w-full">
                 {header && (
-                    <header className="bg-white dark:bg-gray-800 shadow shrink-0">
+                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow shrink-0">
                         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-gray-800 dark:text-gray-200">{header}</div>
                     </header>
                 )}

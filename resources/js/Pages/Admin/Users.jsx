@@ -231,50 +231,47 @@ export default function Users({ auth, users, filters, heatmapData, metrics, avai
                         <Heatmap data={heatmapData} />
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between mb-4 gap-4">
-                        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                            <input 
-                                type="text" 
-                                placeholder="Search by name or email..." 
-                                value={searchUsers}
-                                onChange={(e) => setSearchUsers(e.target.value)}
-                                className="w-full sm:w-64 px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-slate-400"
-                            />
-                            <select
-                                value={roleFilter}
-                                onChange={(e) => setRoleFilter(e.target.value)}
-                                className="w-full sm:w-32 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="all">All Roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
-                            </select>
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full sm:w-36 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="all">All Statuses</option>
-                                <option value="active">Active</option>
-                                <option value="disabled">Disabled</option>
-                            </select>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
-                            <select
-                                value={sortValue}
-                                onChange={handleSortChange}
-                                className="w-full sm:w-48 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="id-desc">Newest First</option>
-                                <option value="id-asc">Oldest First</option>
-                                <option value="name-asc">Name (A-Z)</option>
-                                <option value="name-desc">Name (Z-A)</option>
-                                <option value="email-asc">Email (A-Z)</option>
-                                <option value="email-desc">Email (Z-A)</option>
-                                <option value="role-asc">Role (A-Z)</option>
-                                <option value="role-desc">Role (Z-A)</option>
-                            </select>
+                    <div className="flex flex-wrap items-center mb-4 gap-3">
+                        <input 
+                            type="text" 
+                            placeholder="Search by name or email..." 
+                            value={searchUsers}
+                            onChange={(e) => setSearchUsers(e.target.value)}
+                            className="flex-1 min-w-[200px] md:flex-none md:w-64 px-4 py-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-shadow placeholder-slate-400"
+                        />
+                        <select
+                            value={roleFilter}
+                            onChange={(e) => setRoleFilter(e.target.value)}
+                            className="w-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                        </select>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="disabled">Disabled</option>
+                        </select>
+                        <select
+                            value={sortValue}
+                            onChange={handleSortChange}
+                            className="w-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="id-desc">Newest First</option>
+                            <option value="id-asc">Oldest First</option>
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="email-asc">Email (A-Z)</option>
+                            <option value="email-desc">Email (Z-A)</option>
+                            <option value="role-asc">Role (A-Z)</option>
+                            <option value="role-desc">Role (Z-A)</option>
+                        </select>
+                        <div className="flex gap-3 ml-auto">
                             <ColumnSelector 
                                 columns={[
                                     { id: 'checkbox', label: '' },
