@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#a855f7">
+        <link rel="apple-touch-icon" href="/favicon.svg">
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
@@ -78,5 +81,16 @@
     </script>
     <body class="font-sans antialiased {{ $isCustom ? 'theme-custom' : 'theme-' . $appTheme }}">
         @inertia
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        </script>
     </body>
 </html>
