@@ -257,14 +257,14 @@ export default function Trash({ notes, filters }) {
                         initial={{ y: 100, opacity: 0 }} 
                         animate={{ y: 0, opacity: 1 }} 
                         exit={{ y: 100, opacity: 0 }} 
-                        className="fixed bottom-8 left-0 right-0 z-50 pointer-events-none flex justify-center"
+                        className="fixed bottom-24 sm:bottom-8 left-0 right-0 z-50 pointer-events-none flex justify-center"
                     >
                         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
-                            <div className="pointer-events-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-6 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-4">
-                                <span className="font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
+                            <div className="pointer-events-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-2xl sm:rounded-full px-4 sm:px-6 py-3 border border-gray-200 dark:border-gray-700 flex flex-wrap justify-center items-center gap-2 sm:gap-4">
+                                <span className="font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap text-sm sm:text-base">
                                     {selectedNotes.length} selected
                                 </span>
-                                <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                                <div className="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
                                 <button onClick={() => executeBulkAction('restore')} className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Restore</button>
                                 <button onClick={() => executeBulkAction('force_delete')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Delete Forever</button>
                             </div>

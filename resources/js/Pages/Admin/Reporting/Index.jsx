@@ -742,22 +742,25 @@ export default function Reporting({
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Platform Reporting & Analytics</h2>
+                <div className="flex justify-between items-center w-full">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                        Platform Reporting & Analytics
+                    </h2>
+                    <Tooltip content="Customize Layout">
+                        <button 
+                            onClick={() => setIsCustomizeOpen(true)}
+                            className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
+                        >
+                            <SlidersIcon />
+                        </button>
+                    </Tooltip>
+                </div>
             }
         >
             <Head title="Reporting" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-end mb-6">
-                        <button 
-                            onClick={() => setIsCustomizeOpen(true)}
-                            className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >
-                            <SlidersIcon />
-                            <span className="hidden sm:inline">Customize</span>
-                        </button>
-                    </div>
                     
                     {isMobile ? (
                         <div className="flex flex-col gap-6">
@@ -784,7 +787,7 @@ export default function Reporting({
                                 margin={[20, 20]}
                             >
                             {(layouts.lg || []).map(item => (
-                                <div key={item.i}>
+                            <div key={item.i} className="h-full">
                                     <DraggableWidgetWrapper>
                                         {renderWidget(item.i)}
                                     </DraggableWidgetWrapper>

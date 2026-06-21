@@ -823,37 +823,6 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
         localStorage.setItem('admin_dashboard_layout_v2', JSON.stringify(allLayouts));
-
-        setAvailableWidgets((prev) => {
-            const sortedLayout = [...currentLayout].sort((a, b) => {
-                if (a.y === b.y) return a.x - b.x;
-                return a.y - b.y;
-            });
-            
-            const newOrder = [];
-            const addedIds = new Set();
-            
-            sortedLayout.forEach(item => {
-                const widget = prev.find(w => w.id === item.i);
-                if (widget) {
-                    newOrder.push(widget);
-                    addedIds.add(widget.id);
-                }
-            });
-            
-            prev.forEach(widget => {
-                if (!addedIds.has(widget.id)) {
-                    newOrder.push(widget);
-                }
-            });
-            
-            const isDifferent = JSON.stringify(prev) !== JSON.stringify(newOrder);
-            if (isDifferent) {
-                localStorage.setItem('admin_dashboard_widgets_v1', JSON.stringify(newOrder));
-            }
-            
-            return newOrder;
-        });
     };
 
     const renderWidget = (id) => {
@@ -892,9 +861,19 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
-                    Admin Command Center
-                </h2>
+                <div className="flex justify-between items-center w-full">
+                    <h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
+                        Admin Command Center
+                    </h2>
+                    <Tooltip content="Customize Layout">
+                        <button 
+                            onClick={() => setIsCustomizeOpen(true)}
+                            className="p-2 rounded-full bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-all border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none"
+                        >
+                            <SlidersIcon />
+                        </button>
+                    </Tooltip>
+                </div>
             }
         >
             <Head title="Admin Command Center" />
@@ -927,14 +906,6 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                                 <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
-                            </button>
-                        </Tooltip>
-                        <Tooltip content="Customize Dashboard">
-                            <button 
-                                onClick={() => setIsCustomizeOpen(true)}
-                                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
-                            >
-                                <SlidersIcon />
                             </button>
                         </Tooltip>
                     </div>
@@ -977,7 +948,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                             margin={[32, 32]}
                         >
                             {layouts.lg.map(item => (
-                                <div key={item.i}>
+                                <div key={item.i} className="h-full">
                                     <DraggableWidgetWrapper>
                                         {renderWidget(item.i)}
                                     </DraggableWidgetWrapper>
@@ -991,7 +962,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
 
             {/* Slideout Drawer */}
             {isCustomizeOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end">
+                <div className="fixed top-0 left-0 right-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] sm:bottom-0 z-50 flex justify-end">
                     <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCustomizeOpen(false)}></div>
                     <motion.div 
                         initial={{ x: '100%' }}
@@ -1010,21 +981,23 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1">
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                                Toggle widgets on or off and drag them to reorder your dashboard layout.
-                            </p>
-                            <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="space-y-3">
-                            {availableWidgets.map((widget) => (
-                                <SlideoutReorderItem 
-                                    key={widget.id} 
-                                    widget={widget} 
-                                    enabled={isWidgetEnabled(widget.id)} 
-                                    onToggle={handleToggleWidget} 
-                                />
-                            ))}
-                            </Reorder.Group>
-                        </div>
+                        <motion.div layoutScroll className="px-6 pb-6 overflow-y-auto flex-1">
+                            <div className="pt-6">
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                    Toggle widgets on or off and drag them to reorder your dashboard layout.
+                                </p>
+                                <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="flex flex-col gap-3">
+                                {availableWidgets.map((widget) => (
+                                    <SlideoutReorderItem 
+                                        key={widget.id} 
+                                        widget={widget} 
+                                        enabled={isWidgetEnabled(widget.id)} 
+                                        onToggle={handleToggleWidget} 
+                                    />
+                                ))}
+                                </Reorder.Group>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 </div>
             )}
