@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.19.4",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "UI: Fix missing bottom glow line on active top navigation items"
+        ]
+    },
+    {
         "version": "v2.19.3",
         "date": "2026-06-21",
         "features": [],
