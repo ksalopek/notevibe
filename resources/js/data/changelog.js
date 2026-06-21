@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.19.3",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "UI: Overhaul widget layouts, move customize button to headers, fix overlap bugs, adjust theme colors"
+        ]
+    },
+    {
         "version": "v2.19.2",
         "date": "2026-06-20",
         "features": [],
