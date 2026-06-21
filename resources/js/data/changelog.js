@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.19.2",
+        "date": "2026-06-20",
+        "features": [],
+        "fixes": [
+            "fix: update PWA service worker to use Network First for navigation requests"
+        ]
+    },
+    {
         "version": "v2.19.1",
         "date": "2026-06-20",
         "features": [],

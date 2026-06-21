@@ -29,6 +29,7 @@ const GripVerticalIcon = ({ className }) => (<svg className={className} xmlns="h
 const ActivityIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 const SlidersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg>);
+const SparklesIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>);
 
 function DraggableWidgetWrapper({ children, className }) {
     return (
@@ -571,38 +572,6 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
         localStorage.setItem('user_dashboard_layout_v11', JSON.stringify(allLayouts));
-
-        setAvailableWidgets((prev) => {
-            const sortedLayout = [...currentLayout].sort((a, b) => {
-                if (a.y === b.y) return a.x - b.x;
-                return a.y - b.y;
-            });
-            
-            const newOrder = [];
-            const addedIds = new Set();
-            
-            sortedLayout.forEach(item => {
-                const widget = prev.find(w => w.id === item.i);
-                if (widget) {
-                    newOrder.push(widget);
-                    addedIds.add(widget.id);
-                }
-            });
-            
-            prev.forEach(widget => {
-                if (!addedIds.has(widget.id)) {
-                    newOrder.push(widget);
-                }
-            });
-            
-            const isDifferent = JSON.stringify(prev) !== JSON.stringify(newOrder);
-            if (isDifferent) {
-                localStorage.setItem('user_dashboard_widgets_v7', JSON.stringify(newOrder));
-                syncWidgetsToBackend(newOrder);
-            }
-            
-            return newOrder;
-        });
     };
 
     const startEditing = (note) => {
@@ -649,37 +618,92 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-2xl font-bold leading-tight text-gray-800 dark:text-gray-200">
-                    Dashboard
-                </h2>
+                <div className="flex justify-between items-center w-full">
+                    <h2 className="text-2xl font-bold leading-tight text-gray-800 dark:text-gray-200">
+                        Dashboard
+                    </h2>
+                    <Tooltip content="Customize Layout">
+                        <button 
+                            onClick={() => setIsCustomizeOpen(true)}
+                            className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
+                        >
+                            <SlidersIcon />
+                        </button>
+                    </Tooltip>
+                </div>
             }
         >
             <Head title="Dashboard" />
 
             <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
                 
-                <div className="flex justify-end mb-2">
-                    <button 
-                        onClick={() => setIsCustomizeOpen(true)}
-                        className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        <SlidersIcon />
-                        <span className="hidden sm:inline">Customize</span>
-                    </button>
-                </div>
-                {/* Greeting Section */}
+
+                {/* Premium Greeting Section */}
                 <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="mb-10 relative overflow-hidden rounded-[2rem] shadow-2xl group"
                 >
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {greeting}, {auth.user.name}! ✨
-                    </h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        Here's an overview of your notes today. Use the customize button to rearrange your dashboard.
-                    </p>
+                    {/* Animated background gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-indigo-600 to-purple-700 transition-all duration-700 group-hover:scale-105"></div>
+                    
+                    {/* Glassmorphism / Lighting effects */}
+                    <div className="absolute -right-32 -top-32 w-96 h-96 bg-white/20 rounded-full blur-[80px] group-hover:bg-white/30 transition-all duration-700 mix-blend-overlay"></div>
+                    <div className="absolute -left-32 -bottom-32 w-96 h-96 bg-primary-400/30 rounded-full blur-[80px] group-hover:bg-primary-300/40 transition-all duration-700 mix-blend-overlay"></div>
+                    
+                    {/* Border & Overlay */}
+                    <div className="absolute inset-0 border border-white/20 rounded-[2rem]"></div>
+                    <div className="absolute inset-0 bg-black/10 dark:bg-black/30 backdrop-blur-[2px]"></div>
+
+                    <div className="relative p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between z-10">
+                        <div>
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="inline-flex items-center space-x-2 bg-white/20 dark:bg-black/20 rounded-full px-4 py-1.5 mb-5 backdrop-blur-md border border-white/20 shadow-sm"
+                            >
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                </span>
+                                <span className="text-[11px] font-bold text-white tracking-widest uppercase drop-shadow-sm">Workspace Active</span>
+                            </motion.div>
+                            
+                            <motion.h3 
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-3 drop-shadow-md"
+                            >
+                                {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-100 to-white">{auth.user.name}</span>!
+                            </motion.h3>
+                            
+                            <motion.p 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.4 }}
+                                className="text-primary-50 text-base sm:text-lg max-w-xl leading-relaxed drop-shadow-sm font-medium"
+                            >
+                                Welcome to your personal command center. Here's an overview of your notes today. Use the customize button to tailor your dashboard layout.
+                            </motion.p>
+                        </div>
+                        
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                            transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                            className="mt-6 sm:mt-0 hidden md:flex items-center justify-center relative"
+                        >
+                            <div className="absolute inset-0 bg-white/30 blur-2xl rounded-full"></div>
+                            <div className="relative p-6 bg-white/10 backdrop-blur-md rounded-3xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.2)] transform hover:scale-110 hover:-rotate-6 transition-all duration-500 group-hover:bg-white/20">
+                                <SparklesIcon className="w-16 h-16 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                            </div>
+                        </motion.div>
+                    </div>
                 </motion.div>
+
 
                 {isMobile ? (
                     <div className="flex flex-col gap-6">
@@ -718,7 +742,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                             margin={[32, 32]}
                         >
                         {layouts.lg.map(item => (
-                            <div key={item.i}>
+                            <div key={item.i} className="h-full">
                                 <DraggableWidgetWrapper>
                                     {renderWidget(item.i)}
                                 </DraggableWidgetWrapper>
@@ -823,7 +847,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
 
             {/* Slideout Drawer */}
             {isCustomizeOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end">
+                <div className="fixed top-0 left-0 right-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] sm:bottom-0 z-50 flex justify-end">
                     <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCustomizeOpen(false)}></div>
                     <motion.div 
                         initial={{ x: '100%' }}
@@ -842,21 +866,23 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                Toggle widgets on or off and drag them to reorder your dashboard layout.
-                            </p>
-                            <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="space-y-3">
-                                {availableWidgets.map((widget) => (
-                                    <SlideoutReorderItem 
-                                        key={widget.id} 
-                                        widget={widget} 
-                                        enabled={isWidgetEnabled(widget.id)} 
-                                        onToggle={handleToggleWidget} 
-                                    />
-                                ))}
-                            </Reorder.Group>
-                        </div>
+                        <motion.div layoutScroll className="px-6 pb-6 overflow-y-auto flex-1">
+                            <div className="pt-6">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                    Toggle widgets on or off and drag them to reorder your dashboard layout.
+                                </p>
+                                <Reorder.Group axis="y" values={availableWidgets} onReorder={handleReorderWidgets} className="flex flex-col gap-3">
+                                    {availableWidgets.map((widget) => (
+                                        <SlideoutReorderItem 
+                                            key={widget.id} 
+                                            widget={widget} 
+                                            enabled={isWidgetEnabled(widget.id)} 
+                                            onToggle={handleToggleWidget} 
+                                        />
+                                    ))}
+                                </Reorder.Group>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 </div>
             )}

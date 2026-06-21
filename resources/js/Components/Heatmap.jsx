@@ -44,7 +44,7 @@ export default function Heatmap({ data }) {
     return (
         <div 
             ref={mapRef} 
-            className="w-full h-96 rounded-2xl shadow-inner border border-gray-200 dark:border-gray-700 z-0 relative"
+            className="w-full h-full min-h-[200px] rounded-2xl shadow-inner border border-gray-200 dark:border-gray-700 z-0 relative"
             style={{ zIndex: 1 }} // Ensure dropdowns can appear over the map
         />
     );
