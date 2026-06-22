@@ -17,6 +17,7 @@ class Note extends Model
         'content',
         'is_pinned',
         'is_archived',
+        'archived_at',
         'link_previews',
         'folder_id',
     ];
@@ -24,6 +25,7 @@ class Note extends Model
     protected $casts = [
         'is_pinned' => 'boolean',
         'is_archived' => 'boolean',
+        'archived_at' => 'datetime',
         'link_previews' => 'array',
     ];
 
@@ -49,5 +51,14 @@ class Note extends Model
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($note) {
+            if ($note->isDirty('is_archived')) {
+                $note->archived_at = $note->is_archived ? now() : null;
+            }
+        });
     }
 }

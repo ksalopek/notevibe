@@ -368,18 +368,12 @@ const RegistrationsWidget = ({ recentUsers }) => {
                     visibleColumns={visibleColumns}
                     toggleColumn={toggleColumn}
                 />
-                <Link 
-                    href={route('admin.users')} 
-                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 bg-primary-100 dark:bg-primary-900/50 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors duration-200 shadow-sm hover:shadow"
-                >
-                    Manage <span className="ml-2">&rarr;</span>
-                </Link>
             </div>
         </div>
 
-        <div className="overflow-x-auto flex-1 w-full min-w-0">
+        <div className="overflow-auto flex-1 w-full min-w-0 relative">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead>
+                <thead className="sticky top-0 bg-white dark:bg-slate-800 z-10 shadow-sm shadow-slate-200 dark:shadow-slate-700">
                     <tr>
                         {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
@@ -515,9 +509,9 @@ const LoginsWidget = ({ latestLogins, searchLogins, setSearchLogins, handleSortL
             </div>
         </div>
 
-        <div className="overflow-x-auto flex-1 w-full min-w-0">
+        <div className="overflow-auto flex-1 w-full min-w-0 relative">
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead>
+                <thead className="sticky top-0 bg-white dark:bg-slate-800 z-10 shadow-sm shadow-slate-200 dark:shadow-slate-700">
                     <tr>
                         {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
                             <button onClick={() => handleSortLogins('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">

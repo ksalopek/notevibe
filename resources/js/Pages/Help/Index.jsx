@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight, Smartphone } from 'lucide-react';
 
 const documentation = [
     {
@@ -48,7 +48,9 @@ const documentation = [
                 <ul className="list-disc pl-5 space-y-2">
                     <li><strong>Rich Text Editor:</strong> Format your notes with bold, italics, lists, code blocks, and clickable URLs using the toolbar or standard Markdown shortcuts.</li>
                     <li><strong>Search & Sort:</strong> Use the search bar to instantly find notes by keyword. You can sort your results by <em>Relevance</em> (best keyword match), <em>Newest</em> (most recently created), or <em>Oldest</em> (first created).</li>
-                    <li><strong>Tagging:</strong> Categorize your notes by typing tags separated by commas. Use tags to filter your notes later.</li>
+                    <li><strong>Tagging:</strong> Categorize your notes with advanced tags. Use tags to dynamically filter and organize your note collection.</li>
+                    <li><strong>Folders:</strong> Group your notes into folders for better hierarchical organization and workspace management.</li>
+                    <li><strong>Templates:</strong> Save time by creating note templates for formats you use frequently.</li>
                     <li><strong>Trash & Archive:</strong> Deleted notes are sent to the Trash where they can be restored. You can also Archive notes to hide them from your main view without deleting them.</li>
                 </ul>
             </div>
@@ -70,6 +72,20 @@ const documentation = [
                 </ul>
             </div>
         )
+    },
+    {
+        id: 'mobile-app',
+        title: 'Mobile App & PWA',
+        icon: <Smartphone className="w-5 h-5" />,
+        content: (
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <p>NoteVibe is fully optimized for your mobile device, providing a seamless on-the-go experience.</p>
+                <ul className="list-disc pl-5 space-y-2">
+                    <li><strong>Install App (PWA):</strong> NoteVibe can be installed directly to your phone's home screen or your laptop/PC. Open the site in your browser and select "Add to Home Screen" (mobile) or the install icon in your address bar (desktop) to use it like a native app.</li>
+                    <li><strong>Mobile Navigation:</strong> Enjoy a dedicated mobile app shell layout with a full-screen menu overlay for intuitive navigation on smaller screens.</li>
+                </ul>
+            </div>
+        )
     }
 ];
 
@@ -83,8 +99,8 @@ const adminDocumentation = {
                 This section is only visible to Administrators.
             </p>
             <img src="/images/help/admin.png" alt="Admin Guide" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
-            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mt-6">Manage Users</h4>
-            <p>View all registered users, reset passwords, change roles, or suspend accounts. You can also export user lists to CSV or impersonate a user to troubleshoot their specific issues.</p>
+            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mt-6">Manage Users & RBAC</h4>
+            <p>View all registered users, reset passwords, and suspend accounts. Utilize comprehensive Role-Based Access Control (RBAC) to manage permissions and command center restrictions. You can also export user lists to CSV or impersonate a user to troubleshoot their specific issues.</p>
             
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 mt-6">Reporting & Analytics</h4>
             <p>Access platform-wide metrics:</p>
