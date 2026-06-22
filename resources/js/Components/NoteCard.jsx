@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import Tooltip from '@/Components/Tooltip';
-import { Pencil, Trash2, Folder } from 'lucide-react';
+import { Pencil, Trash2, Folder, MoreHorizontal, Archive } from 'lucide-react';
+import { Menu, Transition } from '@headlessui/react';
 
 export default function NoteCard({ note, startEditing, deleteNote, togglePin, toggleArchive, handleTagClick, updateNoteContent, moveNote, isSelected = false, onSelect = null }) {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -16,6 +17,10 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
 
     const lastEdited = new Date(note.updated_at).toLocaleString(undefined, {
         month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+    });
+
+    const createdDate = new Date(note.created_at).toLocaleString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
     });
 
     const handleContentClick = (e, field) => {
@@ -93,24 +98,6 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                             </svg>
                         </button>
                     </Tooltip>
-                    <Tooltip content={note.is_archived ? "Unarchive" : "Archive"}>
-                        <button 
-                            onClick={() => toggleArchive(note)}
-                            className={`p-1.5 rounded-full transition-all duration-200 border shadow-sm hover:shadow ${note.is_archived ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 border-amber-200 dark:border-amber-800/50' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-500 border-gray-200 dark:border-gray-600'}`}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-                            </svg>
-                        </button>
-                    </Tooltip>
-                    <Tooltip content="Move Note">
-                        <button 
-                            onClick={() => moveNote(note.id)} 
-                            className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full transition-all duration-200 border border-blue-200 dark:border-blue-800/50 shadow-sm hover:shadow"
-                        >
-                            <Folder className="w-4 h-4" />
-                        </button>
-                    </Tooltip>
                     <Tooltip content="Edit">
                         <button 
                             onClick={() => startEditing(note)} 
@@ -119,14 +106,68 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                             <Pencil className="w-4 h-4" />
                         </button>
                     </Tooltip>
-                    <Tooltip content="Delete">
-                        <button 
-                            onClick={() => deleteNote(note.id)} 
-                            className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                    <Menu as="div" className="relative inline-block text-left">
+                        <Tooltip content="More Options">
+                            <Menu.Button className="p-1.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-500 border border-gray-200 dark:border-gray-600 rounded-full transition-all duration-200 shadow-sm hover:shadow">
+                                <MoreHorizontal className="w-4 h-4" />
+                            </Menu.Button>
+                        </Tooltip>
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
                         >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    </Tooltip>
+                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 dark:divide-gray-700 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                <div className="px-1 py-1">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => moveNote(note.id)}
+                                                className={`${
+                                                    active ? 'bg-primary-500 text-white dark:bg-primary-600' : 'text-gray-900 dark:text-gray-100'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                            >
+                                                <Folder className="mr-2 h-4 w-4" aria-hidden="true" />
+                                                Move to Folder
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => toggleArchive(note)}
+                                                className={`${
+                                                    active ? 'bg-amber-500 text-white dark:bg-amber-600' : 'text-gray-900 dark:text-gray-100'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                            >
+                                                <Archive className="mr-2 h-4 w-4" aria-hidden="true" />
+                                                {note.is_archived ? "Unarchive Note" : "Archive Note"}
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </div>
+                                <div className="px-1 py-1">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => deleteNote(note.id)}
+                                                className={`${
+                                                    active ? 'bg-red-500 text-white dark:bg-red-600' : 'text-red-600 dark:text-red-400'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                                                Delete Note
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
                 </div>
                 {/* Always visible pin icon if pinned, unless hovering (hovering shows the toggle buttons) */}
                 {note.is_pinned && (
@@ -214,8 +255,9 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                 </div>
             )}
 
-            <div className="mt-4 text-xs text-gray-400 dark:text-gray-500 font-medium">
-                Last edited {lastEdited}
+            <div className="mt-4 text-xs text-gray-400 dark:text-gray-500 font-medium flex justify-between">
+                <span>Created {createdDate}</span>
+                <span>Last edited {lastEdited}</span>
             </div>
         </motion.div>
     );
