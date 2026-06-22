@@ -60,13 +60,13 @@ class NoteController extends Controller
                       ->select('notes.*');
             } else {
                 $query->where(function ($q) use ($search) {
-                    $q->whereRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE)", [$search])
+                    $q->whereRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE)", [$search])
                       ->orWhereHas('tags', function ($tagQuery) use ($search) {
                           $tagQuery->where('name', 'like', "%{$search}%");
                       });
                 })
                 ->orderBy('is_pinned', 'desc')
-                ->orderByRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE) DESC", [$search]);
+                ->orderByRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE) DESC", [$search]);
             }
         } else {
             $query->when($search, function ($query, $search) {
@@ -162,13 +162,13 @@ class NoteController extends Controller
                       ->select('notes.*');
             } else {
                 $query->where(function ($q) use ($search) {
-                    $q->whereRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE)", [$search])
+                    $q->whereRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE)", [$search])
                       ->orWhereHas('tags', function ($tagQuery) use ($search) {
                           $tagQuery->where('name', 'like', "%{$search}%");
                       });
                 })
                 ->orderBy('is_pinned', 'desc')
-                ->orderByRaw("MATCH(title, content, notes) AGAINST(? IN BOOLEAN MODE) DESC", [$search]);
+                ->orderByRaw("MATCH(title, content) AGAINST(? IN BOOLEAN MODE) DESC", [$search]);
             }
         } else {
             $query->when($search, function ($query, $search) {
