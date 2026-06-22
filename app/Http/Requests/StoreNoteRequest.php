@@ -29,6 +29,7 @@ class StoreNoteRequest extends FormRequest
             'tags' => 'nullable|string',
             'is_pinned' => 'nullable|boolean',
             'is_archived' => 'nullable|boolean',
+            'folder_id' => 'nullable|exists:folders,id',
         ];
     }
 }

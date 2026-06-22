@@ -66,6 +66,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the folders for the user.
+     */
+    public function folders(): HasMany
+    {
+        return $this->hasMany(Folder::class);
+    }
+
+    /**
+     * Get the templates for the user.
+     */
+    public function templates(): HasMany
+    {
+        return $this->hasMany(Template::class);
+    }
+
+    /**
+     * Get the tags for the user.
+     */
+    public function tags(): HasMany
+    {
+        return $this->hasMany(Tag::class);
+    }
+
+    /**
      * Check if the user has an admin-level role.
      */
     public function isAdmin(): bool
