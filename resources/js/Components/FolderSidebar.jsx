@@ -178,7 +178,7 @@ export default function FolderSidebar({ folders, activeFolderId, onSelectFolder,
                                     }`}
                                     style={tag.color ? { backgroundColor: `${tag.color}20`, color: tag.color, border: `1px solid ${tag.color}40` } : { backgroundColor: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB' }}
                                 >
-                                    #{tag.name}
+                                    {tag.name}
                                 </button>
                             );
                         })}

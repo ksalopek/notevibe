@@ -125,7 +125,7 @@ export default function TagManagerModal({ isOpen, onClose, tags = [] }) {
                                                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
                                                 style={tag.color ? { backgroundColor: `${tag.color}20`, color: tag.color, border: `1px solid ${tag.color}40` } : { backgroundColor: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB' }}
                                             >
-                                                #{tag.name}
+                                                {tag.name}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">

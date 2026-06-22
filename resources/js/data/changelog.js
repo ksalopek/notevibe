@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.6",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Remove hardcoded hashtag prefixes from tags UI"
+        ]
+    },
+    {
         "version": "v3.0.5",
         "date": "2026-06-21",
         "features": [],
