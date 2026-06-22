@@ -18,6 +18,7 @@ class Note extends Model
         'is_pinned',
         'is_archived',
         'link_previews',
+        'folder_id',
     ];
 
     protected $casts = [
@@ -40,5 +41,13 @@ class Note extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    /**
+     * The folder that the note belongs to.
+     */
+    public function folder(): BelongsTo
+    {
+        return $this->belongsTo(Folder::class);
     }
 }

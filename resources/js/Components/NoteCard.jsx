@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tooltip from '@/Components/Tooltip';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Folder } from 'lucide-react';
 
-export default function NoteCard({ note, startEditing, deleteNote, togglePin, toggleArchive, handleTagClick, updateNoteContent, isSelected = false, onSelect = null }) {
+export default function NoteCard({ note, startEditing, deleteNote, togglePin, toggleArchive, handleTagClick, updateNoteContent, moveNote, isSelected = false, onSelect = null }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     // Keep local state for HTML content to prevent React re-renders from wiping out optimistic checklist changes
@@ -103,6 +103,14 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
                             </svg>
                         </button>
                     </Tooltip>
+                    <Tooltip content="Move Note">
+                        <button 
+                            onClick={() => moveNote(note.id)} 
+                            className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full transition-all duration-200 border border-blue-200 dark:border-blue-800/50 shadow-sm hover:shadow"
+                        >
+                            <Folder className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
                     <Tooltip content="Edit">
                         <button 
                             onClick={() => startEditing(note)} 
@@ -179,15 +187,30 @@ export default function NoteCard({ note, startEditing, deleteNote, togglePin, to
             {/* Display Tags */}
             {note.tags && note.tags.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                    {note.tags.map(tag => (
-                        <button 
-                            key={tag.id} 
-                            onClick={() => handleTagClick(tag.name)}
-                            className="px-2 py-1 bg-gray-100 hover:bg-primary-100 dark:bg-gray-700 dark:hover:bg-primary-900/50 text-gray-700 hover:text-primary-700 dark:text-gray-300 dark:hover:text-primary-300 text-xs font-semibold rounded-full transition-colors cursor-pointer border border-transparent hover:border-primary-200 dark:hover:border-primary-800/50"
-                        >
-                            {tag.name}
-                        </button>
-                    ))}
+                    {note.tags.map(tag => {
+                        const parts = tag.name.split('/');
+                        const hasHierarchy = parts.length > 1;
+                        const defaultStyle = { backgroundColor: '#F3F4F6', color: '#374151', borderColor: 'transparent' };
+                        const colorStyle = tag.color ? { backgroundColor: `${tag.color}20`, color: tag.color, borderColor: `${tag.color}40` } : defaultStyle;
+                        
+                        return (
+                            <button 
+                                key={tag.id} 
+                                onClick={() => handleTagClick(tag.name)}
+                                className="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full transition-colors cursor-pointer border hover:opacity-80"
+                                style={colorStyle}
+                            >
+                                {hasHierarchy ? (
+                                    <>
+                                        <span className="opacity-60 font-medium mr-0.5">{parts[0]}/</span>
+                                        <span>{parts.slice(1).join('/')}</span>
+                                    </>
+                                ) : (
+                                    tag.name
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
 
