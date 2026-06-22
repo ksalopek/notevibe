@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.3",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Fix admin bypass in maintenance mode"
+        ]
+    },
+    {
         "version": "v3.0.2",
         "date": "2026-06-21",
         "features": [],
