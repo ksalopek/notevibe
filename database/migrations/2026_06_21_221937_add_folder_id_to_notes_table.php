@@ -11,9 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('notes', function (Blueprint $table) {
-            $table->foreignId('folder_id')->nullable()->constrained('folders')->nullOnDelete();
-        });
+        if (!Schema::hasColumn('notes', 'folder_id')) {
+            Schema::table('notes', function (Blueprint $table) {
+                $table->foreignId('folder_id')->nullable()->constrained('folders')->nullOnDelete();
+            });
+        } else {
+            Schema::table('notes', function (Blueprint $table) {
+                // If it already exists, just add the constraint (ignoring errors if it already has one)
+                try {
+                    $table->foreign('folder_id')->references('id')->on('folders')->nullOnDelete();
+                } catch (\Exception $e) {
+                    // Constraint might already exist
+                }
+            });
+        }
     }
 
     /**
