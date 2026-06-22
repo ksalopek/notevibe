@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
 
-export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply, folders }) {
+export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply, folders, dateLabelPrefix = "Created" }) {
     const [localFilters, setLocalFilters] = React.useState({
         folder_id: filters.folder_id || '',
         date_from: filters.date_from || '',
@@ -101,7 +101,7 @@ export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply
                             {/* Date Range */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{dateLabelPrefix} From Date</label>
                                     <input
                                         type="date"
                                         value={localFilters.date_from}
@@ -110,7 +110,7 @@ export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{dateLabelPrefix} To Date</label>
                                     <input
                                         type="date"
                                         value={localFilters.date_to}

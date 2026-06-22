@@ -130,10 +130,10 @@ class NoteController extends Controller
             $query->where('folder_id', $folderId);
         }
         if ($dateFrom) {
-            $query->whereDate('created_at', '>=', $dateFrom);
+            $query->whereDate('archived_at', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $query->whereDate('created_at', '<=', $dateTo);
+            $query->whereDate('archived_at', '<=', $dateTo);
         }
         if (!empty($tagsFilter)) {
             $tagsArray = is_array($tagsFilter) ? $tagsFilter : explode(',', $tagsFilter);
@@ -185,7 +185,7 @@ class NoteController extends Controller
 
             switch ($sortBy) {
                 case 'oldest':
-                    $query->oldest();
+                    $query->oldest('archived_at');
                     break;
                 case 'a_z':
                     $query->orderBy('title', 'asc');
@@ -195,7 +195,7 @@ class NoteController extends Controller
                     break;
                 case 'latest':
                 default:
-                    $query->latest();
+                    $query->latest('archived_at');
                     break;
             }
         }
@@ -245,25 +245,67 @@ class NoteController extends Controller
 
     public function trash(Request $request)
     {
-        $trashedNotes = Auth::user()->notes()
-            ->onlyTrashed()
-            ->with('tags')
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('content', 'like', "%{$search}%")
-                      ->orWhereHas('tags', function ($tagQuery) use ($search) {
-                          $tagQuery->where('name', 'like', "%{$search}%");
-                      });
-                });
-            })
-            ->latest('deleted_at')
-            ->paginate(10)
-            ->withQueryString();
+        $sortBy = $request->input('sort', 'latest');
+        $search = $request->input('search');
+        $folderId = $request->input('folder_id');
+        $tagsFilter = $request->input('tags');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        $query = Auth::user()->notes()->onlyTrashed()->with(['tags', 'folder']);
+
+        if ($folderId) {
+            $query->where('folder_id', $folderId);
+        }
+        if ($dateFrom) {
+            $query->whereDate('deleted_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('deleted_at', '<=', $dateTo);
+        }
+        if (!empty($tagsFilter)) {
+            $tagsArray = is_array($tagsFilter) ? $tagsFilter : explode(',', $tagsFilter);
+            $query->whereHas('tags', function ($q) use ($tagsArray) {
+                $q->whereIn('name', $tagsArray);
+            });
+        }
+
+        $query->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('tags', function ($tagQuery) use ($search) {
+                      $tagQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        });
+
+        switch ($sortBy) {
+            case 'oldest':
+                $query->oldest('deleted_at');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest('deleted_at');
+                break;
+        }
+
+        $trashedNotes = $query->paginate(10)->withQueryString();
+
+        $folders = Auth::user()->folders;
+        $tags = Auth::user()->tags;
 
         return Inertia::render('Notes/Trash', [
             'notes' => $trashedNotes,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to']),
+            'folders' => $folders,
+            'tags' => $tags,
         ]);
     }
 

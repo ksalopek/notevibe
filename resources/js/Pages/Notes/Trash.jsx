@@ -3,22 +3,60 @@ import { Head, router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
-import { RotateCcw, Trash2 } from 'lucide-react';
+import { RotateCcw, Trash2, Filter } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
+import FolderSidebar from '@/Components/FolderSidebar';
+import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
+import TagManagerModal from '@/Components/TagManagerModal';
 
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
-export default function Trash({ notes, filters }) {
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
+export default function Trash({ notes, filters = {}, folders = [], tags = [] }) {
+    const safeFilters = Array.isArray(filters) ? {} : (filters || {});
+    const initialSearch = typeof safeFilters.search === 'string' ? safeFilters.search : '';
+    const initialSort = typeof safeFilters.sort === 'string' ? safeFilters.sort : 'latest';
+
+    const [searchTerm, setSearchTerm] = useState(initialSearch);
+    const [sortBy, setSortBy] = useState(initialSort);
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
+    const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+    const [activeFolderId, setActiveFolderId] = useState(safeFilters.folder_id ? parseInt(safeFilters.folder_id) : null);
+    const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+
+    const handleApplyFilters = (newFilters) => {
+        router.get(route('notes.trash'), { search: searchTerm, sort: sortBy, ...newFilters }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleSelectFolder = (folderId) => {
+        setActiveFolderId(folderId);
+        handleApplyFilters({ folder_id: folderId, tags: safeFilters.tags, date_from: safeFilters.date_from, date_to: safeFilters.date_to });
+    };
+
+    const handleSortChange = (e) => {
+        const newSort = e.target.value;
+        setSortBy(newSort);
+        router.get(route('notes.trash'), { ...safeFilters, search: searchTerm, sort: newSort }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleTagClick = (tagName) => {
+        setSearchTerm(tagName);
+    };
     const [confirmingRestore, setConfirmingRestore] = useState(null);
     const [confirmingForceDelete, setConfirmingForceDelete] = useState(null);
     const [selectedNotes, setSelectedNotes] = useState([]);
@@ -76,8 +114,8 @@ export default function Trash({ notes, filters }) {
     };
 
     const debouncedSearch = useCallback(
-        debounce((nextValue) => {
-            router.get(route('notes.trash'), { search: nextValue }, {
+        debounce((nextValue, sortValue, currentFilters) => {
+            router.get(route('notes.trash'), { ...currentFilters, search: nextValue, sort: sortValue }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
@@ -87,10 +125,11 @@ export default function Trash({ notes, filters }) {
     );
 
     useEffect(() => {
-        if (searchTerm !== (filters.search || '')) {
-            debouncedSearch(searchTerm);
+        if (searchTerm !== initialSearch) {
+            debouncedSearch(searchTerm, sortBy, safeFilters);
         }
-    }, [searchTerm, filters.search, debouncedSearch]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchTerm, debouncedSearch, initialSearch, sortBy]);
 
     return (
         <AuthenticatedLayout
@@ -104,61 +143,80 @@ export default function Trash({ notes, filters }) {
             <Head title="Trash" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
+                    <FolderSidebar 
+                        folders={folders} 
+                        activeFolderId={activeFolderId} 
+                        onSelectFolder={handleSelectFolder} 
+                        tags={tags}
+                        activeTags={safeFilters.tags ? safeFilters.tags.split(',') : []}
+                        onSelectTag={handleTagClick}
+                        openTagManager={() => setIsTagManagerOpen(true)}
+                        hideManagement={true}
+                    />
+                    <div className="flex-1 min-w-0">
 
                     {/* --- SEARCH AND TOGGLE --- */}
-                    <div className="mb-8 flex flex-col gap-4">
-                        {/* Top Row: Actions and Toggles */}
-                        <div className="flex flex-wrap items-center justify-between gap-4">
-                            {notes.data && notes.data.length > 0 ? (
-                                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
-                                    <input 
-                                        type="checkbox" 
-                                        onChange={handleSelectAll} 
-                                        checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
-                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
-                                    />
-                                    <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
-                                </div>
-                            ) : (
-                                <div></div>
-                            )}
-
-                            <div className="flex flex-wrap items-center gap-3 ml-auto justify-end">
-                                <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
-                                    <Tooltip content="Grid View">
-                                        <button
-                                            onClick={() => setViewMode('grid')}
-                                            className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-                                            </svg>
-                                        </button>
-                                    </Tooltip>
-                                    <Tooltip content="List View">
-                                        <button
-                                            onClick={() => setViewMode('list')}
-                                            className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                            </svg>
-                                        </button>
-                                    </Tooltip>
-                                </div>
+                    <div className="mb-8 flex flex-wrap items-center gap-4">
+                        {notes.data && notes.data.length > 0 && (
+                            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
+                                <input 
+                                    type="checkbox" 
+                                    onChange={handleSelectAll} 
+                                    checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
+                                />
+                                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
                             </div>
-                        </div>
-
-                        {/* Second Row: Search */}
-                        <div className="w-full">
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                placeholder="Search trashed notes..."
-                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
-                            />
+                        )}
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            placeholder="Search trashed notes..."
+                            className="w-full order-last sm:order-none sm:w-auto sm:flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                        />
+                        <button
+                            onClick={() => setIsFilterDrawerOpen(true)}
+                            className={`flex items-center justify-center gap-2 p-2 px-4 rounded border border-gray-300 dark:border-gray-700 shadow-sm transition-colors ${
+                                (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 border-primary-200 dark:border-primary-800' 
+                                : 'bg-white dark:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                            }`}
+                        >
+                            <Filter className="w-4 h-4" /> Filters
+                        </button>
+                        <select
+                            value={sortBy}
+                            onChange={handleSortChange}
+                            className="w-auto sm:w-40 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm ml-auto"
+                        >
+                            <option value="latest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="a_z">Alphabetical (A-Z)</option>
+                            <option value="z_a">Alphabetical (Z-A)</option>
+                        </select>
+                        <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1">
+                            <Tooltip content="Grid View">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                    </svg>
+                                </button>
+                            </Tooltip>
+                            <Tooltip content="List View">
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                    </svg>
+                                </button>
+                            </Tooltip>
                         </div>
                     </div>
 
@@ -227,8 +285,24 @@ export default function Trash({ notes, filters }) {
                             ))}
                         </div>
                     )}
+                    </div>
                 </div>
             </div>
+
+            <AdvancedFilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={() => setIsFilterDrawerOpen(false)}
+                filters={safeFilters}
+                onApply={handleApplyFilters}
+                folders={folders}
+                tags={tags}
+                dateLabelPrefix="Deleted"
+            />
+            <TagManagerModal
+                isOpen={isTagManagerOpen}
+                onClose={() => setIsTagManagerOpen(false)}
+                tags={tags}
+            />
 
             <Modal show={!!confirmingRestore} onClose={() => setConfirmingRestore(null)}>
                 <div className="p-6 bg-white dark:bg-gray-800">

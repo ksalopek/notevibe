@@ -12,7 +12,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2, Filter } from 'lucide-react';
+import { Archive, Notebook, Trash2, Filter, Folder } from 'lucide-react';
 import FolderSidebar from '@/Components/FolderSidebar';
 import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
 import TemplateManagerModal from '@/Components/TemplateManagerModal';
@@ -242,8 +242,8 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
     // --- Search Handling ---
     const debouncedSearch = useCallback(
-        debounce((nextValue, sortValue) => {
-            router.get(route('notes.index'), { search: nextValue, sort: sortValue }, {
+        debounce((nextValue, sortValue, isArchive, currentFilters) => {
+            router.get(route(isArchive ? 'notes.archived' : 'notes.index'), { ...currentFilters, search: nextValue, sort: sortValue }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
@@ -254,14 +254,15 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
     useEffect(() => {
         if (searchTerm !== initialSearch) {
-            debouncedSearch(searchTerm, sortBy);
+            debouncedSearch(searchTerm, sortBy, isArchiveView, safeFilters);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm, debouncedSearch, initialSearch, sortBy]);
 
     const handleSortChange = (e) => {
         const newSort = e.target.value;
         setSortBy(newSort);
-        router.get(route('notes.index'), { search: searchTerm, sort: newSort }, {
+        router.get(route(isArchiveView ? 'notes.archived' : 'notes.index'), { ...safeFilters, search: searchTerm, sort: newSort }, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
@@ -284,6 +285,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                         activeTags={safeFilters.tags ? safeFilters.tags.split(',') : []}
                         onSelectTag={handleTagClick}
                         openTagManager={() => setIsTagManagerOpen(true)}
+                        hideManagement={isArchiveView}
                     />
                     <div className="flex-1 min-w-0">
                     {/* --- CREATE FORM --- */}
@@ -533,6 +535,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                         note={note}
                                         isSelected={selectedNotes.includes(note.id)}
                                         onSelect={handleSelectNote}
+                                        badge={isArchiveView ? (note.archived_at ? `Archived: ${new Date(note.archived_at).toLocaleString()}` : `Archived`) : `Created: ${new Date(note.created_at).toLocaleString()}`}
                                         actions={
                                             <>
                                                 <Tooltip content="Unarchive">
@@ -541,14 +544,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                                         className="p-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full transition-all duration-200 border border-amber-200 dark:border-amber-800/50 shadow-sm hover:shadow"
                                                     >
                                                         <Archive className="w-4 h-4" />
-                                                    </button>
-                                                </Tooltip>
-                                                <Tooltip content="Move Note">
-                                                    <button 
-                                                        onClick={() => openMoveModal(note.id)} 
-                                                        className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full transition-all duration-200 border border-blue-200 dark:border-blue-800/50 shadow-sm hover:shadow"
-                                                    >
-                                                        <Folder className="w-4 h-4" />
                                                     </button>
                                                 </Tooltip>
                                                 <Tooltip content="Move to Trash">
@@ -731,6 +726,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                 filters={safeFilters}
                 onApply={handleApplyFilters}
                 folders={folders}
+                dateLabelPrefix={isArchiveView ? "Archived" : "Created"}
             />
 
             <TemplateManagerModal 

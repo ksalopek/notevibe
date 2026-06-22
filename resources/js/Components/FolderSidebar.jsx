@@ -10,7 +10,7 @@ import DangerButton from './DangerButton';
 import Dropdown from './Dropdown';
 import { router, useForm } from '@inertiajs/react';
 
-export default function FolderSidebar({ folders, activeFolderId, onSelectFolder, tags = [], onSelectTag, activeTags = [], openTagManager }) {
+export default function FolderSidebar({ folders, activeFolderId, onSelectFolder, tags = [], onSelectTag, activeTags = [], openTagManager, hideManagement = false }) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingFolder, setEditingFolder] = useState(null);
     const [deletingFolder, setDeletingFolder] = useState(null);
@@ -95,9 +95,11 @@ export default function FolderSidebar({ folders, activeFolderId, onSelectFolder,
                 <div className="mt-4">
                     <div className="flex items-center justify-between px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                         <span>Folders</span>
-                        <button onClick={(e) => { e.stopPropagation(); openCreateModal(); }} className="text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 p-1" title="Create Folder">
-                            <Plus className="w-4 h-4" />
-                        </button>
+                        {!hideManagement && (
+                            <button onClick={(e) => { e.stopPropagation(); openCreateModal(); }} className="text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 p-1" title="Create Folder">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                     <ul className="space-y-1">
                 <li>
@@ -127,29 +129,31 @@ export default function FolderSidebar({ folders, activeFolderId, onSelectFolder,
                             <span className="truncate">{folder.name}</span>
                         </button>
                         
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1">
-                            <Dropdown>
-                                <Dropdown.Trigger>
-                                    <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md">
-                                        <MoreVertical className="w-4 h-4" />
-                                    </button>
-                                </Dropdown.Trigger>
-                                <Dropdown.Content width="48" align="right">
-                                    <button
-                                        onClick={() => openEditModal(folder)}
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => setDeletingFolder(folder)}
-                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    >
-                                        Delete
-                                    </button>
-                                </Dropdown.Content>
-                            </Dropdown>
-                        </div>
+                        {!hideManagement && (
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1">
+                                <Dropdown>
+                                    <Dropdown.Trigger>
+                                        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md">
+                                            <MoreVertical className="w-4 h-4" />
+                                        </button>
+                                    </Dropdown.Trigger>
+                                    <Dropdown.Content width="48" align="right">
+                                        <button
+                                            onClick={() => openEditModal(folder)}
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => setDeletingFolder(folder)}
+                                            className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        >
+                                            Delete
+                                        </button>
+                                    </Dropdown.Content>
+                                </Dropdown>
+                            </div>
+                        )}
                     </li>
                 ))}
                 </ul>
@@ -160,9 +164,11 @@ export default function FolderSidebar({ folders, activeFolderId, onSelectFolder,
                 <div className="mt-8">
                     <div className="flex items-center justify-between px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                         <span>Tags</span>
-                        <button onClick={(e) => { e.stopPropagation(); openTagManager(); }} className="text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 p-1" title="Manage Tags">
-                            <Settings className="w-4 h-4" />
-                        </button>
+                        {!hideManagement && (
+                            <button onClick={(e) => { e.stopPropagation(); openTagManager(); }} className="text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 p-1" title="Manage Tags">
+                                <Settings className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                     <div className="flex flex-wrap gap-2 px-2">
                         {tags.slice(0, 15).map(tag => {
