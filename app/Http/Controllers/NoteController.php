@@ -17,8 +17,28 @@ class NoteController extends Controller
     {
         $sortBy = $request->input('sort', 'relevance');
         $search = $request->input('search');
+        $folderId = $request->input('folder_id');
+        $tagsFilter = $request->input('tags');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        $query = Auth::user()->notes()->where('is_archived', false)->with('tags');
+        $query = Auth::user()->notes()->where('is_archived', false)->with(['tags', 'folder']);
+
+        if ($folderId) {
+            $query->where('folder_id', $folderId);
+        }
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        if (!empty($tagsFilter)) {
+            $tagsArray = is_array($tagsFilter) ? $tagsFilter : explode(',', $tagsFilter);
+            $query->whereHas('tags', function ($q) use ($tagsArray) {
+                $q->whereIn('name', $tagsArray);
+            });
+        }
 
         if ($sortBy === 'relevance' && $search) {
             if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
@@ -81,9 +101,16 @@ class NoteController extends Controller
 
         $notes = $query->paginate(10)->withQueryString();
 
+        $folders = Auth::user()->folders;
+        $templates = Auth::user()->templates;
+        $tags = Auth::user()->tags;
+
         return Inertia::render('Notes/Index', [
             'notes' => $notes,
-            'filters' => $request->only(['search', 'sort']),
+            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to']),
+            'folders' => $folders,
+            'templates' => $templates,
+            'tags' => $tags,
             'isArchiveView' => false,
         ]);
     }
@@ -92,8 +119,28 @@ class NoteController extends Controller
     {
         $sortBy = $request->input('sort', 'relevance');
         $search = $request->input('search');
+        $folderId = $request->input('folder_id');
+        $tagsFilter = $request->input('tags');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        $query = Auth::user()->notes()->where('is_archived', true)->with('tags');
+        $query = Auth::user()->notes()->where('is_archived', true)->with(['tags', 'folder']);
+
+        if ($folderId) {
+            $query->where('folder_id', $folderId);
+        }
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        if (!empty($tagsFilter)) {
+            $tagsArray = is_array($tagsFilter) ? $tagsFilter : explode(',', $tagsFilter);
+            $query->whereHas('tags', function ($q) use ($tagsArray) {
+                $q->whereIn('name', $tagsArray);
+            });
+        }
 
         if ($sortBy === 'relevance' && $search) {
             if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
@@ -155,9 +202,16 @@ class NoteController extends Controller
 
         $notes = $query->paginate(10)->withQueryString();
 
+        $folders = Auth::user()->folders;
+        $templates = Auth::user()->templates;
+        $tags = Auth::user()->tags;
+
         return Inertia::render('Notes/Index', [
             'notes' => $notes,
-            'filters' => $request->only(['search', 'sort']),
+            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to']),
+            'folders' => $folders,
+            'templates' => $templates,
+            'tags' => $tags,
             'isArchiveView' => true,
         ]);
     }
@@ -300,10 +354,11 @@ class NoteController extends Controller
         $tagIds = [];
         if ($request->has('tags')) {
             $tagNames = explode(',', $request->input('tags'));
+            $user = \Illuminate\Support\Facades\Auth::user();
             foreach ($tagNames as $tagName) {
                 $tagName = trim($tagName);
                 if ($tagName) {
-                    $tag = Tag::firstOrCreate(['name' => $tagName]);
+                    $tag = $user->tags()->firstOrCreate(['name' => $tagName]);
                     $tagIds[] = $tag->id;
                 }
             }
@@ -314,9 +369,12 @@ class NoteController extends Controller
     public function bulkAction(Request $request)
     {
         $request->validate([
-            'action' => 'required|string|in:delete,restore,force_delete,archive,unarchive,pin,unpin',
+            'action' => 'required|string|in:delete,restore,force_delete,archive,unarchive,pin,unpin,move,add_tags,remove_tags',
             'note_ids' => 'required|array',
             'note_ids.*' => 'integer|exists:notes,id',
+            'folder_id' => 'nullable|integer|exists:folders,id',
+            'tag_names' => 'nullable|array',
+            'tag_names.*' => 'string'
         ]);
 
         $action = $request->input('action');
@@ -353,6 +411,30 @@ class NoteController extends Controller
                     break;
                 case 'unpin':
                     $note->update(['is_pinned' => false]);
+                    break;
+                case 'move':
+                    $note->update(['folder_id' => $request->input('folder_id')]);
+                    break;
+                case 'add_tags':
+                    if ($request->has('tag_names')) {
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        $tagIds = [];
+                        foreach ($request->input('tag_names') as $tagName) {
+                            $tagName = trim($tagName);
+                            if ($tagName) {
+                                $tag = $user->tags()->firstOrCreate(['name' => $tagName]);
+                                $tagIds[] = $tag->id;
+                            }
+                        }
+                        $note->tags()->syncWithoutDetaching($tagIds);
+                    }
+                    break;
+                case 'remove_tags':
+                    if ($request->has('tag_names')) {
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        $tagIdsToRemove = $user->tags()->whereIn('name', $request->input('tag_names'))->pluck('id');
+                        $note->tags()->detach($tagIdsToRemove);
+                    }
                     break;
             }
         }

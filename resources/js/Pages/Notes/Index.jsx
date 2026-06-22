@@ -12,7 +12,14 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2 } from 'lucide-react';
+import { Archive, Notebook, Trash2, Filter } from 'lucide-react';
+import FolderSidebar from '@/Components/FolderSidebar';
+import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
+import TemplateManagerModal from '@/Components/TemplateManagerModal';
+import MoveNotesModal from '@/Components/MoveNotesModal';
+import TagManagerModal from '@/Components/TagManagerModal';
+import BulkTagModal from '@/Components/BulkTagModal';
+import TagAutocompleteInput from '@/Components/TagAutocompleteInput';
 
 const breakpointColumnsObj = {
   default: 3,
@@ -25,12 +32,13 @@ const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" c
 const NotesIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>;
 const TagsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>;
 
-export default function Index({ notes, filters = {}, isArchiveView = false }) {
+export default function Index({ notes, filters = {}, isArchiveView = false, folders = [], templates = [], tags = [] }) {
     // 1. State for the "Create" form
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
         content: '',
         tags: '',
+        folder_id: '',
     });
 
     // 2. React State to track which note we are currently editing
@@ -48,6 +56,68 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
     const [isLoading, setIsLoading] = useState(false);
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
     const [selectedNotes, setSelectedNotes] = useState([]);
+
+    const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+    const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
+    const [activeFolderId, setActiveFolderId] = useState(safeFilters.folder_id ? parseInt(safeFilters.folder_id) : null);
+    const [selectedTemplateId, setSelectedTemplateId] = useState('');
+    const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+    const [moveTargetIds, setMoveTargetIds] = useState([]);
+    const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+    const [isBulkTagModalOpen, setIsBulkTagModalOpen] = useState(false);
+
+    useEffect(() => {
+        setData('folder_id', activeFolderId || '');
+    }, [activeFolderId]);
+
+    const handleApplyFilters = (newFilters) => {
+        router.get(route(isArchiveView ? 'notes.archived' : 'notes.index'), { search: searchTerm, sort: sortBy, ...newFilters }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleSelectFolder = (folderId) => {
+        setActiveFolderId(folderId);
+        handleApplyFilters({ folder_id: folderId, tags: safeFilters.tags, date_from: safeFilters.date_from, date_to: safeFilters.date_to });
+    };
+
+    const handleTemplateSelect = (e) => {
+        const value = e.target.value;
+        if (value === 'manage') {
+            setIsTemplateManagerOpen(true);
+            return;
+        }
+        
+        const templateId = value;
+        setSelectedTemplateId(templateId);
+        if (!templateId) {
+            setData(prevData => ({
+                ...prevData,
+                content: '',
+                title: ''
+            }));
+            return;
+        }
+        const template = templates.find(t => t.id == templateId);
+        if (template) {
+            setData(prevData => ({
+                ...prevData,
+                content: template.content || '',
+                title: prevData.title ? prevData.title : template.name
+            }));
+        }
+    };
+
+    const handleClearTemplate = () => {
+        setSelectedTemplateId('');
+        setData(prevData => ({
+            ...prevData,
+            content: '',
+            title: ''
+        }));
+    };
 
     const handleSelectNote = (id, checked) => {
         if (checked) {
@@ -71,6 +141,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
             preserveScroll: true,
             onSuccess: () => setSelectedNotes([])
         });
+    };
+
+    const openMoveModal = (id) => {
+        setMoveTargetIds([id]);
+        setIsMoveModalOpen(true);
+    };
+
+    const handleBulkMove = () => {
+        setMoveTargetIds(selectedNotes);
+        setIsMoveModalOpen(true);
     };
 
     useEffect(() => {
@@ -195,27 +275,58 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
             <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
+                    <FolderSidebar 
+                        folders={folders} 
+                        activeFolderId={activeFolderId} 
+                        onSelectFolder={handleSelectFolder} 
+                        tags={tags}
+                        activeTags={safeFilters.tags ? safeFilters.tags.split(',') : []}
+                        onSelectTag={handleTagClick}
+                        openTagManager={() => setIsTagManagerOpen(true)}
+                    />
+                    <div className="flex-1 min-w-0">
                     {/* --- CREATE FORM --- */}
                     {!isArchiveView && (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8 p-6">
+                        <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
-                            <div className="mb-4">
-                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                    <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
+                            <div className="flex justify-end mb-4">
+                                <div className="flex gap-2 items-center">
+                                    <select 
+                                            value={selectedTemplateId}
+                                            onChange={handleTemplateSelect} 
+                                            className="text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm py-1 pl-3 pr-8"
+                                        >
+                                            <option value="">Use Template...</option>
+                                            {templates.map(t => (
+                                                <option key={t.id} value={t.id}>{t.name}</option>
+                                            ))}
+                                            <option disabled>──────────</option>
+                                            <option value="manage">⚙️ Manage Templates...</option>
+                                        </select>
+                                        {selectedTemplateId && selectedTemplateId !== 'manage' && (
+                                            <button type="button" onClick={handleClearTemplate} className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                                                Clear
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            <div className="mb-6 relative pt-2">
+                                <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                    <TitleIcon className="w-3 h-3 mr-1.5" /> Title
                                 </label>
                                 <input
                                     type="text"
                                     value={data.title}
                                     onChange={e => setData('title', e.target.value)}
-                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm pt-3 pb-3"
                                     placeholder="Note title..."
                                 />
                                 {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
                             </div>
-                            <div className="mb-4">
-                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                    <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
+                            <div className="mb-6 relative pt-2">
+                                <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                    <ContentIcon className="w-3 h-3 mr-1.5" /> Content
                                 </label>
                                 <RichTextEditor
                                     content={data.content}
@@ -224,16 +335,15 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                 />
                                 {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
                             </div>
-                            <div className="mb-4">
-                                <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                    <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
+                            <div className="mb-6 relative pt-2">
+                                <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                    <TagsIcon className="w-3 h-3 mr-1.5" /> Tags
                                 </label>
-                                <input
-                                    type="text"
+                                <TagAutocompleteInput
                                     value={data.tags}
-                                    onChange={e => setData('tags', e.target.value)}
-                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
-                                    placeholder="Comma, separated, tags..."
+                                    onChange={newTags => setData('tags', newTags)}
+                                    tags={tags}
+                                    placeholder="Select or type tags..."
                                 />
                                 {errors.tags && <div className="text-red-500 text-sm mt-1">{errors.tags}</div>}
                             </div>
@@ -271,6 +381,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                 placeholder="Search archived notes..."
                                 className="w-full order-last sm:order-none sm:w-auto sm:flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                             />
+                            <button
+                                onClick={() => setIsFilterDrawerOpen(true)}
+                                className={`flex items-center justify-center gap-2 p-2 px-4 rounded border border-gray-300 dark:border-gray-700 shadow-sm transition-colors ${
+                                    (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 border-primary-200 dark:border-primary-800' 
+                                    : 'bg-white dark:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <Filter className="w-4 h-4" /> Filters
+                            </button>
                             <div className="flex bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-1 ml-auto">
                                 <Tooltip content="Grid View">
                                     <button
@@ -350,14 +470,24 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                             </div>
 
                             {/* Second Row: Search */}
-                            <div className="w-full">
+                            <div className="w-full flex gap-2">
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                     placeholder="Search notes..."
-                                    className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
+                                    className="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm"
                                 />
+                                <button
+                                    onClick={() => setIsFilterDrawerOpen(true)}
+                                    className={`flex items-center justify-center gap-2 p-2 px-4 rounded border border-gray-300 dark:border-gray-700 shadow-sm transition-colors ${
+                                        (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                        ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 border-primary-200 dark:border-primary-800' 
+                                        : 'bg-white dark:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                    }`}
+                                >
+                                    <Filter className="w-4 h-4" /> Filters
+                                </button>
                             </div>
                         </div>
                     )}
@@ -413,6 +543,14 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                                         <Archive className="w-4 h-4" />
                                                     </button>
                                                 </Tooltip>
+                                                <Tooltip content="Move Note">
+                                                    <button 
+                                                        onClick={() => openMoveModal(note.id)} 
+                                                        className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full transition-all duration-200 border border-blue-200 dark:border-blue-800/50 shadow-sm hover:shadow"
+                                                    >
+                                                        <Folder className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
                                                 <Tooltip content="Move to Trash">
                                                     <button 
                                                         onClick={() => deleteNote(note.id)} 
@@ -444,6 +582,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                                 toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
                                                 updateNoteContent={updateNoteContent}
+                                                moveNote={openMoveModal}
                                                 isSelected={selectedNotes.includes(note.id)}
                                                 onSelect={handleSelectNote}
                                             />
@@ -461,6 +600,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                                 toggleArchive={toggleArchive}
                                                 handleTagClick={handleTagClick}
                                                 updateNoteContent={updateNoteContent}
+                                                moveNote={openMoveModal}
                                                 isSelected={selectedNotes.includes(note.id)}
                                                 onSelect={handleSelectNote}
                                             />
@@ -490,6 +630,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                             ))}
                         </div>
                     )}
+                    </div>
                 </div>
             </div>
 
@@ -516,20 +657,20 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                         Edit Note
                     </h2>
                     <form onSubmit={(e) => submitUpdate(e, editingNoteId)}>
-                        <div className="mb-4">
-                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                <TitleIcon className="w-4 h-4 mr-2 text-primary-500" /> Title
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <TitleIcon className="w-3 h-3 mr-1.5" /> Title
                             </label>
                             <input
                                 type="text"
                                 value={editForm.title}
                                 onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
+                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm pt-3 pb-3"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                <ContentIcon className="w-4 h-4 mr-2 text-primary-500" /> Content
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <ContentIcon className="w-3 h-3 mr-1.5" /> Content
                             </label>
                             <RichTextEditor
                                 content={editForm.content}
@@ -537,16 +678,15 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                 className="min-h-[300px]"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-primary-100 dark:border-primary-800/50">
-                                <TagsIcon className="w-4 h-4 mr-2 text-primary-500" /> Tags
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <TagsIcon className="w-3 h-3 mr-1.5" /> Tags
                             </label>
-                            <input
-                                type="text"
+                            <TagAutocompleteInput
                                 value={editForm.tags}
-                                onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
-                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
-                                placeholder="Comma, separated, tags..."
+                                onChange={newTags => setEditForm({ ...editForm, tags: newTags })}
+                                tags={tags}
+                                placeholder="Select or type tags..."
                             />
                         </div>
                         <div className="flex gap-2 justify-end mt-6">
@@ -571,15 +711,59 @@ export default function Index({ notes, filters = {}, isArchiveView = false }) {
                                     {selectedNotes.length} selected
                                 </span>
                                 <div className="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                                <button onClick={() => executeBulkAction('delete')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Delete</button>
-                                <button onClick={() => executeBulkAction(isArchiveView ? 'unarchive' : 'archive')} className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">{isArchiveView ? 'Unarchive' : 'Archive'}</button>
-                                <button onClick={() => executeBulkAction('pin')} className="text-primary-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Pin</button>
-                                <button onClick={() => executeBulkAction('unpin')} className="text-gray-500 hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Unpin</button>
+                                <div className="flex gap-2 flex-wrap">
+                                    <button onClick={() => executeBulkAction('delete')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Delete</button>
+                                    <button onClick={() => executeBulkAction(isArchiveView ? 'unarchive' : 'archive')} className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">{isArchiveView ? 'Unarchive' : 'Archive'}</button>
+                                    <button onClick={handleBulkMove} className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Move</button>
+                                    <button onClick={() => setIsBulkTagModalOpen(true)} className="text-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Tag</button>
+                                    <button onClick={() => executeBulkAction('pin')} className="text-primary-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Pin</button>
+                                    <button onClick={() => executeBulkAction('unpin')} className="text-gray-500 hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors">Unpin</button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <AdvancedFilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={() => setIsFilterDrawerOpen(false)}
+                filters={safeFilters}
+                onApply={handleApplyFilters}
+                folders={folders}
+            />
+
+            <TemplateManagerModal 
+                isOpen={isTemplateManagerOpen} 
+                onClose={() => setIsTemplateManagerOpen(false)} 
+                templates={templates} 
+            />
+
+            <MoveNotesModal
+                isOpen={isMoveModalOpen}
+                onClose={(success) => {
+                    setIsMoveModalOpen(false);
+                    if (success) setSelectedNotes([]);
+                }}
+                selectedIds={moveTargetIds}
+                folders={folders}
+            />
+
+            <TagManagerModal
+                isOpen={isTagManagerOpen}
+                onClose={() => setIsTagManagerOpen(false)}
+                tags={tags}
+            />
+
+            <BulkTagModal
+                isOpen={isBulkTagModalOpen}
+                onClose={(success) => {
+                    setIsBulkTagModalOpen(false);
+                    if (success) setSelectedNotes([]);
+                }}
+                selectedIds={selectedNotes}
+                tags={tags}
+            />
         </AuthenticatedLayout>
     );
 }

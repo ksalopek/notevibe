@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v2.19.5",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Fix UI size issues on mobile and adjust trash/archive layouts"
+        ]
+    },
+    {
         "version": "v2.19.4",
         "date": "2026-06-21",
         "features": [],
