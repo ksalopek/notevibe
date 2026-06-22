@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.10",
+        "date": "2026-06-22",
+        "features": [
+            "chore: remove deployment test prompt from admin dashboard"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.0.9",
         "date": "2026-06-22",
         "features": [
