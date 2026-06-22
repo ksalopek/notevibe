@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.4",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Fix duplicate column error during migration"
+        ]
+    },
+    {
         "version": "v3.0.3",
         "date": "2026-06-21",
         "features": [],
