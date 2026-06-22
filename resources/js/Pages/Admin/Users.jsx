@@ -40,7 +40,7 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
         >
             <div className="flex items-center">
                 <div 
-                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 mr-2 touch-none"
+                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 mr-2 touch-none hidden md:block"
                     onPointerDown={(e) => dragControls.start(e)}
                     style={{ touchAction: 'none' }}
                 >
@@ -114,6 +114,19 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
     const { width: containerWidth, containerRef } = useContainerWidth();
+    
+    const [isMobile, setIsMobile] = useState(
+        typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
+    );
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const mediaQuery = window.matchMedia('(max-width: 1023px)');
+            const handler = (e) => setIsMobile(e.matches);
+            mediaQuery.addEventListener('change', handler);
+            return () => mediaQuery.removeEventListener('change', handler);
+        }
+    }, []);
 
     // Table State
     const [searchUsers, setSearchUsers] = useState(filters?.search_users || '');
@@ -604,34 +617,49 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
 
                     {/* Responsive Grid Layout */}
                     <div className="mb-20" ref={containerRef}>
-                        <ResponsiveGridLayout
-                            className="layout"
-                            layouts={layouts}
-                            breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 0 }}
-                            cols={{ lg: 3, md: 3, sm: 2, xs: 1 }}
-                            rowHeight={40}
-                            onLayoutChange={handleLayoutChange}
-                            onBreakpointChange={setCurrentBreakpoint}
-                            isDraggable={true}
-                            isResizable={false}
-                            draggableHandle=".cursor-grab"
-                            margin={[24, 24]}
-                            containerPadding={[0, 0]}
-                            useCSSTransforms={true}
-                            measureBeforeMount={false}
-                            width={containerWidth || 1200}
-                        >
-                            {layouts[currentBreakpoint]?.map(item => (
-                                <div key={item.i} className="group/widget h-full">
-                                    <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
-                                        <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
-                                            <GripVerticalIcon />
-                                        </button>
+                        {isMobile ? (
+                            <div className="flex flex-col gap-6">
+                                {layouts.lg?.filter(item => layouts[currentBreakpoint]?.find(l => l.i === item.i) || layouts.lg.find(l => l.i === item.i)).map(item => {
+                                    const widgetId = item.i;
+                                    const isEnabled = !!layouts[currentBreakpoint]?.find(l => l.i === widgetId) || !!layouts.lg?.find(l => l.i === widgetId);
+                                    if (!isEnabled) return null;
+                                    return (
+                                        <div key={widgetId} className="w-full">
+                                            {renderWidget(widgetId)}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <ResponsiveGridLayout
+                                className="layout"
+                                layouts={layouts}
+                                breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 0 }}
+                                cols={{ lg: 3, md: 3, sm: 2, xs: 1 }}
+                                rowHeight={40}
+                                onLayoutChange={handleLayoutChange}
+                                onBreakpointChange={setCurrentBreakpoint}
+                                isDraggable={true}
+                                isResizable={false}
+                                draggableHandle=".cursor-grab"
+                                margin={[24, 24]}
+                                containerPadding={[0, 0]}
+                                useCSSTransforms={true}
+                                measureBeforeMount={false}
+                                width={containerWidth || 1200}
+                            >
+                                {layouts[currentBreakpoint]?.map(item => (
+                                    <div key={item.i} className="group/widget h-full">
+                                        <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
+                                            <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
+                                                <GripVerticalIcon />
+                                            </button>
+                                        </div>
+                                        {renderWidget(item.i)}
                                     </div>
-                                    {renderWidget(item.i)}
-                                </div>
-                            ))}
-                        </ResponsiveGridLayout>
+                                ))}
+                            </ResponsiveGridLayout>
+                        )}
                     </div>
                 </div>
             </div>
