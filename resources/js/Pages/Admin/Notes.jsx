@@ -49,7 +49,7 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
         >
             <div className="flex items-center">
                 <div 
-                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 mr-2 touch-none"
+                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 mr-2 touch-none hidden md:block"
                     onPointerDown={(e) => dragControls.start(e)}
                     style={{ touchAction: 'none' }}
                 >
@@ -110,6 +110,19 @@ export default function Notes({ notes, filters, analyticsData }) {
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
     const { width: containerWidth, containerRef } = useContainerWidth();
+    
+    const [isMobile, setIsMobile] = useState(
+        typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
+    );
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const mediaQuery = window.matchMedia('(max-width: 1023px)');
+            const handler = (e) => setIsMobile(e.matches);
+            mediaQuery.addEventListener('change', handler);
+            return () => mediaQuery.removeEventListener('change', handler);
+        }
+    }, []);
 
     // Notes State
     const [searchNotes, setSearchNotes] = useState(filters?.search_notes || '');
@@ -229,9 +242,8 @@ export default function Notes({ notes, filters, analyticsData }) {
                     <DraggableWidgetWrapper>
                         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center gap-2 h-full relative overflow-hidden">
                             <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center w-full">Length Distribution</h4>
-                            <div className="flex-1 w-full flex items-center justify-center min-h-0">
-                                <div className="w-full h-full min-h-[120px] max-h-[160px]">
-                                    <ResponsiveContainer width="100%" height="100%">
+                            <div className="w-full h-[200px] lg:flex-1 lg:h-auto lg:min-h-[150px] flex items-center justify-center">
+                                <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <Pie
                                                 data={analyticsData.lengths}
@@ -252,8 +264,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                 itemStyle={{ color: '#1e293b', fontWeight: 'bold' }}
                                             />
                                         </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                </ResponsiveContainer>
                             </div>
                             <ul className="flex flex-wrap justify-center gap-3 mt-auto">
                                 <li className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300"><span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> Short</li>
@@ -267,22 +278,28 @@ export default function Notes({ notes, filters, analyticsData }) {
                 if (!analyticsData) return null;
                 return (
                     <DraggableWidgetWrapper>
-                        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center h-full">
-                            <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 text-center">Top Contributors</h4>
-                            <div className="flex justify-center items-end gap-2 sm:gap-6 flex-1 min-h-0 overflow-y-auto">
+                        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
+                            <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 flex-shrink-0">Top Contributors</h4>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
                                 {analyticsData.topAuthors.map((author, index) => {
-                                    let visualOrder = index === 0 ? 'order-2 scale-110 -translate-y-4' : (index === 1 ? 'order-1' : 'order-3');
                                     let trophyColor = index === 0 ? 'text-yellow-400' : (index === 1 ? 'text-slate-400' : 'text-amber-600');
                                     return (
-                                        <div key={author.id} className={`flex flex-col items-center ${visualOrder} transition-transform`}>
-                                            <div className="relative mb-2">
-                                                <img src={getAvatar(author.name)} alt={author.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white dark:border-slate-800 shadow-md" />
-                                                <div className={`absolute -top-2 -right-2 bg-white dark:bg-slate-900 rounded-full p-1 shadow-sm ${trophyColor}`}>
-                                                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.5 3a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zM4 6a2 2 0 00-2 2v2a2 2 0 002 2h2.5A2.5 2.5 0 009 14.5v1.75A2.75 2.75 0 0011.75 19h1.5A2.75 2.75 0 0016 16.25v-1.75A2.5 2.5 0 0018.5 12h2.5a2 2 0 002-2V8a2 2 0 00-2-2h-17zM6 10H4V8h2v2zm12 0h-2V8h2v2z" clipRule="evenodd" /></svg>
-                                                </div>
+                                        <div key={author.id} className="flex items-center p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                            <div className="flex items-center justify-center w-6 text-sm font-bold text-slate-400 dark:text-slate-500 mr-2">
+                                                #{index + 1}
                                             </div>
-                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 w-16 truncate text-center">{author.name}</span>
-                                            <span className="text-[10px] font-medium text-slate-500 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full mt-1">{author.notes_count} Notes</span>
+                                            <div className="relative mr-4 flex-shrink-0">
+                                                <img src={getAvatar(author.name)} alt={author.name} className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 shadow-sm" />
+                                                {index < 3 && (
+                                                    <div className={`absolute -top-1 -right-1 bg-white dark:bg-slate-900 rounded-full p-0.5 shadow-sm ${trophyColor}`}>
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.5 3a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zM4 6a2 2 0 00-2 2v2a2 2 0 002 2h2.5A2.5 2.5 0 009 14.5v1.75A2.75 2.75 0 0011.75 19h1.5A2.75 2.75 0 0016 16.25v-1.75A2.5 2.5 0 0018.5 12h2.5a2 2 0 002-2V8a2 2 0 00-2-2h-17zM6 10H4V8h2v2zm12 0h-2V8h2v2z" clipRule="evenodd" /></svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col flex-1 min-w-0">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{author.name}</span>
+                                            </div>
+                                            <span className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full whitespace-nowrap ml-2 shadow-sm">{author.notes_count} Notes</span>
                                         </div>
                                     );
                                 })}
@@ -521,34 +538,49 @@ export default function Notes({ notes, filters, analyticsData }) {
 
                     {/* Responsive Grid Layout */}
                     <div className="mb-20" ref={containerRef}>
-                        <ResponsiveGridLayout
-                            className="layout"
-                            layouts={layouts}
-                            breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 0 }}
-                            cols={{ lg: 3, md: 3, sm: 2, xs: 1 }}
-                            rowHeight={40}
-                            onLayoutChange={handleLayoutChange}
-                            onBreakpointChange={setCurrentBreakpoint}
-                            isDraggable={true}
-                            isResizable={false}
-                            draggableHandle=".cursor-grab"
-                            margin={[24, 24]}
-                            containerPadding={[0, 0]}
-                            useCSSTransforms={true}
-                            measureBeforeMount={false}
-                            width={containerWidth || 1200}
-                        >
-                            {layouts[currentBreakpoint]?.map(item => (
-                                <div key={item.i} className="group/widget h-full">
-                                    <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
-                                        <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
-                                            <GripVerticalIcon />
-                                        </button>
+                        {isMobile ? (
+                            <div className="flex flex-col gap-6">
+                                {layouts.lg?.filter(item => layouts[currentBreakpoint]?.find(l => l.i === item.i) || layouts.lg.find(l => l.i === item.i)).map(item => {
+                                    const widgetId = item.i;
+                                    const isEnabled = !!layouts[currentBreakpoint]?.find(l => l.i === widgetId) || !!layouts.lg?.find(l => l.i === widgetId);
+                                    if (!isEnabled) return null;
+                                    return (
+                                        <div key={widgetId} className="w-full">
+                                            {renderWidget(widgetId)}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <ResponsiveGridLayout
+                                className="layout"
+                                layouts={layouts}
+                                breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 0 }}
+                                cols={{ lg: 3, md: 3, sm: 2, xs: 1 }}
+                                rowHeight={40}
+                                onLayoutChange={handleLayoutChange}
+                                onBreakpointChange={setCurrentBreakpoint}
+                                isDraggable={true}
+                                isResizable={false}
+                                draggableHandle=".cursor-grab"
+                                margin={[24, 24]}
+                                containerPadding={[0, 0]}
+                                useCSSTransforms={true}
+                                measureBeforeMount={false}
+                                width={containerWidth || 1200}
+                            >
+                                {layouts[currentBreakpoint]?.map(item => (
+                                    <div key={item.i} className="group/widget h-full">
+                                        <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
+                                            <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
+                                                <GripVerticalIcon />
+                                            </button>
+                                        </div>
+                                        {renderWidget(item.i)}
                                     </div>
-                                    {renderWidget(item.i)}
-                                </div>
-                            ))}
-                        </ResponsiveGridLayout>
+                                ))}
+                            </ResponsiveGridLayout>
+                        )}
                     </div>
                 </div>
             </div>
