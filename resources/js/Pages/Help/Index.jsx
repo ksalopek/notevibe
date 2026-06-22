@@ -1,7 +1,36 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight, Smartphone } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight, Smartphone, PlayCircle } from 'lucide-react';
+
+const WebpPlayer = ({ src, poster, alt, className }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    return (
+        <div 
+            className={`relative cursor-pointer group ${className || ''}`} 
+            onClick={() => setIsPlaying(!isPlaying)}
+        >
+            <img 
+                src={isPlaying ? src : poster} 
+                alt={alt} 
+                className="w-full h-auto rounded-xl shadow-md border border-gray-200 dark:border-gray-700 block" 
+            />
+            {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors rounded-xl">
+                    <PlayCircle className="w-16 h-16 text-white opacity-90 group-hover:opacity-100 transition-transform transform group-hover:scale-110 drop-shadow-md" />
+                </div>
+            )}
+            {isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center bg-transparent group-hover:bg-black/20 transition-colors rounded-xl opacity-0 group-hover:opacity-100">
+                    <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm font-medium shadow-lg">
+                        Click to pause
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const documentation = [
     {
@@ -74,6 +103,85 @@ const documentation = [
         )
     },
     {
+        id: 'video-tutorials',
+        title: 'Video Tutorials',
+        icon: <PlayCircle className="w-5 h-5" />,
+        subItems: [
+            {
+                id: 'video-notes',
+                title: 'Managing Notes',
+                content: (
+                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                        <p>Watch this quick guide to master NoteVibe's core note management features.</p>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Managing Your Notes</h3>
+                            <WebpPlayer 
+                                src="/images/help/notes_management_flow.webp" 
+                                poster="/images/help/notes_management_flow_poster.png" 
+                                alt="Notes Management Flow" 
+                            />
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to create, archive, and delete your notes efficiently.</p>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'video-dashboard',
+                title: 'Dashboard Basics',
+                content: (
+                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                        <p>Learn how to customize and use your dashboard widgets effectively.</p>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Dashboard Tour</h3>
+                            <WebpPlayer 
+                                src="/images/help/dashboard_basics_flow.webp" 
+                                poster="/images/help/dashboard_basics_flow_poster.png" 
+                                alt="Dashboard Basics Flow" 
+                            />
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to create quick drafts, toggle widgets, and analyze your writing activity.</p>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'video-archive',
+                title: 'Archived Notes',
+                content: (
+                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                        <p>Keep your journal clean by archiving notes you no longer actively need.</p>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Managing Archived Notes</h3>
+                            <WebpPlayer 
+                                src="/images/help/archived_notes_flow.webp" 
+                                poster="/images/help/archived_notes_flow_poster.png" 
+                                alt="Archived Notes Flow" 
+                            />
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">See how to view archived notes and easily restore them to your main journal.</p>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'video-trash',
+                title: 'Trash Management',
+                content: (
+                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                        <p>Did you accidentally delete a note? Don't worry, the trash can helps you recover it.</p>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Trash Workflow</h3>
+                            <WebpPlayer 
+                                src="/images/help/trashed_notes_flow.webp" 
+                                poster="/images/help/trashed_notes_flow_poster.png" 
+                                alt="Trashed Notes Flow" 
+                            />
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to restore deleted notes or permanently remove them from your account.</p>
+                        </div>
+                    </div>
+                )
+            }
+        ]
+    },
+    {
         id: 'mobile-app',
         title: 'Mobile App & PWA',
         icon: <Smartphone className="w-5 h-5" />,
@@ -140,50 +248,93 @@ export default function HelpIndex() {
                         <div className="w-full md:w-64 bg-gray-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-700 p-6 flex-shrink-0">
                             <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Topics</h3>
                             <nav className="space-y-1">
-                                {allDocs.map((doc) => (
-                                    <button
-                                        key={doc.id}
-                                        onClick={() => setActiveSection(doc.id)}
-                                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                            activeSection === doc.id
-                                                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 shadow-sm'
-                                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className={`${activeSection === doc.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}>
-                                                {doc.icon}
-                                            </span>
-                                            {doc.title}
+                                {allDocs.map((doc) => {
+                                    const isActive = activeSection === doc.id;
+                                    const hasActiveChild = doc.subItems && doc.subItems.some(sub => sub.id === activeSection);
+                                    const isExpanded = isActive || hasActiveChild;
+
+                                    return (
+                                        <div key={doc.id} className="mb-1">
+                                            <button
+                                                onClick={() => {
+                                                    if (doc.subItems) {
+                                                        if (!hasActiveChild) setActiveSection(doc.subItems[0].id);
+                                                    } else {
+                                                        setActiveSection(doc.id);
+                                                    }
+                                                }}
+                                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                                    isExpanded
+                                                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 shadow-sm'
+                                                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`${isExpanded ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                                                        {doc.icon}
+                                                    </span>
+                                                    {doc.title}
+                                                </div>
+                                                {doc.subItems ? (
+                                                    <ChevronRight className={`w-4 h-4 opacity-50 transition-transform duration-200 ${hasActiveChild ? 'rotate-90' : ''}`} />
+                                                ) : (
+                                                    isActive && <ChevronRight className="w-4 h-4 opacity-50" />
+                                                )}
+                                            </button>
+                                            
+                                            {doc.subItems && isExpanded && (
+                                                <div className="mt-1.5 ml-4 pl-3 border-l border-indigo-200 dark:border-indigo-800/50 space-y-1 animate-fade-in-up">
+                                                    {doc.subItems.map((subItem) => (
+                                                        <button
+                                                            key={subItem.id}
+                                                            onClick={() => setActiveSection(subItem.id)}
+                                                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                                                activeSection === subItem.id
+                                                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                                                                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+                                                            }`}
+                                                        >
+                                                            {subItem.title}
+                                                            {activeSection === subItem.id && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400"></div>}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                        {activeSection === doc.id && (
-                                            <ChevronRight className="w-4 h-4 opacity-50" />
-                                        )}
-                                    </button>
-                                ))}
+                                    );
+                                })}
                             </nav>
                         </div>
 
                         {/* Main Content Area */}
                         <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar">
-                            {allDocs.map((doc) => (
-                                <div
-                                    key={doc.id}
-                                    className={`transition-opacity duration-300 ${activeSection === doc.id ? 'block animate-fade-in-up' : 'hidden'}`}
-                                >
-                                    <div className="flex items-center gap-4 mb-8 pb-4 border-b border-gray-100 dark:border-gray-700">
-                                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
-                                            {doc.icon}
+                            {allDocs.map((doc) => {
+                                const renderContent = (item, parentIcon) => (
+                                    <div
+                                        key={item.id}
+                                        className={`transition-opacity duration-300 ${activeSection === item.id ? 'block animate-fade-in-up' : 'hidden'}`}
+                                    >
+                                        <div className="flex items-center gap-4 mb-8 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
+                                                {parentIcon}
+                                            </div>
+                                            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                                                {item.title}
+                                            </h1>
                                         </div>
-                                        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                                            {doc.title}
-                                        </h1>
+                                        <div className="prose prose-indigo dark:prose-invert max-w-none prose-p:leading-relaxed prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
+                                            {item.content}
+                                        </div>
                                     </div>
-                                    <div className="prose prose-indigo dark:prose-invert max-w-none prose-p:leading-relaxed prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
-                                        {doc.content}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+
+                                return (
+                                    <React.Fragment key={doc.id}>
+                                        {doc.content && renderContent(doc, doc.icon)}
+                                        {doc.subItems && doc.subItems.map(subItem => renderContent(subItem, doc.icon))}
+                                    </React.Fragment>
+                                );
+                            })}
                         </div>
 
                     </div>
