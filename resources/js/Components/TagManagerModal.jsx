@@ -84,7 +84,7 @@ export default function TagManagerModal({ isOpen, onClose, tags = [] }) {
                                                     type="text"
                                                     value={data.name}
                                                     onChange={e => setData('name', e.target.value)}
-                                                    className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500"
+                                                    className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 text-sm focus:ring-primary-500 focus:border-primary-500"
                                                     placeholder="Tag name"
                                                     required
                                                 />
