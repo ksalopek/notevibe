@@ -886,6 +886,9 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                         <p className="mt-2 text-slate-600 dark:text-slate-400">
                             Monitor platform health and manage global settings. Drag the handle on each widget to rearrange your dashboard.
                         </p>
+                        <p className="mt-2 text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg inline-block">
+                            🚀 Synology Automated Deployment Test - Code updated!
+                        </p>
                     </div>
                     <div className="flex items-center gap-3 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700">
                         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
