@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.1",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Fix 500 error on notes page caused by dropped notes column"
+        ]
+    },
+    {
         "version": "v3.0.0",
         "date": "2026-06-21",
         "features": [
