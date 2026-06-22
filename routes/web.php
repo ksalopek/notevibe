@@ -5,6 +5,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\FolderController;
+use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -109,6 +112,20 @@ Route::middleware('auth')->group(function () {
 
     // AI Routes
     Route::post('/ai/enhance', [AiController::class, 'enhance'])->name('ai.enhance');
+
+    // Folders
+    Route::post('/folders', [FolderController::class, 'store'])->name('folders.store');
+    Route::put('/folders/{folder}', [FolderController::class, 'update'])->name('folders.update');
+    Route::delete('/folders/{folder}', [FolderController::class, 'destroy'])->name('folders.destroy');
+
+    // Templates
+    Route::post('/templates', [TemplateController::class, 'store'])->name('templates.store');
+    Route::put('/templates/{template}', [TemplateController::class, 'update'])->name('templates.update');
+    Route::delete('/templates/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+
+    // Tags
+    Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
     // Analytics Route
     Route::get('/my-analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
