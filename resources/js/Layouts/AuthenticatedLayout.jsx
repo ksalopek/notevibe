@@ -223,7 +223,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
             </nav>
 
-            <div className="flex-1 overflow-y-auto w-full">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
                 {header && (
                     <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow shrink-0">
                         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-gray-800 dark:text-gray-200">{header}</div>
@@ -236,7 +236,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Bottom Navigation Bar */}
             <nav className="shrink-0 w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 z-50 pb-safe pt-1 sm:hidden overflow-x-auto hide-scrollbar">
-                <div className="flex justify-between px-2 items-center h-16 min-w-[360px] mx-auto">
+                <div className="flex justify-between px-2 items-center h-16 w-full mx-auto">
                     <Link 
                         href={route('dashboard')} 
                         className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
