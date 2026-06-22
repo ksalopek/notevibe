@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.5",
+        "date": "2026-06-21",
+        "features": [],
+        "fixes": [
+            "Fix tag editor text color in dark mode"
+        ]
+    },
+    {
         "version": "v3.0.4",
         "date": "2026-06-21",
         "features": [],
