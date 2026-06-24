@@ -145,6 +145,47 @@ export default function Notes({ notes, filters, analyticsData }) {
     }, [layouts]);
 
     useEffect(() => {
+        if (!notes || !notes.data) return;
+        
+        let requiredPx = 250;
+        
+        if (notes.data.length === 0) {
+            requiredPx += 150;
+        } else if (viewMode === 'table') {
+            requiredPx += notes.data.length * 75;
+            if (expandedRow) requiredPx += 350;
+        } else {
+            const cols = currentBreakpoint === 'lg' || currentBreakpoint === 'md' ? 2 : 1;
+            const rows = Math.ceil(notes.data.length / cols);
+            requiredPx += rows * 280;
+        }
+
+        const requiredH = Math.max(6, Math.ceil((requiredPx + 24) / 64));
+
+        setLayouts(prev => {
+            if (!prev) return prev;
+            let changed = false;
+            const newLayouts = {};
+            Object.keys(prev).forEach(bp => {
+                if (!prev[bp]) return;
+                const layout = [...prev[bp]];
+                const index = layout.findIndex(item => item.i === 'notes_table');
+                if (index !== -1 && layout[index].h !== requiredH) {
+                    layout[index] = { ...layout[index], h: requiredH };
+                    changed = true;
+                }
+                newLayouts[bp] = layout;
+            });
+            if (changed) {
+                Object.keys(newLayouts).forEach(bp => {
+                    newLayouts[bp] = repackLayout(availableWidgets, newLayouts[bp], bp === 'lg' || bp === 'md' ? 3 : (bp === 'sm' ? 2 : 1));
+                });
+            }
+            return changed ? newLayouts : prev;
+        });
+    }, [notes, viewMode, expandedRow, currentBreakpoint, availableWidgets]);
+
+    useEffect(() => {
         localStorage.setItem('admin_notes_widgets', JSON.stringify(availableWidgets));
     }, [availableWidgets]);
 
@@ -415,7 +456,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                                         <Dropdown.Trigger>
                                                                             <button className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"><MoreVerticalIcon /></button>
                                                                         </Dropdown.Trigger>
-                                                                        <Dropdown.Content align={index >= notes.data.length - 2 && notes.data.length > 2 ? 'top-right' : 'right'}>
+                                                                        <Dropdown.Content align="right">
                                                                             <button onClick={() => setExpandedRow(isExpanded ? null : note.id)} className="block w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">{isExpanded ? 'Close Details' : 'View Details'}</button>
                                                                             <button onClick={() => handleDelete(note.id)} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center"><TrashIcon /> <span className="ml-2">Delete Note</span></button>
                                                                         </Dropdown.Content>
@@ -446,7 +487,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex-1 overflow-auto w-full pb-4 pr-2 -mr-2">
+                                <div className="flex-1 overflow-auto w-full pr-2 -mr-2">
                                     <div className="columns-1 lg:columns-2 gap-6 space-y-6">
                                         {notes.data.map((note, index) => {
                                             const authorName = note.user ? note.user.name : 'Unknown';
@@ -462,7 +503,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                             <Dropdown.Trigger>
                                                                 <button className="p-1 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all"><MoreVerticalIcon /></button>
                                                             </Dropdown.Trigger>
-                                                            <Dropdown.Content align={index >= notes.data.length - 2 && notes.data.length > 2 ? 'top-right' : 'right'}>
+                                                            <Dropdown.Content align="right">
                                                                 <button onClick={() => handleDelete(note.id)} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center"><TrashIcon /> <span className="ml-2">Delete Note</span></button>
                                                             </Dropdown.Content>
                                                         </Dropdown>
@@ -560,9 +601,8 @@ export default function Notes({ notes, filters, analyticsData }) {
                                 rowHeight={40}
                                 onLayoutChange={handleLayoutChange}
                                 onBreakpointChange={setCurrentBreakpoint}
-                                isDraggable={true}
+                                isDraggable={false}
                                 isResizable={false}
-                                draggableHandle=".cursor-grab"
                                 margin={[24, 24]}
                                 containerPadding={[0, 0]}
                                 useCSSTransforms={true}
@@ -571,11 +611,6 @@ export default function Notes({ notes, filters, analyticsData }) {
                             >
                                 {layouts[currentBreakpoint]?.map(item => (
                                     <div key={item.i} className="group/widget h-full">
-                                        <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
-                                            <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
-                                                <GripVerticalIcon />
-                                            </button>
-                                        </div>
                                         {renderWidget(item.i)}
                                     </div>
                                 ))}
