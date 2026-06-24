@@ -100,7 +100,6 @@ const defaultLayouts = {
 
 export default function Users({ users, filters, metrics, heatmapData, availableRoles }) {
     const { auth } = usePage().props;
-    const { post, delete: destroy, patch } = router;
 
     // Layout State
     const [layouts, setLayouts] = useState(() => {
@@ -159,6 +158,44 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
     useEffect(() => {
         localStorage.setItem('admin_users_layouts_v2', JSON.stringify(layouts));
     }, [layouts]);
+
+    useEffect(() => {
+        if (!users || !users.data) return;
+        const basePx = 220;
+        const rowPx = 65;
+        const bulkActionPx = selectedUsers.length > 0 ? 50 : 0;
+        
+        let requiredPx = basePx + bulkActionPx;
+        if (users.data.length === 0) {
+            requiredPx += 100;
+        } else {
+            requiredPx += users.data.length * rowPx;
+        }
+
+        const requiredH = Math.max(5, Math.ceil((requiredPx + 24) / 64));
+
+        setLayouts(prev => {
+            if (!prev) return prev;
+            let changed = false;
+            const newLayouts = {};
+            Object.keys(prev).forEach(bp => {
+                if (!prev[bp]) return;
+                const layout = [...prev[bp]];
+                const index = layout.findIndex(item => item.i === 'users_table');
+                if (index !== -1 && layout[index].h !== requiredH) {
+                    layout[index] = { ...layout[index], h: requiredH };
+                    changed = true;
+                }
+                newLayouts[bp] = layout;
+            });
+            if (changed) {
+                Object.keys(newLayouts).forEach(bp => {
+                    newLayouts[bp] = repackLayout(availableWidgets, newLayouts[bp], bp === 'lg' || bp === 'md' ? 3 : (bp === 'sm' ? 2 : 1));
+                });
+            }
+            return changed ? newLayouts : prev;
+        });
+    }, [users, selectedUsers.length, availableWidgets]);
 
     useEffect(() => {
         localStorage.setItem('admin_users_widgets_v2', JSON.stringify(availableWidgets));
@@ -276,7 +313,7 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
     const executeBulkAction = (action) => {
         if (selectedUsers.length === 0) return;
         if (action === 'delete' && !confirm('Are you sure you want to delete selected users? This is permanent.')) return;
-        post(route('admin.users.bulk'), {
+        router.post(route('admin.users.bulk'), {
             userIds: selectedUsers,
             action: action
         }, {
@@ -305,13 +342,13 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
         return <svg className="w-4 h-4 ml-1 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
     };
 
-    const toggleStatus = (user) => patch(route('admin.users.toggle', user.id));
-    const impersonate = (user) => post(route('admin.users.impersonate', user.id));
+    const toggleStatus = (user) => router.patch(route('admin.users.toggle', user.id));
+    const impersonate = (user) => router.post(route('admin.users.impersonate', user.id));
     const deleteUser = (user) => setConfirmingUserDeletion(user);
 
     const executeDelete = () => {
         if (confirmingUserDeletion) {
-            destroy(route('admin.users.destroy', confirmingUserDeletion.id), {
+            router.delete(route('admin.users.destroy', confirmingUserDeletion.id), {
                 preserveScroll: true,
                 onSuccess: () => setConfirmingUserDeletion(null),
             });
@@ -546,7 +583,7 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                                                                                 <MoreVerticalIcon />
                                                                             </button>
                                                                         </Dropdown.Trigger>
-                                                                        <Dropdown.Content align={index >= users.data.length - 2 && users.data.length > 2 ? "top-right" : "right"} width="48">
+                                                                        <Dropdown.Content align="right" width="48">
                                                                             <button onClick={() => viewActivity(u)} className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">View Activity Log</button>
                                                                             <button onClick={() => { setManagingRolesUser(u); setSelectedRoles(u.roles ? u.roles.map(r => r.name) : []); }} className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Manage Roles</button>
                                                                             <button onClick={() => impersonate(u)} className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Impersonate User</button>
@@ -639,9 +676,8 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                                 rowHeight={40}
                                 onLayoutChange={handleLayoutChange}
                                 onBreakpointChange={setCurrentBreakpoint}
-                                isDraggable={true}
+                                isDraggable={false}
                                 isResizable={false}
-                                draggableHandle=".cursor-grab"
                                 margin={[24, 24]}
                                 containerPadding={[0, 0]}
                                 useCSSTransforms={true}
@@ -650,11 +686,6 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                             >
                                 {layouts[currentBreakpoint]?.map(item => (
                                     <div key={item.i} className="group/widget h-full">
-                                        <div className="absolute top-2 right-2 z-50 opacity-0 group-hover/widget:opacity-100 transition-opacity">
-                                            <button className="cursor-grab active:cursor-grabbing p-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-sm border border-slate-200 dark:border-slate-700 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors touch-none" style={{ touchAction: 'none' }}>
-                                                <GripVerticalIcon />
-                                            </button>
-                                        </div>
                                         {renderWidget(item.i)}
                                     </div>
                                 ))}
