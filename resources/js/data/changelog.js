@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.12",
+        "date": "2026-06-22",
+        "features": [],
+        "fixes": [
+            "Fix placeholder videos with final versions"
+        ]
+    },
+    {
         "version": "v3.0.11",
         "date": "2026-06-22",
         "features": [
