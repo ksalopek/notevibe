@@ -802,7 +802,7 @@ export default function Reporting({
 
             {/* Slideout Drawer */}
             {isCustomizeOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end">
+                <div className="fixed top-0 left-0 right-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] sm:bottom-0 z-50 flex justify-end">
                     <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCustomizeOpen(false)}></div>
                     <motion.div 
                         initial={{ x: '100%' }}
