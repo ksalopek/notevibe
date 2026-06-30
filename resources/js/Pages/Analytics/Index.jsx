@@ -59,42 +59,58 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
 
 // Widget Components
 const MetricStreak = ({ streak }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
-        <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full mb-3">
-            <Flame className="w-8 h-8 text-orange-500" />
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-between gap-3 sm:gap-0 h-full hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <div className="p-2 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-lg"><Flame className="w-5 h-5" /></div>
+            <p className="text-sm font-medium uppercase tracking-wider">Current Streak</p>
         </div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Current Streak</h3>
-        <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{streak} {streak === 1 ? 'Day' : 'Days'}</p>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
+                {streak} <span className="text-xl sm:text-2xl font-medium">{streak === 1 ? 'Day' : 'Days'}</span>
+            </h4>
+        </div>
     </div>
 );
 
 const MetricWords = ({ totalWords }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
-        <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-full mb-3">
-            <Type className="w-8 h-8 text-indigo-500" />
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-between gap-3 sm:gap-0 h-full hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg"><Type className="w-5 h-5" /></div>
+            <p className="text-sm font-medium uppercase tracking-wider">Total Words</p>
         </div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Words</h3>
-        <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalWords.toLocaleString()}</p>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
+                {totalWords.toLocaleString()}
+            </h4>
+        </div>
     </div>
 );
 
 const MetricNotes = ({ totalNotes }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
-        <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full mb-3">
-            <PenTool className="w-8 h-8 text-emerald-500" />
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-between gap-3 sm:gap-0 h-full hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg"><PenTool className="w-5 h-5" /></div>
+            <p className="text-sm font-medium uppercase tracking-wider">Total Notes</p>
         </div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Notes</h3>
-        <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalNotes.toLocaleString()}</p>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
+                {totalNotes.toLocaleString()}
+            </h4>
+        </div>
     </div>
 );
 
 const MetricPersona = ({ persona }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full hover:shadow-2xl transition-shadow duration-300">
-        <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mb-3">
-            <Zap className="w-8 h-8 text-purple-500" />
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-between gap-3 sm:gap-0 h-full hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg"><Zap className="w-5 h-5" /></div>
+            <p className="text-sm font-medium uppercase tracking-wider">Writing Persona</p>
         </div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Writing Persona</h3>
-        <p className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-2">{persona}</p>
+        <div>
+            <h4 className="text-3xl sm:text-4xl font-light text-purple-600 dark:text-purple-400 tracking-tight">
+                {persona}
+            </h4>
+        </div>
     </div>
 );
 
@@ -380,7 +396,7 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                         My Analytics
                     </h2>

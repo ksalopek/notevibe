@@ -130,13 +130,13 @@ const QuickDraftWidget = () => {
 
 const MetricTotalNotesWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl text-blue-600 dark:text-blue-400">
-                <FileTextIcon />
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-4 sm:p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg"><FileTextIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Total Notes</p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Notes</p>
-                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
                     <CountUp end={stats?.totalNotes || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -146,13 +146,13 @@ const MetricTotalNotesWidget = ({ stats }) => (
 
 const MetricUniqueTagsWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
-            <div className="p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl text-primary-600 dark:text-primary-400">
-                <TagsIcon />
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-4 sm:p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                <div className="p-2 bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 rounded-lg"><TagsIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Unique Tags</p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Unique Tags</p>
-                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
                     <CountUp end={stats?.totalTags || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -162,13 +162,13 @@ const MetricUniqueTagsWidget = ({ stats }) => (
 
 const MetricInTrashWidget = ({ stats }) => (
     <div className="block h-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md overflow-hidden shadow-lg rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center space-x-4 h-full hover:shadow-2xl transition-shadow duration-300">
-            <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400">
-                <TrashIcon />
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-3xl p-4 sm:p-6 shadow-xl border border-gray-100/50 dark:border-gray-700/50 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                <div className="p-2 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg"><TrashIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">In Trash</p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">In Trash</p>
-                <h4 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h4 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
                     <CountUp end={stats?.trashedNotes || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -613,7 +613,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full gap-4">
                     <h2 className="text-2xl font-bold leading-tight text-gray-800 dark:text-gray-200">
                         Dashboard
                     </h2>
@@ -638,7 +638,7 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="mb-10 relative overflow-hidden rounded-[2rem] shadow-2xl group"
+                    className="mb-10 relative overflow-hidden rounded-[2rem] shadow-2xl group w-full"
                 >
                     {/* Animated background gradient */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-indigo-600 to-purple-700 transition-all duration-700 group-hover:scale-105"></div>
