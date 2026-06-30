@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.14",
+        "date": "2026-06-30",
+        "features": [
+            "UI improvements to admin and dashboard widgets"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.0.13",
         "date": "2026-06-24",
         "features": [],
