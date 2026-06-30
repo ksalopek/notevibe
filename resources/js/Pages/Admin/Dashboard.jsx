@@ -65,13 +65,13 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
 
 const MetricTotalUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow duration-300 relative">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400 relative z-10">
-                <UsersIcon />
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-xl h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg"><UsersIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Total Users</p>
             </div>
-            <div className="relative z-10">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Users</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div>
+                <h4 className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">
                     <CountUp end={metrics?.totalUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -81,13 +81,13 @@ const MetricTotalUsersWidget = ({ metrics }) => {
 
 const MetricActiveUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow duration-300 relative">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400 relative z-10">
-                <CheckCircleIcon />
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-xl h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg"><CheckCircleIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Active Users</p>
             </div>
-            <div className="relative z-10">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Active Users</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div>
+                <h4 className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">
                     <CountUp end={metrics?.activeUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -97,13 +97,13 @@ const MetricActiveUsersWidget = ({ metrics }) => {
 
 const MetricInactiveUsersWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow duration-300 relative">
-            <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400 relative z-10">
-                <AlertTriangleIcon />
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-xl h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                <div className="p-2 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-lg"><AlertTriangleIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Inactive Users</p>
             </div>
-            <div className="relative z-10">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Inactive Users</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div>
+                <h4 className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">
                     <CountUp end={metrics?.inactiveUsers || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -113,13 +113,13 @@ const MetricInactiveUsersWidget = ({ metrics }) => {
 
 const MetricTotalNotesWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow duration-300 relative">
-            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 relative z-10">
-                <DatabaseIcon />
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-xl h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg"><DatabaseIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Total Notes</p>
             </div>
-            <div className="relative z-10">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Notes</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div>
+                <h4 className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">
                     <CountUp end={metrics?.totalNotes || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -129,13 +129,13 @@ const MetricTotalNotesWidget = ({ metrics }) => {
 
 const MetricTotalLoginsWidget = ({ metrics }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 flex items-center space-x-4 shadow-md h-full hover:shadow-xl transition-shadow duration-300 relative">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-xl text-purple-600 dark:text-purple-400 relative z-10">
-                <ActivityIcon />
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-xl h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg"><ActivityIcon /></div>
+                <p className="text-sm font-medium uppercase tracking-wider">Total Logins</p>
             </div>
-            <div className="relative z-10">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Logins</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div>
+                <h4 className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">
                     <CountUp end={metrics?.totalLogins || 0} duration={2} separator="," />
                 </h4>
             </div>
@@ -855,7 +855,7 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full gap-4">
                     <h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
                         Admin Command Center
                     </h2>

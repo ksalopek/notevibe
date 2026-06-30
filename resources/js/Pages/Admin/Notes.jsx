@@ -540,7 +540,7 @@ export default function Notes({ notes, filters, analyticsData }) {
 
     return (
         <AuthenticatedLayout header={
-            <div className="flex justify-between items-center w-full">
+            <div className="flex justify-between items-center w-full gap-4">
                 <h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
                     Admin - All Notes
                 </h2>

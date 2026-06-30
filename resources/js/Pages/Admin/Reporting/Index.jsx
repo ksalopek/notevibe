@@ -61,16 +61,28 @@ const SlideoutReorderItem = ({ widget, enabled, onToggle }) => {
 
 // Widget Components
 const MetricTotalNotes = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Total Notes</h3>
-        <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.totalNotes.toLocaleString()}</p>
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <p className="text-sm font-medium uppercase tracking-wider">Total Notes</p>
+        </div>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-indigo-600 dark:text-indigo-400 tracking-tight">
+                {stats.totalNotes.toLocaleString()}
+            </h4>
+        </div>
     </div>
 );
 
 const MetricAvgNoteLength = ({ stats }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Avg Note Length</h3>
-        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.avgNoteLength.toLocaleString()} chars</p>
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <p className="text-sm font-medium uppercase tracking-wider">Avg Note Length</p>
+        </div>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-purple-600 dark:text-purple-400 tracking-tight">
+                {stats.avgNoteLength.toLocaleString()} <span className="text-xl sm:text-2xl font-medium">chars</span>
+            </h4>
+        </div>
     </div>
 );
 
@@ -578,10 +590,16 @@ const TableGeoDistribution = ({ geoDistribution }) => {
 };
 
 const MetricPeakUsage = ({ peakUsage }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center hover:shadow-2xl transition-shadow duration-300">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Peak Usage Time</h3>
-        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{peakUsage}</p>
-        <p className="text-xs text-gray-500 mt-2">Based on 90-day login heatmap</p>
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 flex-col justify-between gap-3 sm:gap-0 hover:shadow-2xl transition-shadow duration-300">
+        <div className="flex flex-col text-gray-500 dark:text-gray-400">
+            <p className="text-sm font-medium uppercase tracking-wider">Peak Usage Time</p>
+            <p className="text-xs mt-1 opacity-70">Based on 90-day login heatmap</p>
+        </div>
+        <div>
+            <h4 className="text-4xl sm:text-5xl font-light text-amber-600 dark:text-amber-400 tracking-tight">
+                {peakUsage}
+            </h4>
+        </div>
     </div>
 );
 
@@ -742,7 +760,7 @@ export default function Reporting({
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                         Platform Reporting & Analytics
                     </h2>
