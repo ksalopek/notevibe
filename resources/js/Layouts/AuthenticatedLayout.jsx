@@ -239,21 +239,21 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="flex justify-between px-2 items-center h-16 w-full mx-auto">
                     <Link 
                         href={route('dashboard')} 
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+                        className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-10 before:h-[3px] before:rounded-b-md before:transition-colors ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400 before:bg-primary-600 dark:before:bg-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 before:bg-transparent'}`}
                     >
                         <LayoutDashboard className="w-5 h-5" />
                         <span className="text-[9px] font-medium truncate">Dashboard</span>
                     </Link>
                     <Link 
                         href={route('notes.index')} 
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+                        className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-10 before:h-[3px] before:rounded-b-md before:transition-colors ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400 before:bg-primary-600 dark:before:bg-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 before:bg-transparent'}`}
                     >
                         <Notebook className="w-5 h-5" />
                         <span className="text-[9px] font-medium truncate">Notes</span>
                     </Link>
                     <Link 
                         href={route('analytics.index')} 
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+                        className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-10 before:h-[3px] before:rounded-b-md before:transition-colors ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400 before:bg-primary-600 dark:before:bg-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 before:bg-transparent'}`}
                     >
                         <TrendingUp className="w-5 h-5" />
                         <span className="text-[9px] font-medium truncate">Analytics</span>
@@ -261,7 +261,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex flex-col items-center justify-center w-full h-full">
                         <button 
                             onClick={() => setShowMobileMenu(true)}
-                            className={`flex flex-col items-center justify-center w-full h-full space-y-1 focus:outline-none ${showMobileMenu || route().current('admin.*') || route().current('notes.archived') || route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
+                            className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 focus:outline-none before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-10 before:h-[3px] before:rounded-b-md before:transition-colors ${showMobileMenu || route().current('admin.*') || route().current('notes.archived') || route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400 before:bg-primary-600 dark:before:bg-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 before:bg-transparent'}`}
                         >
                             <Menu className="w-5 h-5" />
                             <span className="text-[9px] font-medium truncate">Menu</span>
