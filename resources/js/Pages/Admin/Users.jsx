@@ -375,29 +375,41 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
             case 'metric_total':
                 return (
                     <DraggableWidgetWrapper>
-                        <div className="bg-white dark:bg-slate-800 p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow h-full justify-center">
-                            <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total Users</h4>
-                            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{metrics?.totalUsers}</p>
+                        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-md transition-shadow h-full">
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                                <h4 className="text-sm font-medium uppercase tracking-wider">Total Users</h4>
+                            </div>
+                            <div>
+                                <p className="text-4xl sm:text-5xl font-light text-slate-900 dark:text-white tracking-tight">{metrics?.totalUsers}</p>
+                            </div>
                         </div>
                     </DraggableWidgetWrapper>
                 );
             case 'metric_new':
                 return (
                     <DraggableWidgetWrapper>
-                        <div className="bg-white dark:bg-slate-800 p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow h-full justify-center">
-                            <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">New Users (7d)</h4>
-                            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">+{metrics?.newUsersThisWeek}</p>
+                        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-md transition-shadow h-full">
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                                <h4 className="text-sm font-medium uppercase tracking-wider">New Users (7d)</h4>
+                            </div>
+                            <div>
+                                <p className="text-4xl sm:text-5xl font-light text-indigo-600 dark:text-indigo-400 tracking-tight">+{metrics?.newUsersThisWeek}</p>
+                            </div>
                         </div>
                     </DraggableWidgetWrapper>
                 );
             case 'metric_active':
                 return (
                     <DraggableWidgetWrapper>
-                        <div className="bg-white dark:bg-slate-800 p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow h-full justify-center">
-                            <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Active Ratio</h4>
-                            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-                                {metrics?.totalUsers > 0 ? Math.round((metrics.activeUsers / metrics.totalUsers) * 100) : 0}%
-                            </p>
+                        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-md transition-shadow h-full">
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                                <h4 className="text-sm font-medium uppercase tracking-wider">Active Ratio</h4>
+                            </div>
+                            <div>
+                                <p className="text-4xl sm:text-5xl font-light text-emerald-600 dark:text-emerald-400 tracking-tight">
+                                    {metrics?.totalUsers > 0 ? Math.round((metrics.activeUsers / metrics.totalUsers) * 100) : 0}%
+                                </p>
+                            </div>
                         </div>
                     </DraggableWidgetWrapper>
                 );
@@ -509,7 +521,7 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                                     <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                                         <thead className="bg-slate-50 dark:bg-slate-800/50">
                                             <tr>
-                                                {visibleColumns.includes('checkbox') && <th className="px-4 py-3 text-left w-10">
+                                                {visibleColumns.includes('checkbox') && <th className="px-4 py-5 text-left w-10">
                                                     <input 
                                                         type="checkbox" 
                                                         className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
@@ -517,32 +529,32 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                                                         onChange={handleSelectAll}
                                                     />
                                                 </th>}
-                                                {visibleColumns.includes('id') && <th className="px-4 py-3 text-left">
+                                                {visibleColumns.includes('id') && <th className="px-4 py-5 text-left">
                                                     <button onClick={() => handleSort('id')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                         ID <SortIcon field="id" />
                                                     </button>
                                                 </th>}
-                                                {visibleColumns.includes('name') && <th className="px-4 py-3 text-left">
+                                                {visibleColumns.includes('name') && <th className="px-4 py-5 text-left">
                                                     <button onClick={() => handleSort('name')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                         Name <SortIcon field="name" />
                                                     </button>
                                                 </th>}
-                                                {visibleColumns.includes('email') && <th className="px-4 py-3 text-left">
+                                                {visibleColumns.includes('email') && <th className="px-4 py-5 text-left">
                                                     <button onClick={() => handleSort('email')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                         Email <SortIcon field="email" />
                                                     </button>
                                                 </th>}
-                                                {visibleColumns.includes('role') && <th className="px-4 py-3 text-left">
+                                                {visibleColumns.includes('role') && <th className="px-4 py-5 text-left">
                                                     <button onClick={() => handleSort('role')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                         Role <SortIcon field="role" />
                                                     </button>
                                                 </th>}
-                                                {visibleColumns.includes('status') && <th className="px-4 py-3 text-left">
+                                                {visibleColumns.includes('status') && <th className="px-4 py-5 text-left">
                                                     <button onClick={() => handleSort('is_active')} className="flex items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group w-full hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
                                                         Status <SortIcon field="is_active" />
                                                     </button>
                                                 </th>}
-                                                {visibleColumns.includes('actions') && <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                {visibleColumns.includes('actions') && <th className="px-4 py-5 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                     Actions
                                                 </th>}
                                             </tr>
@@ -616,7 +628,7 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
 
     return (
         <AuthenticatedLayout header={
-            <div className="flex justify-between items-center w-full">
+            <div className="flex justify-between items-center w-full gap-4">
                 <h2 className="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
                     Manage Users
                 </h2>

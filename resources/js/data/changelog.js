@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.13",
+        "date": "2026-06-24",
+        "features": [],
+        "fixes": [
+            "Fix table layout, dropdown clipping, widget dragging, and mobile reporting slideout"
+        ]
+    },
+    {
         "version": "v3.0.12",
         "date": "2026-06-22",
         "features": [],
