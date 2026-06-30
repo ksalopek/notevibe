@@ -8,7 +8,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X, LogOut, User } from 'lucide-react';
 import ChangelogModal from '@/Components/ChangelogModal';
 import { changelogData } from '@/data/changelog';
 
@@ -391,6 +391,31 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </div>
                             </div>
                         )}
+
+                        
+                        {/* Account */}
+                        <div>
+                            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Account</h3>
+                            <div className="space-y-2">
+                                <Link
+                                    href={route('profile.edit')}
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                >
+                                    <User className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Profile</span>
+                                </Link>
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="flex items-center p-3 w-full bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl active:bg-red-100 dark:active:bg-red-900/40 transition"
+                                >
+                                    <LogOut className="w-5 h-5 mr-3 text-red-500 dark:text-red-400" />
+                                    <span className="text-sm font-medium text-red-600 dark:text-red-400">Log Out</span>
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
