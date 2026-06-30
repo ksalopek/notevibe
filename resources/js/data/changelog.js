@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.0.15",
+        "date": "2026-06-30",
+        "features": [],
+        "fixes": [
+            "Fix logout link behaviour and add to mobile menu"
+        ]
+    },
+    {
         "version": "v3.0.14",
         "date": "2026-06-30",
         "features": [
