@@ -38,7 +38,7 @@ export default function Modal({
             <Dialog
                 as="div"
                 id="modal"
-                className={`fixed inset-0 z-50 flex transform items-center overflow-y-auto transition-all sm:px-0 ${mobileFullWidth ? 'p-2 sm:py-6' : 'px-4 py-6'}`}
+                className={`fixed inset-0 z-[110] flex transform items-center overflow-y-auto transition-all sm:px-0 ${mobileFullWidth ? 'p-2 sm:py-6' : 'px-4 py-6'}`}
                 onClose={close}
             >
                 <TransitionChild
