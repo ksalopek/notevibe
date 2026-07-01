@@ -232,6 +232,22 @@ class AdminController extends Controller
         return back()->with('message', 'Note deleted successfully.');
     }
 
+    public function bulkActionNotes(Request $request)
+    {
+        $request->validate([
+            'noteIds' => 'required|array',
+            'noteIds.*' => 'integer|exists:notes,id',
+            'action' => 'required|string|in:delete'
+        ]);
+
+        if ($request->action === 'delete') {
+            \App\Models\Note::whereIn('id', $request->noteIds)->delete();
+            return back()->with('message', 'Selected notes deleted successfully.');
+        }
+
+        return back();
+    }
+
     public function settings()
     {
         $settings = \App\Models\Setting::pluck('value', 'key')->toArray();

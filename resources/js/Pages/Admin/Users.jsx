@@ -141,8 +141,8 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
     const [activityData, setActivityData] = useState([]);
     const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
-    const { visibleColumns, toggleColumn } = useTableColumns('admin_users', [
-        { id: 'checkbox', label: '' },
+    const { visibleColumns, toggleColumn } = useTableColumns('admin_users_v2', [
+        { id: 'checkbox', label: 'Bulk Select' },
         { id: 'id', label: 'ID' },
         { id: 'name', label: 'Name' },
         { id: 'email', label: 'Email' },
@@ -479,7 +479,7 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                                 <div className="flex gap-3 ml-auto">
                                     <ColumnSelector 
                                         columns={[
-                                            { id: 'checkbox', label: '' },
+                                            { id: 'checkbox', label: 'Bulk Select' },
                                             { id: 'id', label: 'ID' },
                                             { id: 'name', label: 'Name' },
                                             { id: 'email', label: 'Email' },
