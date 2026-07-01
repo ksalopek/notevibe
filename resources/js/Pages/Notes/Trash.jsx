@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Head, router, Link } from '@inertiajs/react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
-import { RotateCcw, Trash2, Filter } from 'lucide-react';
+import { RotateCcw, Trash2, Filter, Search } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
@@ -30,6 +30,92 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
     const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
     const [activeFolderId, setActiveFolderId] = useState(safeFilters.folder_id ? parseInt(safeFilters.folder_id) : null);
     const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+
+    const [localNotes, setLocalNotes] = useState(notes.data || []);
+    const [nextPageUrl, setNextPageUrl] = useState(notes.next_page_url);
+    const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+    const observerRef = useRef(null);
+    const { version } = usePage();
+
+    useEffect(() => {
+        setLocalNotes(notes.data || []);
+        setNextPageUrl(notes.next_page_url);
+    }, [notes]);
+
+    // Floating top bar state
+    const [showFloatingTopBar, setShowFloatingTopBar] = useState(false);
+    const searchBlockRef = useRef(null);
+    const notesColumnRef = useRef(null);
+    const [floatingBarStyles, setFloatingBarStyles] = useState({});
+
+    useEffect(() => {
+        const updateStyles = () => {
+            if (notesColumnRef.current) {
+                const rect = notesColumnRef.current.getBoundingClientRect();
+                setFloatingBarStyles({
+                    left: `${rect.left}px`,
+                    width: `${rect.width}px`
+                });
+            }
+        };
+
+        if (showFloatingTopBar) {
+            updateStyles();
+            window.addEventListener('resize', updateStyles);
+            return () => window.removeEventListener('resize', updateStyles);
+        }
+    }, [showFloatingTopBar]);
+
+    useEffect(() => {
+        if (!searchBlockRef.current) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                const isPast = !entry.isIntersecting && entry.boundingClientRect.bottom < 150;
+                setShowFloatingTopBar(isPast);
+            },
+            { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+        );
+        observer.observe(searchBlockRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && nextPageUrl && !isFetchingNextPage) {
+                    setIsFetchingNextPage(true);
+                    window.axios.get(nextPageUrl, {
+                        headers: {
+                            'X-Inertia': 'true',
+                            'X-Inertia-Version': version
+                        }
+                    }).then(response => {
+                        const newNotes = response.data.props.notes;
+                        if (newNotes && newNotes.data) {
+                            setLocalNotes(prev => {
+                                const existingIds = new Set(prev.map(n => n.id));
+                                const additions = newNotes.data.filter(n => !existingIds.has(n.id));
+                                return [...prev, ...additions];
+                            });
+                            setNextPageUrl(newNotes.next_page_url);
+                        }
+                    }).catch(error => {
+                        console.error('Failed to load next page', error);
+                    }).finally(() => {
+                        setIsFetchingNextPage(false);
+                    });
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentRef = observerRef.current;
+        if (currentRef) observer.observe(currentRef);
+
+        return () => {
+            if (currentRef) observer.unobserve(currentRef);
+        };
+    }, [nextPageUrl, isFetchingNextPage, version]);
 
     const handleApplyFilters = (newFilters) => {
         router.get(route('notes.trash'), { search: searchTerm, sort: sortBy, ...newFilters }, {
@@ -70,8 +156,8 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
     };
 
     const handleSelectAll = (e) => {
-        if (e.target.checked && notes.data && notes.data.length > 0) {
-            setSelectedNotes(notes.data.map(n => n.id));
+        if (e.target.checked && localNotes && localNotes.length > 0) {
+            setSelectedNotes(localNotes.map(n => n.id));
         } else {
             setSelectedNotes([]);
         }
@@ -142,6 +228,43 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
         >
             <Head title="Trash" />
 
+            <AnimatePresence>
+                {showFloatingTopBar && (
+                    <div 
+                        className="hidden sm:flex fixed top-[80px] z-[100] pointer-events-none justify-center"
+                        style={floatingBarStyles}
+                    >
+                        <motion.div
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -50, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="pointer-events-auto flex bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg rounded-full border border-gray-200 dark:border-gray-700 p-1.5 items-center gap-2 w-full max-w-md"
+                        >
+                            <Search className="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="Search trashed notes..."
+                                className="flex-1 bg-transparent border-none text-sm focus:ring-0 px-2 dark:text-gray-200 placeholder-gray-400"
+                            />
+                            <button
+                                onClick={() => setIsFilterDrawerOpen(true)}
+                                className={`flex-shrink-0 p-1.5 mr-1 rounded-full transition-colors ${
+                                    (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30' 
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                                title="Filters"
+                            >
+                                <Filter className="w-4 h-4" />
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
                     <FolderSidebar 
@@ -154,16 +277,16 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                         openTagManager={() => setIsTagManagerOpen(true)}
                         hideManagement={true}
                     />
-                    <div className="flex-1 min-w-0">
-
+                    <div className="flex-1 min-w-0" ref={notesColumnRef}>
+                        <div ref={searchBlockRef}>
                     {/* --- SEARCH AND TOGGLE --- */}
                     <div className="mb-8 flex flex-wrap items-center gap-4">
-                        {notes.data && notes.data.length > 0 && (
+                        {localNotes && localNotes.length > 0 && (
                             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
                                 <input 
                                     type="checkbox" 
                                     onChange={handleSelectAll} 
-                                    checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                    checked={selectedNotes.length > 0 && selectedNotes.length === localNotes.length}
                                     className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
                                 />
                                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
@@ -219,21 +342,22 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                             </Tooltip>
                         </div>
                     </div>
+                        </div>
 
-                    {/* --- NOTES LIST --- */}
-                    {notes.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 px-4 text-center bg-white/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm mt-8">
+                    {/* --- TRASH LIST --- */}
+                    {localNotes.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm mt-8">
                             <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 shadow-inner">
                                 <Trash2 className="w-10 h-10 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
                             </div>
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 tracking-tight">Your trash is empty</h3>
                             <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
-                                You don't have any deleted notes. Items you delete will appear here before being permanently removed.
+                                {searchTerm ? 'No deleted notes match your search criteria.' : 'Notes you delete will appear here.'}
                             </p>
                         </div>
                     ) : (
                         <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
-                            {notes.data.map((note) => (
+                            {localNotes.map((note) => (
                                 <SimpleNoteCard
                                     key={note.id}
                                     note={note}
@@ -266,25 +390,15 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                         </div>
                     )}
 
-                    {/* --- PAGINATION LINKS --- */}
-                    {notes.links && notes.links.length > 3 && (
-                        <div className="mt-8 flex justify-center gap-1">
-                            {notes.links.map((link, index) => (
-                                <Link
-                                    key={index}
-                                    href={link.url || '#'}
-                                    preserveScroll={true}
-                                    onSuccess={() => document.getElementById('notes-list')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className={`px-4 py-2 border rounded-md text-sm ${
-                                        link.active
-                                            ? 'bg-primary-600 text-white border-primary-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
-                                    } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {/* --- INFINITE SCROLL SENTINEL --- */}
+                    <div ref={observerRef} className="h-4 w-full mt-4 flex items-center justify-center">
+                        {isFetchingNextPage && (
+                            <svg className="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        )}
+                    </div>
                     </div>
                 </div>
             </div>
@@ -356,6 +470,41 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                             </div>
                         </div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+            
+            {/* --- MOBILE FLOATING SEARCH BAR --- */}
+            <AnimatePresence>
+                {showFloatingTopBar && (
+                    <div className="sm:hidden fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 px-4 z-[100] pointer-events-none flex justify-center">
+                        <motion.div
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="pointer-events-auto flex bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg rounded-full border border-gray-200 dark:border-gray-700 p-1.5 items-center gap-2 w-full max-w-sm"
+                        >
+                            <Search className="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="Search trashed notes..."
+                                className="flex-1 bg-transparent border-none text-sm focus:ring-0 px-2 dark:text-gray-200 placeholder-gray-400 min-w-[10px]"
+                            />
+                            <button
+                                onClick={() => setIsFilterDrawerOpen(true)}
+                                className={`flex-shrink-0 p-1.5 mr-1 rounded-full transition-colors ${
+                                    (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30' 
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                                title="Filters"
+                            >
+                                <Filter className="w-4 h-4" />
+                            </button>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </AuthenticatedLayout>

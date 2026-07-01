@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Head, useForm, router, Link } from '@inertiajs/react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Head, useForm, router, Link, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import RichTextEditor from '@/Components/RichTextEditor';
@@ -12,7 +12,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2, Filter, Folder } from 'lucide-react';
+import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search } from 'lucide-react';
 import FolderSidebar from '@/Components/FolderSidebar';
 import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
 import TemplateManagerModal from '@/Components/TemplateManagerModal';
@@ -65,6 +65,94 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
     const [moveTargetIds, setMoveTargetIds] = useState([]);
     const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
     const [isBulkTagModalOpen, setIsBulkTagModalOpen] = useState(false);
+    const [isCreatingMobileOpen, setIsCreatingMobileOpen] = useState(false);
+
+    // Floating top bar state
+    const [showFloatingTopBar, setShowFloatingTopBar] = useState(false);
+    const searchBlockRef = useRef(null);
+    const notesColumnRef = useRef(null);
+    const [floatingBarStyles, setFloatingBarStyles] = useState({});
+
+    useEffect(() => {
+        const updateStyles = () => {
+            if (notesColumnRef.current) {
+                const rect = notesColumnRef.current.getBoundingClientRect();
+                setFloatingBarStyles({
+                    left: `${rect.left}px`,
+                    width: `${rect.width}px`
+                });
+            }
+        };
+
+        if (showFloatingTopBar) {
+            updateStyles();
+            window.addEventListener('resize', updateStyles);
+            return () => window.removeEventListener('resize', updateStyles);
+        }
+    }, [showFloatingTopBar]);
+
+    useEffect(() => {
+        if (!searchBlockRef.current) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                const isPast = !entry.isIntersecting && entry.boundingClientRect.bottom < 150;
+                setShowFloatingTopBar(isPast);
+            },
+            { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+        );
+        observer.observe(searchBlockRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    // Infinite scroll state
+    const [localNotes, setLocalNotes] = useState(notes.data || []);
+    const [nextPageUrl, setNextPageUrl] = useState(notes.next_page_url);
+    const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+    const observerRef = useRef(null);
+    const { version } = usePage();
+
+    useEffect(() => {
+        setLocalNotes(notes.data || []);
+        setNextPageUrl(notes.next_page_url);
+    }, [notes]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && nextPageUrl && !isFetchingNextPage) {
+                    setIsFetchingNextPage(true);
+                    window.axios.get(nextPageUrl, {
+                        headers: {
+                            'X-Inertia': 'true',
+                            'X-Inertia-Version': version
+                        }
+                    }).then(response => {
+                        const newNotes = response.data.props.notes;
+                        if (newNotes && newNotes.data) {
+                            setLocalNotes(prev => {
+                                const existingIds = new Set(prev.map(n => n.id));
+                                const additions = newNotes.data.filter(n => !existingIds.has(n.id));
+                                return [...prev, ...additions];
+                            });
+                            setNextPageUrl(newNotes.next_page_url);
+                        }
+                    }).catch(error => {
+                        console.error('Failed to load next page', error);
+                    }).finally(() => {
+                        setIsFetchingNextPage(false);
+                    });
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentRef = observerRef.current;
+        if (currentRef) observer.observe(currentRef);
+
+        return () => {
+            if (currentRef) observer.unobserve(currentRef);
+        };
+    }, [nextPageUrl, isFetchingNextPage, version]);
 
     useEffect(() => {
         setData('folder_id', activeFolderId || '');
@@ -128,8 +216,8 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
     };
 
     const handleSelectAll = (e) => {
-        if (e.target.checked && notes.data && notes.data.length > 0) {
-            setSelectedNotes(notes.data.map(n => n.id));
+        if (e.target.checked && localNotes && localNotes.length > 0) {
+            setSelectedNotes(localNotes.map(n => n.id));
         } else {
             setSelectedNotes([]);
         }
@@ -171,7 +259,10 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
     const submitCreate = (e) => {
         e.preventDefault();
-        post(route('notes.store'), { onSuccess: () => reset() });
+        post(route('notes.store'), { onSuccess: () => {
+            reset();
+            setIsCreatingMobileOpen(false);
+        } });
     };
 
     const deleteNote = (id) => {
@@ -226,7 +317,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
     };
 
     const updateNoteContent = useCallback(debounce((noteId, field, newHtml) => {
-        const note = notes.data.find(n => n.id === noteId);
+        const note = localNotes.find(n => n.id === noteId);
         if (!note) return;
         
         // Use raw axios instead of Inertia router to prevent the progress bar 
@@ -238,7 +329,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
         }).catch(error => {
             console.error("Failed to silently update note content", error);
         });
-    }, 500), [notes.data]);
+    }, 500), [localNotes]);
 
     // --- Search Handling ---
     const debouncedSearch = useCallback(
@@ -275,6 +366,53 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
         >
             <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
+            <AnimatePresence>
+                {showFloatingTopBar && (
+                    <div 
+                        className="hidden sm:flex fixed top-[80px] z-[100] pointer-events-none justify-center"
+                        style={floatingBarStyles}
+                    >
+                        <motion.div
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -50, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="pointer-events-auto flex bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg rounded-full border border-gray-200 dark:border-gray-700 p-1.5 items-center gap-2 w-full max-w-md"
+                        >
+                            <Search className="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="Search notes..."
+                                className="flex-1 bg-transparent border-none text-sm focus:ring-0 px-2 dark:text-gray-200 placeholder-gray-400"
+                            />
+                            <button
+                                onClick={() => setIsFilterDrawerOpen(true)}
+                                className={`flex-shrink-0 p-1.5 mr-1 rounded-full transition-colors ${
+                                    (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30' 
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                                title="Filters"
+                            >
+                                <Filter className="w-4 h-4" />
+                            </button>
+                            {!isArchiveView && (
+                                <button
+                                    onClick={() => setIsCreatingMobileOpen(true)}
+                                    className="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors shadow-sm"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                </button>
+                            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
                     <FolderSidebar 
@@ -287,10 +425,11 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                         openTagManager={() => setIsTagManagerOpen(true)}
                         hideManagement={isArchiveView}
                     />
-                    <div className="flex-1 min-w-0">
-                    {/* --- CREATE FORM --- */}
-                    {!isArchiveView && (
-                        <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg mb-8 p-6">
+                    <div className="flex-1 min-w-0" ref={notesColumnRef}>
+                        <div ref={searchBlockRef}>
+                        {/* --- CREATE FORM --- */}
+                        {!isArchiveView && (
+                        <div className="hidden sm:block bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg mb-8 p-6">
                         <form onSubmit={submitCreate}>
                             <div className="flex justify-end mb-4">
                                 <div className="flex gap-2 items-center">
@@ -365,12 +504,12 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                     {/* --- SEARCH AND TOGGLE --- */}
                     {isArchiveView ? (
                         <div className="mb-8 flex flex-wrap items-center gap-4">
-                            {notes.data && notes.data.length > 0 && (
+                            {localNotes && localNotes.length > 0 && (
                                 <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
                                     <input 
                                         type="checkbox" 
                                         onChange={handleSelectAll} 
-                                        checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                        checked={selectedNotes.length > 0 && selectedNotes.length === localNotes.length}
                                         className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
                                     />
                                     <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
@@ -419,13 +558,13 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                     ) : (
                         <div className="mb-8 flex flex-col gap-4">
                             {/* Top Row: Actions and Toggles */}
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                {notes.data && notes.data.length > 0 ? (
-                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full lg:w-auto">
+                                {localNotes && localNotes.length > 0 ? (
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-300 dark:border-gray-700 p-2 px-3 mr-auto lg:mr-0">
                                         <input 
                                             type="checkbox" 
                                             onChange={handleSelectAll} 
-                                            checked={selectedNotes.length > 0 && selectedNotes.length === notes.data.length}
+                                            checked={selectedNotes.length > 0 && selectedNotes.length === localNotes.length}
                                             className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" 
                                         />
                                         <span className="text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Select All</span>
@@ -493,6 +632,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                             </div>
                         </div>
                     )}
+                        </div>
 
                     {/* --- NOTES LIST --- */}
                     <div id="notes-list" className={`${viewMode === 'grid' ? '' : 'space-y-6'} scroll-mt-24`}>
@@ -505,7 +645,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                 <NoteSkeleton />
                                 <NoteSkeleton />
                             </div>
-                        ) : notes.data.length === 0 ? (
+                        ) : localNotes.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-32 px-4 text-center bg-white/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm mt-8">
                                 <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 shadow-inner">
                                     {isArchiveView ? (
@@ -529,7 +669,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                             </div>
                         ) : isArchiveView ? (
                             <div id="notes-list" className={`${viewMode === 'grid' ? 'columns-1 md:columns-2 lg:columns-3 gap-6' : 'space-y-6'} scroll-mt-24`}>
-                                {notes.data.map((note) => (
+                                {localNotes.map((note) => (
                                     <SimpleNoteCard
                                         key={note.id}
                                         note={note}
@@ -567,7 +707,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                         className="flex w-auto -ml-6"
                                         columnClassName="pl-6 bg-clip-padding"
                                     >
-                                        {notes.data.map((note) => (
+                                        {localNotes.map((note) => (
                                             <NoteCard 
                                                 key={note.id} 
                                                 note={note} 
@@ -585,7 +725,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                     </Masonry>
                                 ) : (
                                     <div>
-                                        {notes.data.map((note) => (
+                                        {localNotes.map((note) => (
                                             <NoteCard 
                                                 key={note.id} 
                                                 note={note} 
@@ -606,24 +746,15 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                         )}
                     </div>
 
-                    {/* --- PAGINATION LINKS --- */}
-                    {notes.links && notes.links.length > 3 && (
-                        <div className="mt-8 flex justify-center gap-1">
-                            {notes.links.map((link, index) => (
-                                <Link
-                                    key={index}
-                                    href={link.url || '#'}
-                                    preserveScroll={true}
-                                    onSuccess={() => document.getElementById('notes-list')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className={`px-4 py-2 border rounded-md text-sm ${
-                                        link.active
-                                            ? 'bg-primary-600 text-white border-primary-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
-                                    } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
-                        </div>
+                    {/* --- INFINITE SCROLL SENTINEL --- */}
+                    <div ref={observerRef} className="h-4 w-full mt-4 flex items-center justify-center">
+                        {isFetchingNextPage && (
+                            <svg className="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        )}
+                    </div>
                     )}
                     </div>
                 </div>
@@ -760,6 +891,148 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                 selectedIds={selectedNotes}
                 tags={tags}
             />
+
+            {/* --- MOBILE DYNAMIC FAB / SEARCH BAR --- */}
+            <div className="sm:hidden fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-6 z-[100] pointer-events-none flex justify-end items-center">
+                <AnimatePresence>
+                    {(!isArchiveView || showFloatingTopBar) && (
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className={`pointer-events-auto flex shadow-lg overflow-hidden items-center transition-all duration-300 ease-in-out ${
+                                showFloatingTopBar 
+                                    ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-full w-[calc(100vw-3rem)] h-14' 
+                                    : 'bg-primary-600 border border-transparent rounded-full w-14 h-14'
+                            }`}
+                        >
+                            <AnimatePresence>
+                                {showFloatingTopBar && (
+                                    <motion.div
+                                        initial={{ opacity: 0, width: 0 }}
+                                        animate={{ opacity: 1, width: '100%' }}
+                                        exit={{ opacity: 0, width: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex items-center pl-4 flex-1 h-full"
+                                    >
+                                        <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={e => setSearchTerm(e.target.value)}
+                                            placeholder="Search notes..."
+                                            className="flex-1 bg-transparent border-none text-sm focus:ring-0 px-2 dark:text-gray-200 placeholder-gray-400 min-w-[10px]"
+                                        />
+                                        <button
+                                            onClick={() => setIsFilterDrawerOpen(true)}
+                                            className={`flex-shrink-0 p-1.5 mr-1 rounded-full transition-colors ${
+                                                (safeFilters.folder_id || safeFilters.tags || safeFilters.date_from) 
+                                                ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30' 
+                                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                            }`}
+                                            title="Filters"
+                                        >
+                                            <Filter className="w-4 h-4" />
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                            
+                            {!isArchiveView && (
+                                <button
+                                    onClick={() => setIsCreatingMobileOpen(true)}
+                                    className={`flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+                                        showFloatingTopBar 
+                                            ? 'w-10 h-10 mr-2 bg-primary-600 text-white rounded-full hover:bg-primary-700' 
+                                            : 'w-14 h-14 hover:bg-primary-700 text-white'
+                                    }`}
+                                >
+                                    <Plus className={`transition-all duration-300 ${showFloatingTopBar ? "w-5 h-5" : "w-7 h-7"}`} strokeWidth={2.5} />
+                                </button>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            <Modal show={isCreatingMobileOpen} onClose={() => setIsCreatingMobileOpen(false)} maxWidth="5xl">
+                <div className="p-6 bg-white dark:bg-gray-800">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                        Create Note
+                    </h2>
+                    <form onSubmit={submitCreate}>
+                        <div className="flex justify-end mb-4">
+                            <div className="flex gap-2 items-center">
+                                <select 
+                                        value={selectedTemplateId}
+                                        onChange={handleTemplateSelect} 
+                                        className="text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm py-1 pl-3 pr-8"
+                                    >
+                                        <option value="">Use Template...</option>
+                                        {templates.map(t => (
+                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                        ))}
+                                        <option disabled>──────────</option>
+                                        <option value="manage">⚙️ Manage Templates...</option>
+                                    </select>
+                                    {selectedTemplateId && selectedTemplateId !== 'manage' && (
+                                        <button type="button" onClick={handleClearTemplate} className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <TitleIcon className="w-3 h-3 mr-1.5" /> Title
+                            </label>
+                            <input
+                                type="text"
+                                value={data.title}
+                                onChange={e => setData('title', e.target.value)}
+                                className="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm pt-3 pb-3"
+                                placeholder="Note title..."
+                            />
+                            {errors.title && <div className="text-red-500 text-sm mt-1">{errors.title}</div>}
+                        </div>
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <ContentIcon className="w-3 h-3 mr-1.5" /> Content
+                            </label>
+                            <RichTextEditor
+                                content={data.content}
+                                onChange={newContent => setData('content', newContent)}
+                                className="min-h-[300px]"
+                            />
+                            {errors.content && <div className="text-red-500 text-sm mt-1">{errors.content}</div>}
+                        </div>
+                        <div className="mb-6 relative pt-2">
+                            <label className="absolute top-0 left-3 bg-white dark:bg-gray-800 px-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center z-10 transition-colors uppercase tracking-wider">
+                                <TagsIcon className="w-3 h-3 mr-1.5" /> Tags
+                            </label>
+                            <TagAutocompleteInput
+                                value={data.tags}
+                                onChange={newTags => setData('tags', newTags)}
+                                tags={tags}
+                                placeholder="Select or type tags..."
+                            />
+                            {errors.tags && <div className="text-red-500 text-sm mt-1">{errors.tags}</div>}
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2">
+                            <button type="button" onClick={() => setIsCreatingMobileOpen(false)} className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-full text-sm font-semibold shadow-md hover:bg-gray-400 dark:hover:bg-gray-500 hover:shadow-lg transition-all active:scale-95">
+                                Cancel
+                            </button>
+                            <button type="submit" disabled={processing} className="inline-flex items-center justify-center gap-2 bg-primary-600 dark:bg-primary-500 text-white font-semibold text-sm px-6 py-2.5 rounded-full shadow-md hover:bg-primary-700 dark:hover:bg-primary-600 hover:shadow-lg transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                {processing ? 'Saving...' : 'Create Note'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
