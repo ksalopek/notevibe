@@ -242,46 +242,58 @@ const GlobalBroadcastWidget = ({ currentAnnouncement }) => {
     );
 };
 
-const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pr-10 gap-4">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
-                <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
-                Platform Activity (Last {activityDays} Days)
-            </h3>
-            <select
-                value={activityDays}
-                onChange={onActivityDaysChange}
-                className="w-full sm:w-auto text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-                <option value={7}>7 Days</option>
-                <option value={14}>14 Days</option>
-                <option value={21}>21 Days</option>
-                <option value={30}>30 Days</option>
-            </select>
-        </div>
-        <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                    data={chartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+const ActivityChartWidget = ({ chartData, activityDays, onActivityDaysChange }) => {
+    const [hiddenLines, setHiddenLines] = useState({ notes: false, users: false, logins: false });
+
+    const handleLegendClick = (e) => {
+        const { dataKey } = e;
+        setHiddenLines(prev => ({
+            ...prev,
+            [dataKey]: !prev[dataKey]
+        }));
+    };
+
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl transition-shadow duration-300 flex flex-col">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pr-10 gap-4">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                    <span className="mr-2 text-indigo-500"><ActivityIcon /></span>
+                    Platform Activity (Last {activityDays} Days)
+                </h3>
+                <select
+                    value={activityDays}
+                    onChange={onActivityDaysChange}
+                    className="w-full sm:w-auto text-sm bg-slate-100 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
-                    <XAxis dataKey="name" stroke="#64748b" />
-                    <YAxis stroke="#64748b" />
-                    <RechartsTooltip 
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f8fafc' }}
-                        itemStyle={{ color: '#f8fafc' }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="notes" name="Notes Created" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="users" name="New Users" stroke="#10b981" strokeWidth={3} />
-                    <Line type="monotone" dataKey="logins" name="User Logins" stroke="#f59e0b" strokeWidth={3} />
-                </LineChart>
-            </ResponsiveContainer>
+                    <option value={7}>7 Days</option>
+                    <option value={14}>14 Days</option>
+                    <option value={21}>21 Days</option>
+                    <option value={30}>30 Days</option>
+                </select>
+            </div>
+            <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                        data={chartData}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
+                        <XAxis dataKey="name" stroke="#64748b" />
+                        <YAxis stroke="#64748b" />
+                        <RechartsTooltip 
+                            contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f8fafc' }}
+                            itemStyle={{ color: '#f8fafc' }}
+                        />
+                        <Legend onClick={handleLegendClick} wrapperStyle={{ cursor: 'pointer' }} />
+                        <Line hide={hiddenLines.notes} type="monotone" dataKey="notes" name="Notes Created" stroke={hiddenLines.notes ? "#cbd5e1" : "#6366f1"} strokeWidth={3} activeDot={{ r: 8 }} />
+                        <Line hide={hiddenLines.users} type="monotone" dataKey="users" name="New Users" stroke={hiddenLines.users ? "#cbd5e1" : "#10b981"} strokeWidth={3} />
+                        <Line hide={hiddenLines.logins} type="monotone" dataKey="logins" name="User Logins" stroke={hiddenLines.logins ? "#cbd5e1" : "#f59e0b"} strokeWidth={3} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const LiveContentFeedWidget = ({ latestGlobalNotes }) => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700 h-full hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col">
@@ -819,6 +831,17 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         localStorage.setItem('admin_dashboard_layout_v2', JSON.stringify(allLayouts));
     };
 
+    const handleAutoFit = () => {
+        const newLayouts = {
+            lg: repackLayout(availableWidgets, layouts.lg, 4),
+            md: repackLayout(availableWidgets, layouts.md, 3),
+            sm: repackLayout(availableWidgets, layouts.sm, 2),
+            xs: layouts.xs,
+            xxs: layouts.xxs
+        };
+        handleLayoutChange(newLayouts[currentBreakpoint], newLayouts);
+    };
+
     const renderWidget = (id) => {
         switch (id) {
             case 'metric_total_users':
@@ -891,6 +914,16 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
                         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
+                        <Tooltip content="Auto-Fit Layout">
+                            <button 
+                                onClick={handleAutoFit}
+                                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                            >
+                                <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+                                </svg>
+                            </button>
+                        </Tooltip>
                         <Tooltip content="Refresh Dashboard">
                             <button 
                                 onClick={handleRefresh} 

@@ -129,7 +129,10 @@ export default function Notes({ notes, filters, analyticsData }) {
     const [viewMode, setViewMode] = useState(localStorage.getItem('adminNotesViewMode') || 'table');
     const [expandedRow, setExpandedRow] = useState(null);
     const [confirmingNoteDeletion, setConfirmingNoteDeletion] = useState(null);
-    const { visibleColumns, toggleColumn } = useTableColumns('admin_notes', [
+    const [selectedNotes, setSelectedNotes] = useState([]);
+    
+    const { visibleColumns, toggleColumn } = useTableColumns('admin_notes_v2', [
+        { id: 'checkbox', label: 'Bulk Select' },
         { id: 'note_info', label: 'Note Info' },
         { id: 'author', label: 'Author' },
         { id: 'created_at', label: 'Created At' },
@@ -138,6 +141,34 @@ export default function Notes({ notes, filters, analyticsData }) {
 
     const currentSortValue = `${filters?.sort || 'created_at'}-${filters?.direction || 'desc'}`;
     const [sortValue, setSortValue] = useState(currentSortValue);
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedNotes(notes.data.map(n => n.id));
+        } else {
+            setSelectedNotes([]);
+        }
+    };
+
+    const handleSelectNote = (id) => {
+        if (selectedNotes.includes(id)) {
+            setSelectedNotes(selectedNotes.filter(nId => nId !== id));
+        } else {
+            setSelectedNotes([...selectedNotes, id]);
+        }
+    };
+
+    const executeBulkAction = (action) => {
+        if (selectedNotes.length === 0) return;
+        if (action === 'delete' && !confirm('Are you sure you want to delete selected notes? This is permanent.')) return;
+        router.post(route('admin.notes.bulk'), {
+            noteIds: selectedNotes,
+            action: action
+        }, {
+            preserveScroll: true,
+            onSuccess: () => setSelectedNotes([])
+        });
+    };
 
     // Grid Effects
     useEffect(() => {
@@ -382,6 +413,7 @@ export default function Notes({ notes, filters, analyticsData }) {
                                             <div className="border-r border-slate-200 dark:border-slate-700 pr-1 mr-1 flex items-center">
                                                 <ColumnSelector 
                                                     columns={[
+                                                        { id: 'checkbox', label: 'Bulk Select' },
                                                         { id: 'note_info', label: 'Note Info' },
                                                         { id: 'author', label: 'Author' },
                                                         { id: 'created_at', label: 'Created At' },
@@ -418,11 +450,29 @@ export default function Notes({ notes, filters, analyticsData }) {
                                     <p className="text-slate-500 dark:text-slate-400">No notes found.</p>
                                 </div>
                             ) : viewMode === 'table' ? (
-                                <div className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 w-full flex-1 flex flex-col">
-                                    <div className="overflow-auto w-full flex-1">
+                                <div className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 w-full flex-1 flex flex-col relative">
+                                    {selectedNotes.length > 0 && (
+                                        <div className="absolute top-0 left-0 w-full h-12 bg-indigo-50 dark:bg-indigo-900/50 flex items-center justify-between px-6 z-10 border-b border-indigo-100 dark:border-indigo-800">
+                                            <span className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+                                                {selectedNotes.length} note{selectedNotes.length > 1 ? 's' : ''} selected
+                                            </span>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => executeBulkAction('delete')} className="text-xs font-semibold px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors shadow-sm">Delete</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className={`overflow-auto w-full flex-1 ${selectedNotes.length > 0 ? 'mt-12' : ''}`}>
                                         <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                                             <thead className="bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
                                                 <tr>
+                                                    {visibleColumns.includes('checkbox') && <th className="px-6 py-4 text-left w-10">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                            checked={notes.data && notes.data.length > 0 && selectedNotes.length === notes.data.length}
+                                                            onChange={handleSelectAll}
+                                                        />
+                                                    </th>}
                                                     {visibleColumns.includes('note_info') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Note Info</th>}
                                                     {visibleColumns.includes('author') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Author</th>}
                                                     {visibleColumns.includes('created_at') && <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Created At</th>}
@@ -437,7 +487,15 @@ export default function Notes({ notes, filters, analyticsData }) {
                                                     
                                                     return (
                                                         <React.Fragment key={note.id}>
-                                                            <tr onClick={() => setExpandedRow(isExpanded ? null : note.id)} className={`cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
+                                                            <tr onClick={() => setExpandedRow(isExpanded ? null : note.id)} className={`cursor-pointer transition-colors ${selectedNotes.includes(note.id) ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : (isExpanded ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50')}`}>
+                                                                {visibleColumns.includes('checkbox') && <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                                        checked={selectedNotes.includes(note.id)}
+                                                                        onChange={() => handleSelectNote(note.id)}
+                                                                    />
+                                                                </td>}
                                                                 {visibleColumns.includes('note_info') && <td className="px-6 py-4">
                                                                     <div className="flex items-center gap-3">
                                                                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full tracking-wider ${badge.color}`}>{badge.label}</span>
