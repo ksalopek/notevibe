@@ -151,6 +151,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy')->middleware('can:manage_users');
     Route::get('/admin/notes', [AdminController::class, 'notes'])->name('admin.notes')->middleware('can:manage_notes');
     Route::delete('/admin/notes/{note}', [AdminController::class, 'destroyNote'])->name('admin.notes.destroy')->middleware('can:manage_notes');
+    Route::post('/admin/notes/bulk', [AdminController::class, 'bulkActionNotes'])->name('admin.notes.bulk')->middleware('can:manage_notes');
     Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings')->middleware('can:manage_settings');
     Route::post('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update')->middleware('can:manage_settings');
     Route::post('/admin/announcement', [AdminController::class, 'updateAnnouncement'])->name('admin.announcement.update')->middleware('can:manage_settings');
