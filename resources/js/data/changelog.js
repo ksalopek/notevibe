@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.1.1",
+        "date": "2026-07-01",
+        "features": [],
+        "fixes": [
+            "fix: resolve mobile UI layering and add scroll-to-top button"
+        ]
+    },
+    {
         "version": "v3.1.0",
         "date": "2026-06-30",
         "features": [
