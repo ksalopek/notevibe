@@ -1,7 +1,16 @@
 export const changelogData = [
     {
-        "version": "v3.0.15",
+        "version": "v3.1.0",
         "date": "2026-06-30",
+        "features": [
+            "feat: implement floating search bar and mobile morphing FAB",
+            "Save latest changes"
+        ],
+        "fixes": []
+    },
+    {
+        "version": "v3.0.15",
+        "date": "2026-06-29",
         "features": [],
         "fixes": [
             "Fix logout link behaviour and add to mobile menu"
@@ -9,7 +18,7 @@ export const changelogData = [
     },
     {
         "version": "v3.0.14",
-        "date": "2026-06-30",
+        "date": "2026-06-29",
         "features": [
             "UI improvements to admin and dashboard widgets"
         ],
