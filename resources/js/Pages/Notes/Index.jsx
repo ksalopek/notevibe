@@ -12,7 +12,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search } from 'lucide-react';
+import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search, ArrowUp } from 'lucide-react';
 import FolderSidebar from '@/Components/FolderSidebar';
 import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
 import TemplateManagerModal from '@/Components/TemplateManagerModal';
@@ -398,6 +398,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                             >
                                 <Filter className="w-4 h-4" />
                             </button>
+                            <button
+                                onClick={() => {
+                                    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="flex-shrink-0 p-1.5 mr-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                title="Scroll to top"
+                            >
+                                <ArrowUp className="w-4 h-4" />
+                            </button>
                             {!isArchiveView && (
                                 <button
                                     onClick={() => setIsCreatingMobileOpen(true)}
@@ -755,7 +765,6 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                             </svg>
                         )}
                     </div>
-                    )}
                     </div>
                 </div>
             </div>
@@ -934,6 +943,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                             title="Filters"
                                         >
                                             <Filter className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            }}
+                                            className="flex-shrink-0 p-1.5 mr-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                            title="Scroll to top"
+                                        >
+                                            <ArrowUp className="w-4 h-4" />
                                         </button>
                                     </motion.div>
                                 )}

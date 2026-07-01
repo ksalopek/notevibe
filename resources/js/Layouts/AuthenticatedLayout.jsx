@@ -223,7 +223,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
             </nav>
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+            <div id="main-scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden w-full">
                 {header && (
                     <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow shrink-0">
                         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-gray-800 dark:text-gray-200">{header}</div>

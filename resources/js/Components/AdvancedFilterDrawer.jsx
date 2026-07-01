@@ -52,7 +52,7 @@ export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[105]"
                     />
 
                     {/* Drawer */}
@@ -61,7 +61,7 @@ export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col border-l border-gray-200 dark:border-gray-700"
+                        className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl z-[110] flex flex-col border-l border-gray-200 dark:border-gray-700"
                     >
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Advanced Filters</h2>
@@ -121,7 +121,7 @@ export default function AdvancedFilterDrawer({ isOpen, onClose, filters, onApply
                             </div>
                         </div>
 
-                        <div className="p-4 pb-24 sm:pb-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-800/50">
+                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-800/50">
                             <SecondaryButton onClick={handleClear}>Clear</SecondaryButton>
                             <PrimaryButton onClick={handleApply}>Apply Filters</PrimaryButton>
                         </div>

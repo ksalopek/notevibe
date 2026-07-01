@@ -3,7 +3,7 @@ import { Head, router, Link, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
-import { RotateCcw, Trash2, Filter, Search } from 'lucide-react';
+import { RotateCcw, Trash2, Filter, Search, ArrowUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
@@ -260,6 +260,16 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                             >
                                 <Filter className="w-4 h-4" />
                             </button>
+                            <button
+                                onClick={() => {
+                                    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="flex-shrink-0 p-1.5 mr-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                title="Scroll to top"
+                            >
+                                <ArrowUp className="w-4 h-4" />
+                            </button>
                         </motion.div>
                     </div>
                 )}
@@ -502,6 +512,16 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                                 title="Filters"
                             >
                                 <Filter className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="flex-shrink-0 p-1.5 mr-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                title="Scroll to top"
+                            >
+                                <ArrowUp className="w-4 h-4" />
                             </button>
                         </motion.div>
                     </div>
