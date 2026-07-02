@@ -192,6 +192,10 @@ class GuestUserSeeder extends Seeder
                 'is_archived' => mt_rand(1, 100) <= 15, // 15% chance to be archived
             ]);
 
+            if (mt_rand(1, 100) <= 15) {
+                $note->delete(); // 15% chance to be in the trash
+            }
+
             // Assign 0 to 3 random tags
             $numTags = mt_rand(0, 3);
             if ($numTags > 0) {
