@@ -14,13 +14,15 @@ class GuestUserSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Create or get Guest User
-        $user = User::firstOrCreate(
+        // 1. Create or Reset Guest User
+        $user = User::updateOrCreate(
             ['email' => 'guest@example.com'],
             [
                 'name' => 'Guest User',
                 'password' => Hash::make('password'),
                 'is_active' => true,
+                'dashboard_widgets' => null,
+                'analytics_widgets' => null,
             ]
         );
 
