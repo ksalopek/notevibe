@@ -22,6 +22,15 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    Route::post('login/guest', function () {
+        $user = \App\Models\User::where('email', 'guest@example.com')->first();
+        if ($user) {
+            auth()->login($user);
+            event(new \Illuminate\Auth\Events\Login('web', $user, false));
+        }
+        return redirect()->intended(route('dashboard', absolute: false));
+    })->name('login.guest');
+
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
