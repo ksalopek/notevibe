@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.3.1",
+        "date": "2026-07-02",
+        "features": [],
+        "fixes": [
+            "Fix: Add RefreshDatabase to ExampleTest"
+        ]
+    },
+    {
         "version": "v3.3.0",
         "date": "2026-07-02",
         "features": [
