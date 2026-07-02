@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.2.1",
+        "date": "2026-07-02",
+        "features": [
+            "Feature: Add GuestUserSeeder for demo data generation"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.2.0",
         "date": "2026-07-01",
         "features": [
