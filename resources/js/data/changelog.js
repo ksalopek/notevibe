@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.2.0",
+        "date": "2026-07-01",
+        "features": [
+            "Admin enhancements: bulk actions for notes, auto fit layout, toggleable charts"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.1.1",
         "date": "2026-07-01",
         "features": [],
