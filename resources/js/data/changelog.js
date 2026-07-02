@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.3.3",
+        "date": "2026-07-02",
+        "features": [
+            "Feature: Lock down profile access for guest user"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.3.2",
         "date": "2026-07-02",
         "features": [
