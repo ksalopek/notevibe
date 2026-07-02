@@ -211,7 +211,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                                         </div>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        {user.email !== 'guest@example.com' && (
+                                            <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        )}
                                         <Dropdown.Link href={route('logout')} method="post" as="button">
                                             Log Out
                                         </Dropdown.Link>
@@ -397,14 +399,16 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div>
                             <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Account</h3>
                             <div className="space-y-2">
-                                <Link
-                                    href={route('profile.edit')}
-                                    onClick={() => setShowMobileMenu(false)}
-                                    className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
-                                >
-                                    <User className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" />
-                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Profile</span>
-                                </Link>
+                                {user.email !== 'guest@example.com' && (
+                                    <Link
+                                        href={route('profile.edit')}
+                                        onClick={() => setShowMobileMenu(false)}
+                                        className="flex items-center p-3 w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl active:bg-gray-100 dark:active:bg-gray-800 transition"
+                                    >
+                                        <User className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" />
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">Profile</span>
+                                    </Link>
+                                )}
                                 <Link
                                     href={route('logout')}
                                     method="post"

@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.3.2",
+        "date": "2026-07-02",
+        "features": [
+            "Feature: Add dummy trash notes for guest"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.3.1",
         "date": "2026-07-02",
         "features": [],

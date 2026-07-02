@@ -18,6 +18,10 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        if ($request->user()->email === 'guest@example.com') {
+            abort(403, 'Guest user cannot access profile.');
+        }
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -29,6 +33,10 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        if ($request->user()->email === 'guest@example.com') {
+            abort(403, 'Guest user cannot modify profile.');
+        }
+
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -45,6 +53,10 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if ($request->user()->email === 'guest@example.com') {
+            abort(403, 'Guest user cannot delete account.');
+        }
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
