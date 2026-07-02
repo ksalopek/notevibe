@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.2.2",
+        "date": "2026-07-02",
+        "features": [],
+        "fixes": [
+            "Fix: Remove Faker dependency from GuestUserSeeder for production deployment"
+        ]
+    },
+    {
         "version": "v3.2.1",
         "date": "2026-07-02",
         "features": [
