@@ -44,6 +44,7 @@ export default function Settings({ auth, appTheme, settings = {} }) {
         session_timeout: settings.session_timeout || '120',
         password_rules: settings.password_rules || 'standard',
         maintenance_mode: parseBool(settings.maintenance_mode),
+        enable_guest_demo: settings.enable_guest_demo === undefined ? true : parseBool(settings.enable_guest_demo),
         system_webhook_url: settings.system_webhook_url || '',
     });
     
@@ -220,6 +221,14 @@ export default function Settings({ auth, appTheme, settings = {} }) {
                                 
                                 <div className="space-y-4 divide-y divide-slate-100 dark:divide-slate-700/50">
                                     <div className="pb-4">
+                                        <Toggle 
+                                            label="Enable Guest Demo Link" 
+                                            description="Show the 'Try Guest Demo' button on the welcome screen to easily log into the guest account."
+                                            checked={data.enable_guest_demo}
+                                            onChange={(val) => setData('enable_guest_demo', val)}
+                                        />
+                                    </div>
+                                    <div className="py-4">
                                         <Toggle 
                                             label="Maintenance Mode" 
                                             description="Take the site offline for regular users. Administrators will still have access."

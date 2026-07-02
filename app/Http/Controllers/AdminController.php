@@ -278,6 +278,7 @@ class AdminController extends Controller
 
             // System
             'maintenance_mode' => 'nullable|boolean',
+            'enable_guest_demo' => 'nullable|boolean',
             'system_webhook_url' => 'nullable|url|max:255',
         ]);
 
@@ -294,6 +295,9 @@ class AdminController extends Controller
         }
         if ($request->has('maintenance_mode')) {
              \App\Models\Setting::set('maintenance_mode', $request->boolean('maintenance_mode'));
+        }
+        if ($request->has('enable_guest_demo')) {
+             \App\Models\Setting::set('enable_guest_demo', $request->boolean('enable_guest_demo'));
         }
 
         return back()->with('message', 'Settings updated successfully.');

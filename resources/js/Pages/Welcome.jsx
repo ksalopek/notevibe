@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 // Third test comment to verify composer and npm build steps
-export default function Welcome({ auth, appVersion }) {
+export default function Welcome({ auth, appVersion, enableGuestDemo }) {
     return (
         <>
             <Head title="Welcome" />
@@ -30,7 +30,7 @@ export default function Welcome({ auth, appVersion }) {
                             <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-400 max-w-2xl">
                                 NoteVibe is the ultimate collection for your notes. Capture your thoughts, organize your ideas, and let your creativity flow in a space designed for your unique vibe.
                             </p>
-                            <div className="mt-10 flex items-center justify-center gap-x-6">
+                            <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
                                 {auth.user ? (
                                     <Link
                                         href={route('dashboard')}
@@ -54,6 +54,17 @@ export default function Welcome({ auth, appVersion }) {
                                             Sign in to existing account
                                             <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform">→</span>
                                         </Link>
+                                        {enableGuestDemo && (
+                                            <Link 
+                                                href={route('login.guest')} 
+                                                method="post"
+                                                as="button"
+                                                className="rounded-full px-8 py-3.5 text-sm font-bold leading-6 text-emerald-700 dark:text-emerald-300 hover:text-white dark:hover:text-white bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 hover:shadow-lg transition-all duration-300 flex items-center gap-2 group"
+                                            >
+                                                Try Guest Demo
+                                                <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform">→</span>
+                                            </Link>
+                                        )}
                                     </>
                                 )}
                             </div>
