@@ -9,14 +9,11 @@ use App\Models\Tag;
 use App\Models\Note;
 use App\Models\Template;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
 
 class GuestUserSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create();
-
         // 1. Create or get Guest User
         $user = User::firstOrCreate(
             ['email' => 'guest@example.com'],
@@ -147,32 +144,65 @@ class GuestUserSeeder extends Seeder
             }
         }
 
-        // Fill the rest with faker data to reach about 48 notes
+        // Fill the rest with hardcoded random data to reach about 48 notes without Faker
+        $sampleTitles = ['Meeting notes', 'Project update', 'Random thoughts', 'To-Do list', 'Weekly review', 'Client feedback', 'Bug report', 'Feature request', 'Research', 'Code review'];
+        $sampleParagraphs = [
+            'We discussed the new UI changes and agreed to proceed.',
+            'The backend API is almost ready, just need to finalize endpoints.',
+            'Need to review the pull requests before merging to main.',
+            'Performance is looking great after the database optimization.',
+            'Client wants to change the color scheme, we need to schedule a meeting.',
+            'Make sure to update the documentation by Friday.'
+        ];
+        $sampleWords = ['test', 'implement', 'deploy', 'review', 'fix', 'refactor', 'design', 'document', 'update', 'build'];
+
         for ($i = 0; $i < 40; $i++) {
-            $folder = $faker->randomElement($folderModels);
-            $paragraphs = $faker->paragraphs($faker->numberBetween(1, 4), true);
-            $content = "### " . $faker->sentence() . "\n\n" . $paragraphs;
+            $folder = $folderModels[array_rand($folderModels)];
+            
+            $numParagraphs = mt_rand(1, 4);
+            $paragraphs = [];
+            for ($p = 0; $p < $numParagraphs; $p++) {
+                $paragraphs[] = $sampleParagraphs[array_rand($sampleParagraphs)];
+            }
+            $content = "### " . $sampleTitles[array_rand($sampleTitles)] . "\n\n" . implode("\n\n", $paragraphs);
             
             // Randomly insert a list or code block
-            if ($faker->boolean(30)) {
-                 $content .= "\n\n- " . implode("\n- ", $faker->words(4));
-            } else if ($faker->boolean(20)) {
-                 $content .= "\n\n```\n" . $faker->text(50) . "\n```";
+            $randChoice = mt_rand(1, 100);
+            if ($randChoice <= 30) {
+                 $listItems = [];
+                 for ($l = 0; $l < 4; $l++) {
+                     $listItems[] = $sampleWords[array_rand($sampleWords)];
+                 }
+                 $content .= "\n\n- " . implode("\n- ", $listItems);
+            } else if ($randChoice <= 50) {
+                 $content .= "\n\n```\n// Sample code\nfunction " . $sampleWords[array_rand($sampleWords)] . "() {\n    return true;\n}\n```";
             }
             
+            $numWordsTitle = mt_rand(2, 4);
+            $titleWords = [];
+            for ($t = 0; $t < $numWordsTitle; $t++) {
+                $titleWords[] = $sampleWords[array_rand($sampleWords)];
+            }
+
             $note = $user->notes()->create([
-                'title' => ucfirst($faker->words($faker->numberBetween(2, 6), true)),
+                'title' => ucfirst(implode(' ', $titleWords)),
                 'content' => $content,
                 'folder_id' => $folder->id,
-                'is_pinned' => $faker->boolean(10), // 10% chance to be pinned
-                'is_archived' => $faker->boolean(15), // 15% chance to be archived
+                'is_pinned' => mt_rand(1, 100) <= 10, // 10% chance to be pinned
+                'is_archived' => mt_rand(1, 100) <= 15, // 15% chance to be archived
             ]);
 
             // Assign 0 to 3 random tags
-            $numTags = $faker->numberBetween(0, 3);
+            $numTags = mt_rand(0, 3);
             if ($numTags > 0) {
-                $randomTags = $faker->randomElements($tagModels, $numTags);
-                $tagIds = array_map(fn($t) => $t->id, $randomTags);
+                $tagKeys = array_rand($tagModels, $numTags);
+                if (!is_array($tagKeys)) {
+                    $tagKeys = [$tagKeys];
+                }
+                $tagIds = [];
+                foreach ($tagKeys as $k) {
+                    $tagIds[] = $tagModels[$k]->id;
+                }
                 $note->tags()->attach($tagIds);
             }
         }
