@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.3.6",
+        "date": "2026-07-03",
+        "features": [
+            "UI: elegant template selector with Headless UI"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.3.5",
         "date": "2026-07-02",
         "features": [
