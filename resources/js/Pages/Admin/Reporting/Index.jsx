@@ -638,7 +638,20 @@ const ChartActiveUsers = ({ activeUsersData }) => (
 
 const ChartDeviceDistribution = ({ deviceDistribution }) => {
     const COLORS = ['#818CF8', '#C084FC', '#F472B6', '#9CA3AF'];
-    const total = deviceDistribution.reduce((sum, item) => sum + item.value, 0);
+    const total = deviceDistribution ? deviceDistribution.reduce((sum, item) => sum + item.value, 0) : 0;
+
+    if (!deviceDistribution || deviceDistribution.length === 0) {
+        return (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Device Usage</h3>
+                <div className="w-full h-[300px] lg:flex-1 flex flex-col items-center justify-center text-gray-400">
+                    <Monitor className="w-12 h-12 mb-4 opacity-20" />
+                    <p className="text-sm">No device data available yet.</p>
+                    <p className="text-xs mt-1 text-gray-500">Data will populate on new logins.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
@@ -679,6 +692,21 @@ const MapLoginTrajectory = ({ loginTrajectories }) => {
     const mapContainer = React.useRef(null);
     const layerGroupRef = React.useRef(null);
     const [selectedUserId, setSelectedUserId] = React.useState('all');
+
+    if (!loginTrajectories || loginTrajectories.length === 0) {
+        return (
+            <div className="bg-white dark:bg-gray-800 p-0 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300 overflow-hidden relative">
+                <div className="absolute top-4 left-6 z-[1000] pointer-events-auto flex items-center gap-4">
+                    <h3 className="text-lg font-medium text-white drop-shadow-md">Global Login Trajectories</h3>
+                </div>
+                <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center bg-gray-900 text-gray-400">
+                    <Globe className="w-12 h-12 mb-4 opacity-20" />
+                    <p className="text-sm">No location data available yet.</p>
+                    <p className="text-xs mt-1 text-gray-500">Data will populate on new logins.</p>
+                </div>
+            </div>
+        );
+    }
 
     React.useEffect(() => {
         if (!mapContainer.current) return;

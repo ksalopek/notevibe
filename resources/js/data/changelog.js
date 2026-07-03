@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.4.1",
+        "date": "2026-07-03",
+        "features": [],
+        "fixes": [
+            "Fix: Add database indexes to login_histories and optimize queries"
+        ]
+    },
+    {
         "version": "v3.4.0",
         "date": "2026-07-03",
         "features": [
