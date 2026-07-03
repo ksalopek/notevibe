@@ -12,12 +12,9 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search, ArrowUp } from 'lucide-react';
-import FolderSidebar from '@/Components/FolderSidebar';
-import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
-import TemplateManagerModal from '@/Components/TemplateManagerModal';
+import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search, ArrowUp, Settings } from 'lucide-react';
+import LibraryFilterDrawer from '@/Components/LibraryFilterDrawer';
 import MoveNotesModal from '@/Components/MoveNotesModal';
-import TagManagerModal from '@/Components/TagManagerModal';
 import BulkTagModal from '@/Components/BulkTagModal';
 import TagAutocompleteInput from '@/Components/TagAutocompleteInput';
 
@@ -58,12 +55,10 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
     const [selectedNotes, setSelectedNotes] = useState([]);
 
     const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-    const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
     const [activeFolderId, setActiveFolderId] = useState(safeFilters.folder_id ? parseInt(safeFilters.folder_id) : null);
     const [selectedTemplateId, setSelectedTemplateId] = useState('');
     const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
     const [moveTargetIds, setMoveTargetIds] = useState([]);
-    const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
     const [isBulkTagModalOpen, setIsBulkTagModalOpen] = useState(false);
     const [isCreatingMobileOpen, setIsCreatingMobileOpen] = useState(false);
 
@@ -166,10 +161,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
         });
     };
 
-    const handleSelectFolder = (folderId) => {
-        setActiveFolderId(folderId);
-        handleApplyFilters({ folder_id: folderId, tags: safeFilters.tags, date_from: safeFilters.date_from, date_to: safeFilters.date_to });
-    };
+
 
     const handleTemplateSelect = (e) => {
         const value = e.target.value;
@@ -425,16 +417,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
-                    <FolderSidebar 
-                        folders={folders} 
-                        activeFolderId={activeFolderId} 
-                        onSelectFolder={handleSelectFolder} 
-                        tags={tags}
-                        activeTags={safeFilters.tags ? safeFilters.tags.split(',') : []}
-                        onSelectTag={handleTagClick}
-                        openTagManager={() => setIsTagManagerOpen(true)}
-                        hideManagement={isArchiveView}
-                    />
+
                     <div className="flex-1 min-w-0" ref={notesColumnRef}>
                         <div ref={searchBlockRef}>
                         {/* --- CREATE FORM --- */}
@@ -584,6 +567,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-3 ml-auto justify-end">
+
                                     <select
                                         value={sortBy}
                                         onChange={handleSortChange}
@@ -860,20 +844,19 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                 )}
             </AnimatePresence>
 
-            <AdvancedFilterDrawer
+            <LibraryFilterDrawer
                 isOpen={isFilterDrawerOpen}
                 onClose={() => setIsFilterDrawerOpen(false)}
                 filters={safeFilters}
                 onApply={handleApplyFilters}
                 folders={folders}
+                tags={tags}
+                openTagManager={() => setIsTagManagerOpen(true)}
+                hideManagement={isArchiveView}
                 dateLabelPrefix={isArchiveView ? "Archived" : "Created"}
             />
 
-            <TemplateManagerModal 
-                isOpen={isTemplateManagerOpen} 
-                onClose={() => setIsTemplateManagerOpen(false)} 
-                templates={templates} 
-            />
+
 
             <MoveNotesModal
                 isOpen={isMoveModalOpen}
@@ -885,11 +868,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                 folders={folders}
             />
 
-            <TagManagerModal
-                isOpen={isTagManagerOpen}
-                onClose={() => setIsTagManagerOpen(false)}
-                tags={tags}
-            />
+
 
             <BulkTagModal
                 isOpen={isBulkTagModalOpen}

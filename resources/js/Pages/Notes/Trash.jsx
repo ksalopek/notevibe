@@ -3,16 +3,14 @@ import { Head, router, Link, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { debounce } from 'lodash';
 import Tooltip from '@/Components/Tooltip';
-import { RotateCcw, Trash2, Filter, Search, ArrowUp } from 'lucide-react';
+import { RotateCcw, Trash2, Filter, Search, ArrowUp, Settings } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/Components/Modal';
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import FolderSidebar from '@/Components/FolderSidebar';
-import AdvancedFilterDrawer from '@/Components/AdvancedFilterDrawer';
-import TagManagerModal from '@/Components/TagManagerModal';
+import LibraryFilterDrawer from '@/Components/LibraryFilterDrawer';
 
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
 const ContentIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -29,7 +27,6 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
     const [viewMode, setViewMode] = useState(localStorage.getItem('notesViewMode') || 'grid');
     const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
     const [activeFolderId, setActiveFolderId] = useState(safeFilters.folder_id ? parseInt(safeFilters.folder_id) : null);
-    const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
 
     const [localNotes, setLocalNotes] = useState(notes.data || []);
     const [nextPageUrl, setNextPageUrl] = useState(notes.next_page_url);
@@ -125,10 +122,7 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
         });
     };
 
-    const handleSelectFolder = (folderId) => {
-        setActiveFolderId(folderId);
-        handleApplyFilters({ folder_id: folderId, tags: safeFilters.tags, date_from: safeFilters.date_from, date_to: safeFilters.date_to });
-    };
+
 
     const handleSortChange = (e) => {
         const newSort = e.target.value;
@@ -277,16 +271,7 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-8">
-                    <FolderSidebar 
-                        folders={folders} 
-                        activeFolderId={activeFolderId} 
-                        onSelectFolder={handleSelectFolder} 
-                        tags={tags}
-                        activeTags={safeFilters.tags ? safeFilters.tags.split(',') : []}
-                        onSelectTag={handleTagClick}
-                        openTagManager={() => setIsTagManagerOpen(true)}
-                        hideManagement={true}
-                    />
+
                     <div className="flex-1 min-w-0" ref={notesColumnRef}>
                         <div ref={searchBlockRef}>
                     {/* --- SEARCH AND TOGGLE --- */}
@@ -413,19 +398,16 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                 </div>
             </div>
 
-            <AdvancedFilterDrawer
+            <LibraryFilterDrawer
                 isOpen={isFilterDrawerOpen}
                 onClose={() => setIsFilterDrawerOpen(false)}
                 filters={safeFilters}
                 onApply={handleApplyFilters}
                 folders={folders}
                 tags={tags}
+                openTagManager={() => setIsTagManagerOpen(true)}
+                hideManagement={true}
                 dateLabelPrefix="Deleted"
-            />
-            <TagManagerModal
-                isOpen={isTagManagerOpen}
-                onClose={() => setIsTagManagerOpen(false)}
-                tags={tags}
             />
 
             <Modal show={!!confirmingRestore} onClose={() => setConfirmingRestore(null)}>
