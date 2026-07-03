@@ -304,9 +304,10 @@ class ReportingController extends Controller
         $recentHistories = LoginHistory::with('user:id,name,email')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->orderBy('created_at', 'asc')
+            ->orderByDesc('created_at')
             ->take(500)
-            ->get();
+            ->get()
+            ->reverse(); // Reverse so paths are drawn oldest to newest for the map
             
         $trajectoriesMap = [];
         foreach ($recentHistories as $hist) {
