@@ -28,7 +28,10 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Our Modern App!',
+            replyTo: [
+                new \Illuminate\Mail\Mailables\Address('noreply@notevibe.com', 'NoteVibe'),
+            ],
+            subject: 'Welcome to NoteVibe!',
         );
     }
 

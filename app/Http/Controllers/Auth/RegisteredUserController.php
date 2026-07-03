@@ -59,7 +59,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
         
-        Mail::to($user)->send(new WelcomeEmail($user));
+        // Mail::to($user)->send(new WelcomeEmail($user));
 
         $webhookUrl = \App\Models\Setting::get('system_webhook_url');
         if ($webhookUrl) {
