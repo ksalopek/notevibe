@@ -48,6 +48,11 @@ class HandleInertiaRequests extends Middleware
                 'has_trashed_notes' => $request->user() ? \App\Models\Note::onlyTrashed()->where('user_id', $request->user()->id)->exists() : false,
                 'has_archived_notes' => $request->user() ? \App\Models\Note::where('is_archived', true)->where('user_id', $request->user()->id)->exists() : false,
             ],
+            'user_library' => $request->user() ? [
+                'folders' => \App\Models\Folder::where('user_id', $request->user()->id)->orderBy('name')->get(),
+                'tags' => \App\Models\Tag::where('user_id', $request->user()->id)->orderBy('name')->get(),
+                'templates' => \App\Models\Template::where('user_id', $request->user()->id)->orderBy('name')->get(),
+            ] : null,
             'flash' => [
                 'message' => $request->session()->get('message'),
             ],

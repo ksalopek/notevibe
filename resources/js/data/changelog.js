@@ -1,5 +1,22 @@
 export const changelogData = [
     {
+        "version": "v3.3.5",
+        "date": "2026-07-02",
+        "features": [
+            "Feature: Mobile Manage Library page and global organization menu",
+            "UI Polish: Swap Admin icon and improve Library filtering presentation"
+        ],
+        "fixes": []
+    },
+    {
+        "version": "v3.3.4",
+        "date": "2026-07-02",
+        "features": [
+            "Feature: Reset guest profile widgets on seed"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.3.3",
         "date": "2026-07-02",
         "features": [
