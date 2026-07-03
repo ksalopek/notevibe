@@ -22,11 +22,18 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::post('login/guest', function () {
+    Route::post('login/guest', function (\Illuminate\Http\Request $request) {
         $user = \App\Models\User::where('email', 'guest@example.com')->first();
         if ($user) {
             auth()->login($user);
             event(new \Illuminate\Auth\Events\Login('web', $user, false));
+
+            $ip = $request->ip();
+            \Illuminate\Support\Facades\Mail::raw("The demo account was just accessed from IP: {$ip}.", function ($message) {
+                $message->to('krs1998@gmail.com')
+                        ->replyTo('noreply@notevibe.com', 'NoteVibe')
+                        ->subject('Demo Account Alert');
+            });
         }
         return redirect()->intended(route('dashboard', absolute: false));
     })->name('login.guest');
