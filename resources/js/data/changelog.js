@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.4.4",
+        "date": "2026-07-03",
+        "features": [],
+        "fixes": [
+            "Fix: Add missing device and location columns to LoginHistory fillable array"
+        ]
+    },
+    {
         "version": "v3.4.3",
         "date": "2026-07-03",
         "features": [],
