@@ -21,6 +21,12 @@ class NoteController extends Controller
         $tagsFilter = $request->input('tags');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
+        
+        $isPinned = filter_var($request->input('is_pinned'), FILTER_VALIDATE_BOOLEAN);
+        $hasLinks = filter_var($request->input('has_links'), FILTER_VALIDATE_BOOLEAN);
+        $hasTasks = filter_var($request->input('has_tasks'), FILTER_VALIDATE_BOOLEAN);
+        $updatedFrom = $request->input('updated_from');
+        $updatedTo = $request->input('updated_to');
 
         $query = Auth::user()->notes()->where('is_archived', false)->with(['tags', 'folder']);
 
@@ -39,6 +45,23 @@ class NoteController extends Controller
                 $q->whereIn('name', $tagsArray);
             });
         }
+        
+        if ($isPinned) {
+            $query->where('is_pinned', true);
+        }
+        if ($hasLinks) {
+            $query->whereNotNull('link_previews')->where('link_previews', '!=', '[]');
+        }
+        if ($hasTasks) {
+            $query->where('content', 'LIKE', '%data-type="taskList"%');
+        }
+        if ($updatedFrom) {
+            $query->whereDate('updated_at', '>=', $updatedFrom);
+        }
+        if ($updatedTo) {
+            $query->whereDate('updated_at', '<=', $updatedTo);
+        }
+
 
         if ($sortBy === 'relevance' && $search) {
             if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
@@ -107,7 +130,7 @@ class NoteController extends Controller
 
         return Inertia::render('Notes/Index', [
             'notes' => $notes,
-            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to']),
+            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to', 'is_pinned', 'has_links', 'has_tasks', 'updated_from', 'updated_to']),
             'folders' => $folders,
             'templates' => $templates,
             'tags' => $tags,
@@ -251,6 +274,12 @@ class NoteController extends Controller
         $tagsFilter = $request->input('tags');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
+        
+        $isPinned = filter_var($request->input('is_pinned'), FILTER_VALIDATE_BOOLEAN);
+        $hasLinks = filter_var($request->input('has_links'), FILTER_VALIDATE_BOOLEAN);
+        $hasTasks = filter_var($request->input('has_tasks'), FILTER_VALIDATE_BOOLEAN);
+        $updatedFrom = $request->input('updated_from');
+        $updatedTo = $request->input('updated_to');
 
         $query = Auth::user()->notes()->onlyTrashed()->with(['tags', 'folder']);
 
@@ -269,6 +298,23 @@ class NoteController extends Controller
                 $q->whereIn('name', $tagsArray);
             });
         }
+        
+        if ($isPinned) {
+            $query->where('is_pinned', true);
+        }
+        if ($hasLinks) {
+            $query->whereNotNull('link_previews')->where('link_previews', '!=', '[]');
+        }
+        if ($hasTasks) {
+            $query->where('content', 'LIKE', '%data-type="taskList"%');
+        }
+        if ($updatedFrom) {
+            $query->whereDate('updated_at', '>=', $updatedFrom);
+        }
+        if ($updatedTo) {
+            $query->whereDate('updated_at', '<=', $updatedTo);
+        }
+
 
         $query->when($search, function ($query, $search) {
             $query->where(function ($q) use ($search) {
@@ -303,7 +349,7 @@ class NoteController extends Controller
 
         return Inertia::render('Notes/Trash', [
             'notes' => $trashedNotes,
-            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to']),
+            'filters' => $request->only(['search', 'sort', 'folder_id', 'tags', 'date_from', 'date_to', 'is_pinned', 'has_links', 'has_tasks', 'updated_from', 'updated_to']),
             'folders' => $folders,
             'tags' => $tags,
         ]);
