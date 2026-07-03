@@ -99,6 +99,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/widgets', [ProfileController::class, 'updateWidgets'])->name('profile.widgets');
     Route::post('/profile/analytics-widgets', [ProfileController::class, 'updateAnalyticsWidgets'])->name('profile.analytics-widgets');
 
+    // Mobile Manage Library Page
+    Route::get('/manage', function () {
+        return Inertia::render('Manage/Index');
+    })->name('manage.index');
+
     // Notes Routes
     Route::get('/my-journal', [NoteController::class, 'index'])->name('notes.index');
     Route::post('/my-journal', [NoteController::class, 'store'])->name('notes.store');
