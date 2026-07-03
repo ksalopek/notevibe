@@ -291,8 +291,9 @@ class ReportingController extends Controller
             ->values()
             ->all();
 
-        // 13. Device Distribution
+        // 13. Device Distribution (Last 30 Days)
         $deviceDistribution = DB::table('login_histories')
+            ->where('created_at', '>=', now()->subDays(30))
             ->whereNotNull('device_type')
             ->select('device_type', DB::raw('count(*) as count'))
             ->groupBy('device_type')
@@ -300,8 +301,9 @@ class ReportingController extends Controller
             ->map(fn($d) => ['name' => $d->device_type, 'value' => (int) $d->count])
             ->toArray();
 
-        // 14. Login Trajectories (Recent logins with lat/lon grouped by user)
+        // 14. Login Trajectories (Last 30 Days, with lat/lon grouped by user)
         $recentHistories = LoginHistory::with('user:id,name,email')
+            ->where('created_at', '>=', now()->subDays(30))
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->orderByDesc('created_at')
