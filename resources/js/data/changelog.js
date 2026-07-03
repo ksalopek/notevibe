@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.4.3",
+        "date": "2026-07-03",
+        "features": [],
+        "fixes": [
+            "Fix: Optimize reporting queries by limiting to the last 30 days to prevent full table scans on null values"
+        ]
+    },
+    {
         "version": "v3.4.2",
         "date": "2026-07-03",
         "features": [],
