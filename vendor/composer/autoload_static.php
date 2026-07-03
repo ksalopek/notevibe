@@ -157,7 +157,9 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         ),
         'J' => 
         array (
+            'Jenssegers\\Agent\\' => 17,
             'Jean85\\' => 7,
+            'Jaybizzle\\CrawlerDetect\\' => 24,
         ),
         'I' => 
         array (
@@ -520,9 +522,17 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         array (
             0 => __DIR__ . '/..' . '/laravel/breeze/src',
         ),
+        'Jenssegers\\Agent\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jenssegers/agent/src',
+        ),
         'Jean85\\' => 
         array (
             0 => __DIR__ . '/..' . '/jean85/pretty-package-versions/src',
+        ),
+        'Jaybizzle\\CrawlerDetect\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src',
         ),
         'Inertia\\' => 
         array (
@@ -632,6 +642,16 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'D' => 
+        array (
+            'Detection' => 
+            array (
+                0 => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'App\\Http\\Controllers\\AdminController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminController.php',
         'App\\Http\\Controllers\\AiController' => __DIR__ . '/../..' . '/app/Http/Controllers/AiController.php',
@@ -648,10 +668,13 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'App\\Http\\Controllers\\Auth\\RegisteredUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisteredUserController.php',
         'App\\Http\\Controllers\\Auth\\VerifyEmailController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerifyEmailController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\FolderController' => __DIR__ . '/../..' . '/app/Http/Controllers/FolderController.php',
         'App\\Http\\Controllers\\ImpersonationController' => __DIR__ . '/../..' . '/app/Http/Controllers/ImpersonationController.php',
         'App\\Http\\Controllers\\NoteController' => __DIR__ . '/../..' . '/app/Http/Controllers/NoteController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\ReportingController' => __DIR__ . '/../..' . '/app/Http/Controllers/ReportingController.php',
+        'App\\Http\\Controllers\\TagController' => __DIR__ . '/../..' . '/app/Http/Controllers/TagController.php',
+        'App\\Http\\Controllers\\TemplateController' => __DIR__ . '/../..' . '/app/Http/Controllers/TemplateController.php',
         'App\\Http\\Middleware\\CheckMaintenanceMode' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckMaintenanceMode.php',
         'App\\Http\\Middleware\\EnforceSessionTimeout' => __DIR__ . '/../..' . '/app/Http/Middleware/EnforceSessionTimeout.php',
         'App\\Http\\Middleware\\EnsureUserIsActive' => __DIR__ . '/../..' . '/app/Http/Middleware/EnsureUserIsActive.php',
@@ -663,10 +686,12 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'App\\Http\\Requests\\UpdateNoteRequest' => __DIR__ . '/../..' . '/app/Http/Requests/UpdateNoteRequest.php',
         'App\\Jobs\\FetchLinkPreviews' => __DIR__ . '/../..' . '/app/Jobs/FetchLinkPreviews.php',
         'App\\Mail\\WelcomeEmail' => __DIR__ . '/../..' . '/app/Mail/WelcomeEmail.php',
+        'App\\Models\\Folder' => __DIR__ . '/../..' . '/app/Models/Folder.php',
         'App\\Models\\LoginHistory' => __DIR__ . '/../..' . '/app/Models/LoginHistory.php',
         'App\\Models\\Note' => __DIR__ . '/../..' . '/app/Models/Note.php',
         'App\\Models\\Setting' => __DIR__ . '/../..' . '/app/Models/Setting.php',
         'App\\Models\\Tag' => __DIR__ . '/../..' . '/app/Models/Tag.php',
+        'App\\Models\\Template' => __DIR__ . '/../..' . '/app/Models/Template.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Policies\\NotePolicy' => __DIR__ . '/../..' . '/app/Policies/NotePolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
@@ -796,6 +821,7 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'Database\\Factories\\NoteFactory' => __DIR__ . '/../..' . '/database/factories/NoteFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\GuestUserSeeder' => __DIR__ . '/../..' . '/database/seeders/GuestUserSeeder.php',
         'Database\\Seeders\\RolesAndPermissionsSeeder' => __DIR__ . '/../..' . '/database/seeders/RolesAndPermissionsSeeder.php',
         'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
         'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',
@@ -825,6 +851,7 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'DeepCopy\\TypeMatcher\\TypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeMatcher/TypeMatcher.php',
         'DelayedTargetValidation' => __DIR__ . '/..' . '/symfony/polyfill-php85/Resources/stubs/DelayedTargetValidation.php',
         'Deprecated' => __DIR__ . '/..' . '/symfony/polyfill-php84/Resources/stubs/Deprecated.php',
+        'Detection\\MobileDetect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced/Detection/MobileDetect.php',
         'Dflydev\\DotAccessData\\Data' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Data.php',
         'Dflydev\\DotAccessData\\DataInterface' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/DataInterface.php',
         'Dflydev\\DotAccessData\\Exception\\DataException' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Exception/DataException.php',
@@ -3267,11 +3294,19 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'Inertia\\Testing\\Concerns\\PageObject' => __DIR__ . '/..' . '/inertiajs/inertia-laravel/src/Testing/Concerns/PageObject.php',
         'Inertia\\Testing\\ReloadRequest' => __DIR__ . '/..' . '/inertiajs/inertia-laravel/src/Testing/ReloadRequest.php',
         'Inertia\\Testing\\TestResponseMacros' => __DIR__ . '/..' . '/inertiajs/inertia-laravel/src/Testing/TestResponseMacros.php',
+        'Jaybizzle\\CrawlerDetect\\CrawlerDetect' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/CrawlerDetect.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\AbstractProvider' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/AbstractProvider.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Crawlers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Crawlers.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Exclusions' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Exclusions.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Headers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Headers.php',
         'Jean85\\Exception\\ProvidedPackageException' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/ProvidedPackageException.php',
         'Jean85\\Exception\\ReplacedPackageException' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/ReplacedPackageException.php',
         'Jean85\\Exception\\VersionMissingExceptionInterface' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/VersionMissingExceptionInterface.php',
         'Jean85\\PrettyVersions' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/PrettyVersions.php',
         'Jean85\\Version' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Version.php',
+        'Jenssegers\\Agent\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Agent.php',
+        'Jenssegers\\Agent\\AgentServiceProvider' => __DIR__ . '/..' . '/jenssegers/agent/src/AgentServiceProvider.php',
+        'Jenssegers\\Agent\\Facades\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Facades/Agent.php',
         'Laravel\\Breeze\\BreezeServiceProvider' => __DIR__ . '/..' . '/laravel/breeze/src/BreezeServiceProvider.php',
         'Laravel\\Breeze\\Console\\InstallCommand' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallCommand.php',
         'Laravel\\Breeze\\Console\\InstallsApiStack' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallsApiStack.php',
@@ -3847,6 +3882,7 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         'League\\Uri\\UriTemplate\\VariableBag' => __DIR__ . '/..' . '/league/uri/UriTemplate/VariableBag.php',
         'League\\Uri\\Urn' => __DIR__ . '/..' . '/league/uri/Urn.php',
         'League\\Uri\\UrnComparisonMode' => __DIR__ . '/..' . '/league/uri-interfaces/UrnComparisonMode.php',
+        'Mobile_Detect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/Mobile_Detect.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegrationAssertPostConditions' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegrationAssertPostConditions.php',
         'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',
@@ -8269,6 +8305,7 @@ class ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81::$prefixesPsr0;
             $loader->classMap = ComposerStaticIniteffcd2e7bfd6bb8ba3105fbfecbefa81::$classMap;
 
         }, null, ClassLoader::class);
