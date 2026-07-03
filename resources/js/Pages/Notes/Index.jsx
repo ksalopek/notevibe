@@ -12,11 +12,12 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import Masonry from 'react-masonry-css';
 import NoteCard from '@/Components/NoteCard';
 import SimpleNoteCard from '@/Components/SimpleNoteCard';
-import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search, ArrowUp, Settings } from 'lucide-react';
+import { Archive, Notebook, Trash2, Filter, Folder, Plus, Search, ArrowUp, Settings, X } from 'lucide-react';
 import LibraryFilterDrawer from '@/Components/LibraryFilterDrawer';
 import MoveNotesModal from '@/Components/MoveNotesModal';
 import BulkTagModal from '@/Components/BulkTagModal';
 import TagAutocompleteInput from '@/Components/TagAutocompleteInput';
+import TemplateSelect from '@/Components/TemplateSelect';
 
 const breakpointColumnsObj = {
   default: 3,
@@ -163,12 +164,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
 
 
-    const handleTemplateSelect = (e) => {
-        const value = e.target.value;
-        if (value === 'manage') {
-            setIsTemplateManagerOpen(true);
-            return;
-        }
+    const handleTemplateSelect = (value) => {
         
         const templateId = value;
         setSelectedTemplateId(templateId);
@@ -426,21 +422,14 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                         <form onSubmit={submitCreate}>
                             <div className="flex justify-end mb-4">
                                 <div className="flex gap-2 items-center">
-                                    <select 
+                                        <TemplateSelect
                                             value={selectedTemplateId}
-                                            onChange={handleTemplateSelect} 
-                                            className="text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm py-1 pl-3 pr-8"
-                                        >
-                                            <option value="">Use Template...</option>
-                                            {templates.map(t => (
-                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                            ))}
-                                            <option disabled>──────────</option>
-                                            <option value="manage">⚙️ Manage Templates...</option>
-                                        </select>
-                                        {selectedTemplateId && selectedTemplateId !== 'manage' && (
-                                            <button type="button" onClick={handleClearTemplate} className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
-                                                Clear
+                                            onChange={handleTemplateSelect}
+                                            templates={templates}
+                                        />
+                                        {selectedTemplateId && (
+                                            <button type="button" onClick={handleClearTemplate} title="Clear template" className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                                                <X className="w-4 h-4" />
                                             </button>
                                         )}
                                     </div>
@@ -962,21 +951,14 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                     <form onSubmit={submitCreate}>
                         <div className="flex justify-end mb-4">
                             <div className="flex gap-2 items-center">
-                                <select 
+                                    <TemplateSelect
                                         value={selectedTemplateId}
-                                        onChange={handleTemplateSelect} 
-                                        className="text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm py-1 pl-3 pr-8"
-                                    >
-                                        <option value="">Use Template...</option>
-                                        {templates.map(t => (
-                                            <option key={t.id} value={t.id}>{t.name}</option>
-                                        ))}
-                                        <option disabled>──────────</option>
-                                        <option value="manage">⚙️ Manage Templates...</option>
-                                    </select>
-                                    {selectedTemplateId && selectedTemplateId !== 'manage' && (
-                                        <button type="button" onClick={handleClearTemplate} className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
-                                            Clear
+                                        onChange={handleTemplateSelect}
+                                        templates={templates}
+                                    />
+                                    {selectedTemplateId && (
+                                        <button type="button" onClick={handleClearTemplate} title="Clear template" className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                                            <X className="w-4 h-4" />
                                         </button>
                                     )}
                                 </div>
