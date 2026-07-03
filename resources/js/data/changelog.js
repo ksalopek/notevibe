@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.4.2",
+        "date": "2026-07-03",
+        "features": [],
+        "fixes": [
+            "Fix: Add empty states to Device Distribution and Login Trajectories widgets"
+        ]
+    },
+    {
         "version": "v3.4.1",
         "date": "2026-07-03",
         "features": [],
