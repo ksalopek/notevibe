@@ -44,6 +44,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->user()->update($updateData);
         \App\Models\LoginHistory::create(['user_id' => $request->user()->id, 'ip_address' => $ip]);
+
+        if ($request->user()->email === 'guest@example.com') {
+            \Illuminate\Support\Facades\Mail::raw("The demo account was just accessed from IP: {$ip}.", function ($message) {
+                $message->to('krs1998@gmail.com')
+                        ->replyTo('noreply@notevibe.com', 'NoteVibe')
+                        ->subject('Demo Account Alert');
+            });
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

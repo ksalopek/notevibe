@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.3.7",
+        "date": "2026-07-03",
+        "features": [
+            "Added email notifications for demo and welcome emails, updated welcome design"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.3.6",
         "date": "2026-07-03",
         "features": [
