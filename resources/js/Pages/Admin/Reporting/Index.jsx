@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { Listbox, Transition } from '@headlessui/react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { repackLayout } from '@/utils/gridLayoutUtils';
@@ -8,9 +9,11 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     BarChart, Bar, ScatterChart, Scatter, ZAxis, PieChart, Pie, Cell, ComposedChart, Legend
 } from 'recharts';
-import { Download } from 'lucide-react';
+import { Download, Monitor, Smartphone, Tablet, Globe, Check, ChevronsUpDown } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import useTableColumns from '@/Hooks/useTableColumns';
 import ColumnSelector from '@/Components/ColumnSelector';
 import Tooltip from '@/Components/Tooltip';
@@ -321,6 +324,7 @@ const TableAtRiskUsers = ({ atRiskUsers }) => {
 const TableAccessLogs = ({ accessLogs }) => {
     const { visibleColumns, toggleColumn } = useTableColumns('reporting_access_logs', [
         { id: 'user', label: 'User' },
+        { id: 'device', label: 'Device' },
         { id: 'email', label: 'Email' },
         { id: 'ip', label: 'IP Address' },
         { id: 'location', label: 'Location' },
@@ -334,6 +338,7 @@ const TableAccessLogs = ({ accessLogs }) => {
                 <ColumnSelector 
                     columns={[
                         { id: 'user', label: 'User' },
+                        { id: 'device', label: 'Device' },
                         { id: 'email', label: 'Email' },
                         { id: 'ip', label: 'IP Address' },
                         { id: 'location', label: 'Location' },
@@ -357,6 +362,7 @@ const TableAccessLogs = ({ accessLogs }) => {
                 <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10">
                     <tr>
                         {visibleColumns.includes('user') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>}
+                        {visibleColumns.includes('device') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Device</th>}
                         {visibleColumns.includes('email') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>}
                         {visibleColumns.includes('ip') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">IP Address</th>}
                         {visibleColumns.includes('location') && <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>}
@@ -367,6 +373,11 @@ const TableAccessLogs = ({ accessLogs }) => {
                     {accessLogs.data.map((log) => (
                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             {visibleColumns.includes('user') && <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{log.user_name}</td>}
+                            {visibleColumns.includes('device') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center gap-1" title={`${log.platform} - ${log.browser}`}>
+                                    {log.device_type === 'Desktop' ? <Monitor className="w-4 h-4 text-indigo-500" /> : log.device_type === 'Tablet' ? <Tablet className="w-4 h-4 text-purple-500" /> : log.device_type === 'Mobile' ? <Smartphone className="w-4 h-4 text-pink-500" /> : <Globe className="w-4 h-4 text-gray-500" />}
+                                </div>
+                            </td>}
                             {visibleColumns.includes('email') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.email}</td>}
                             {visibleColumns.includes('ip') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.ip}</td>}
                             {visibleColumns.includes('location') && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.location}</td>}
@@ -625,6 +636,186 @@ const ChartActiveUsers = ({ activeUsersData }) => (
     </div>
 );
 
+const ChartDeviceDistribution = ({ deviceDistribution }) => {
+    const COLORS = ['#818CF8', '#C084FC', '#F472B6', '#9CA3AF'];
+    const total = deviceDistribution.reduce((sum, item) => sum + item.value, 0);
+
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Device Usage</h3>
+            <div className="w-full h-[300px] lg:flex-1 lg:h-auto lg:min-h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={deviceDistribution}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                        >
+                            {deviceDistribution.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <RechartsTooltip 
+                            contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
+                            formatter={(value) => {
+                                const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return [`${value} (${percent}%)`, 'Count'];
+                            }}
+                        />
+                        <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+};
+
+const MapLoginTrajectory = ({ loginTrajectories }) => {
+    const mapRef = React.useRef(null);
+    const mapContainer = React.useRef(null);
+    const layerGroupRef = React.useRef(null);
+    const [selectedUserId, setSelectedUserId] = React.useState('all');
+
+    React.useEffect(() => {
+        if (!mapContainer.current) return;
+
+        if (!mapRef.current) {
+            // Initialize map
+            mapRef.current = L.map(mapContainer.current, {
+                center: [20, 0],
+                zoom: 2,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            // Dark theme tiles (CartoDB Dark Matter)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19
+            }).addTo(mapRef.current);
+            
+            layerGroupRef.current = L.layerGroup().addTo(mapRef.current);
+        }
+
+        // Clear previous layers
+        layerGroupRef.current.clearLayers();
+
+        const trajectoriesToShow = selectedUserId === 'all' 
+            ? loginTrajectories 
+            : loginTrajectories.filter(t => t.user_id.toString() === selectedUserId);
+
+        // Plot trajectories
+        trajectoriesToShow.forEach(userTrack => {
+            const latlngs = userTrack.path.map(p => [p.lat, p.lng]);
+            
+            // Draw path line
+            if (latlngs.length > 1) {
+                L.polyline(latlngs, {
+                    color: '#818CF8', // Indigo 400
+                    weight: 2,
+                    opacity: 0.6,
+                    dashArray: '5, 5'
+                }).addTo(layerGroupRef.current);
+            }
+
+            // Draw points
+            userTrack.path.forEach(p => {
+                L.circleMarker([p.lat, p.lng], {
+                    radius: 4,
+                    fillColor: '#C084FC', // Purple 400
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                })
+                .bindTooltip(`${userTrack.name} <br/> ${p.city}, ${p.country} <br/> <span class="text-xs text-gray-300">${p.time}</span>`, {
+                    className: 'bg-gray-800 text-white border-gray-700'
+                })
+                .addTo(layerGroupRef.current);
+            });
+        });
+
+        // We don't remove the map on cleanup, just when unmounting completely
+        return () => {
+            // Cleanup handled when component fully unmounts below, 
+            // but we leave mapRef alive across re-renders for performance.
+        };
+    }, [loginTrajectories, selectedUserId]);
+
+    // Cleanup map on unmount
+    React.useEffect(() => {
+        return () => {
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+        };
+    }, []);
+
+    const options = [
+        { id: 'all', name: 'All Users' },
+        ...loginTrajectories.map(t => ({ id: t.user_id.toString(), name: t.name }))
+    ];
+    const selectedOption = options.find(o => o.id === selectedUserId) || options[0];
+
+    return (
+        <div className="bg-white dark:bg-gray-800 p-0 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col hover:shadow-2xl transition-shadow duration-300 overflow-hidden relative">
+            <div className="absolute top-4 left-6 z-[1000] pointer-events-auto flex items-center gap-4">
+                <h3 className="text-lg font-medium text-white drop-shadow-md">Global Login Trajectories</h3>
+                <div className="relative w-48">
+                    <Listbox value={selectedUserId} onChange={setSelectedUserId}>
+                        <div className="relative mt-1">
+                            <Listbox.Button className="relative w-full cursor-default rounded-lg bg-gray-800/90 backdrop-blur-sm py-2 pl-3 pr-10 text-left text-white shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 sm:text-sm border border-gray-700 hover:bg-gray-700 transition-colors">
+                                <span className="block truncate">{selectedOption.name}</span>
+                                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                    <ChevronsUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                                </span>
+                            </Listbox.Button>
+                            <Transition
+                                as={Fragment}
+                                leave="transition ease-in duration-100"
+                                leaveFrom="opacity-100"
+                                leaveTo="opacity-0"
+                            >
+                                <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm border border-gray-700 custom-scrollbar z-[1001]">
+                                    {options.map((option) => (
+                                        <Listbox.Option
+                                            key={option.id}
+                                            className={({ active }) =>
+                                                `relative cursor-default select-none py-2 pl-10 pr-4 transition-colors ${
+                                                    active ? 'bg-indigo-600 text-white' : 'text-gray-200'
+                                                }`
+                                            }
+                                            value={option.id}
+                                        >
+                                            {({ selected }) => (
+                                                <>
+                                                    <span className={`block truncate ${selected ? 'font-medium text-white' : 'font-normal'}`}>
+                                                        {option.name}
+                                                    </span>
+                                                    {selected ? (
+                                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400">
+                                                            <Check className="h-4 w-4" aria-hidden="true" />
+                                                        </span>
+                                                    ) : null}
+                                                </>
+                                            )}
+                                        </Listbox.Option>
+                                    ))}
+                                </Listbox.Options>
+                            </Transition>
+                        </div>
+                    </Listbox>
+                </div>
+            </div>
+            <div ref={mapContainer} className="w-full h-full min-h-[300px]" style={{ zIndex: 1 }} />
+        </div>
+    );
+};
+
 // Default Layout
 const defaultLayout = [
     { i: 'total-notes', x: 0, y: 0, w: 2, h: 1, minW: 2 },
@@ -639,15 +830,18 @@ const defaultLayout = [
     { i: 'power-users', x: 0, y: 9, w: 2, h: 2, minW: 2 },
     { i: 'at-risk', x: 2, y: 9, w: 2, h: 2, minW: 2 },
     { i: 'access-logs', x: 0, y: 11, w: 4, h: 2, minW: 3 },
-    { i: 'abandoned', x: 0, y: 13, w: 2, h: 2, minW: 2 },
-    { i: 'settings-audit', x: 2, y: 13, w: 2, h: 2, minW: 2 },
-    { i: 'widget-usage', x: 0, y: 15, w: 4, h: 2, minW: 2 },
+    { i: 'device-distribution', x: 0, y: 13, w: 2, h: 2, minW: 2 },
+    { i: 'login-trajectories', x: 2, y: 13, w: 2, h: 2, minW: 2 },
+    { i: 'abandoned', x: 0, y: 15, w: 2, h: 2, minW: 2 },
+    { i: 'settings-audit', x: 2, y: 15, w: 2, h: 2, minW: 2 },
+    { i: 'widget-usage', x: 0, y: 17, w: 4, h: 2, minW: 2 },
 ];
 
 export default function Reporting({ 
     powerUsers, atRiskUsers, activityHeatmap, noteVelocity, 
     tagCloud, accessLogs, abandonedAccounts, settingsAudit, widgetUsage, stats,
-    roleDistribution, geoDistribution, peakUsage, activeUsersData
+    roleDistribution, geoDistribution, peakUsage, activeUsersData,
+    deviceDistribution, loginTrajectories
 }) {
     const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
@@ -675,6 +869,8 @@ export default function Reporting({
                 { id: 'tag-cloud', title: 'Top Tags' },
                 { id: 'geo-distribution', title: 'Geographical Distribution' },
                 { id: 'heatmap', title: 'Activity Heatmap' },
+                { id: 'device-distribution', title: 'Device Distribution' },
+                { id: 'login-trajectories', title: 'Global Trajectories Map' },
                 { id: 'widget-usage', title: 'Widget Usage' },
                 { id: 'power-users', title: 'Power Users' },
                 { id: 'at-risk', title: 'At-Risk Users' },
@@ -745,6 +941,8 @@ export default function Reporting({
             case 'heatmap': return <ChartHeatmap activityHeatmap={activityHeatmap} />;
             case 'widget-usage': return <TableWidgetUsage widgetUsage={widgetUsage} />;
             case 'power-users': return <TablePowerUsers powerUsers={powerUsers} />;
+            case 'device-distribution': return <ChartDeviceDistribution deviceDistribution={deviceDistribution} />;
+            case 'login-trajectories': return <MapLoginTrajectory loginTrajectories={loginTrajectories} />;
             case 'at-risk': return <TableAtRiskUsers atRiskUsers={atRiskUsers} />;
             case 'access-logs': return <TableAccessLogs accessLogs={accessLogs} />;
             case 'abandoned': return <TableAbandonedAccounts abandonedAccounts={abandonedAccounts} />;

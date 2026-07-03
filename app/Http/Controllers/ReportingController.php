@@ -135,9 +135,12 @@ class ReportingController extends Controller
                     'id' => $log->id,
                     'user_name' => $log->user->name ?? 'Unknown',
                     'email' => $log->user->email ?? 'Unknown',
-                    'ip' => $log->user->last_login_ip ?? 'Unknown',
-                    'location' => ($log->user->city && $log->user->country) ? $log->user->city . ', ' . $log->user->country : 'Unknown',
+                    'ip' => $log->ip_address ?? $log->user->last_login_ip ?? 'Unknown',
+                    'location' => ($log->city && $log->country) ? $log->city . ', ' . $log->country : (($log->user->city && $log->user->country) ? $log->user->city . ', ' . $log->user->country : 'Unknown'),
                     'time' => $log->created_at->diffForHumans(),
+                    'device_type' => $log->device_type ?? 'Unknown',
+                    'platform' => $log->platform ?? 'Unknown',
+                    'browser' => $log->browser ?? 'Unknown',
                 ];
             });
 
@@ -288,6 +291,43 @@ class ReportingController extends Controller
             ->values()
             ->all();
 
+        // 13. Device Distribution
+        $deviceDistribution = DB::table('login_histories')
+            ->whereNotNull('device_type')
+            ->select('device_type', DB::raw('count(*) as count'))
+            ->groupBy('device_type')
+            ->get()
+            ->map(fn($d) => ['name' => $d->device_type, 'value' => (int) $d->count])
+            ->toArray();
+
+        // 14. Login Trajectories (Recent logins with lat/lon grouped by user)
+        $recentHistories = LoginHistory::with('user:id,name,email')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderBy('created_at', 'asc')
+            ->take(500)
+            ->get();
+            
+        $trajectoriesMap = [];
+        foreach ($recentHistories as $hist) {
+            $userId = $hist->user_id;
+            if (!isset($trajectoriesMap[$userId])) {
+                $trajectoriesMap[$userId] = [
+                    'user_id' => $userId,
+                    'name' => $hist->user->name ?? 'Unknown',
+                    'path' => []
+                ];
+            }
+            $trajectoriesMap[$userId]['path'][] = [
+                'lat' => (float) $hist->latitude,
+                'lng' => (float) $hist->longitude,
+                'city' => $hist->city,
+                'country' => $hist->country,
+                'time' => $hist->created_at->format('M d, g:i A')
+            ];
+        }
+        $loginTrajectories = array_values($trajectoriesMap);
+
         return Inertia::render('Admin/Reporting/Index', [
             'powerUsers' => $powerUsers,
             'atRiskUsers' => $atRiskUsers,
@@ -302,6 +342,8 @@ class ReportingController extends Controller
             'roleDistribution' => $roleDistribution,
             'geoDistribution' => $geoDistribution,
             'activeUsersData' => $activeUsersData,
+            'deviceDistribution' => $deviceDistribution,
+            'loginTrajectories' => $loginTrajectories,
             'stats' => [
                 'totalNotes' => $totalNotes,
                 'avgNoteLength' => $avgNoteLength,

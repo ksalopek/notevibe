@@ -43,7 +43,23 @@ class AuthenticatedSessionController extends Controller
         }
 
         $request->user()->update($updateData);
-        \App\Models\LoginHistory::create(['user_id' => $request->user()->id, 'ip_address' => $ip]);
+
+        $agent = new \Jenssegers\Agent\Agent();
+        $deviceType = $agent->isDesktop() ? 'Desktop' : ($agent->isTablet() ? 'Tablet' : ($agent->isMobile() ? 'Mobile' : 'Other'));
+        if ($agent->isRobot()) $deviceType = 'Robot';
+
+        $loginHistoryData = [
+            'user_id' => $request->user()->id, 
+            'ip_address' => $ip,
+            'device_type' => $deviceType,
+            'platform' => $agent->platform(),
+            'browser' => $agent->browser(),
+        ];
+        if ($locationData) {
+            $loginHistoryData = array_merge($loginHistoryData, $locationData);
+        }
+        
+        \App\Models\LoginHistory::create($loginHistoryData);
 
         if ($request->user()->email === 'guest@example.com') {
             \Illuminate\Support\Facades\Mail::raw("The demo account was just accessed from IP: {$ip}.", function ($message) {
