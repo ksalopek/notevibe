@@ -3,10 +3,14 @@ import React from 'react';
 export default function Tooltip({ content, children, className = '', placement = 'bottom' }) {
     let positionClasses = "top-full mt-2 left-1/2 -translate-x-1/2 translate-y-1 group-hover/tooltip:translate-y-0";
     
-    if (placement === 'bottom-right' || placement === 'right') {
+    if (placement === 'bottom-right') {
         positionClasses = "top-full mt-2 right-0 translate-x-0 translate-y-1 group-hover/tooltip:translate-y-0";
-    } else if (placement === 'bottom-left' || placement === 'left') {
+    } else if (placement === 'bottom-left') {
         positionClasses = "top-full mt-2 left-0 translate-x-0 translate-y-1 group-hover/tooltip:translate-y-0";
+    } else if (placement === 'right') {
+        positionClasses = "top-1/2 left-full ml-2 -translate-y-1/2 translate-x-1 group-hover/tooltip:translate-x-0";
+    } else if (placement === 'left') {
+        positionClasses = "top-1/2 right-full mr-2 -translate-y-1/2 -translate-x-1 group-hover/tooltip:translate-x-0";
     } else if (placement === 'top') {
         positionClasses = "bottom-full mb-2 left-1/2 -translate-x-1/2 -translate-y-1 group-hover/tooltip:translate-y-0";
     } else if (placement === 'top-right') {
