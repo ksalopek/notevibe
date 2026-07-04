@@ -128,9 +128,9 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
             <CommandPalette />
             <FlashMessage />
-            <div className="flex flex-1 overflow-hidden w-full">
+            <div className="flex flex-1 w-full">
                 {/* Desktop Sidebar */}
-                <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 ${isSidebarExpanded ? 'w-64' : 'w-16'}`}>
+                <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 sticky top-0 h-screen self-start ${isSidebarExpanded ? 'w-64' : 'w-16'}`}>
                     <div className={`h-16 flex items-center border-b border-gray-200 dark:border-gray-700/50 shrink-0 ${isSidebarExpanded ? 'px-4 justify-start' : 'justify-center'}`}>
                         <button onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition focus:outline-none">
                             <Menu className="w-5 h-5" />
