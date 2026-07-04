@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.0",
+        "date": "2026-07-04",
+        "features": [
+            "feat: implement collapsible left sidebar for desktop layout"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.4.4",
         "date": "2026-07-03",
         "features": [],
