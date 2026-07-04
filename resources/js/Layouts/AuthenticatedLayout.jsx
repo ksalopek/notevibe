@@ -128,7 +128,7 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
             <CommandPalette />
             <FlashMessage />
-            <div className="flex flex-1 w-full">
+            <div className="flex flex-1 w-full min-h-0">
                 {/* Desktop Sidebar */}
                 <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 sticky top-0 h-screen self-start ${isSidebarExpanded ? 'w-64' : 'w-16'}`}>
                     <div className={`h-16 flex items-center border-b border-gray-200 dark:border-gray-700/50 shrink-0 ${isSidebarExpanded ? 'px-4 justify-start' : 'justify-center'}`}>
@@ -181,6 +181,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                             <div className="flex justify-between h-16 w-full">
                                 <div className="flex flex-1 min-w-0 items-center">
+
                             {header && (
                                 <div className={`sm:hidden transition-all duration-300 ease-in-out flex items-center h-full ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                                     <div className="truncate font-semibold text-gray-800 dark:text-gray-200 [&>h2]:text-lg [&>h2]:truncate [&>h2]:leading-tight [&>h2]:m-0">
