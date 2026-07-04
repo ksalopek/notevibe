@@ -9,7 +9,7 @@ import FlashMessage from '@/Components/FlashMessage';
 import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
-import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X, LogOut, User, Shield } from 'lucide-react';
+import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X, LogOut, User, Shield, Folder, Tags, LayoutTemplate } from 'lucide-react';
 import ChangelogModal from '@/Components/ChangelogModal';
 import { changelogData } from '@/data/changelog';
 import MeshGradientBackground from '@/Components/MeshGradientBackground';
@@ -34,6 +34,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const [isFolderManagerOpen, setIsFolderManagerOpen] = useState(false);
     const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
     const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const headerRef = useRef(null);
 
     useEffect(() => {
@@ -127,57 +128,59 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
             <CommandPalette />
             <FlashMessage />
-            <nav className="shrink-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 dark:border-gray-700/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex flex-1 min-w-0">
-                            <div className="hidden space-x-8 sm:-my-px sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')} className="group gap-2">
-                                    <LayoutDashboard className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('dashboard') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
-                                    Dashboard
-                                </NavLink>
-                                <NavLink href={route('notes.index')} active={route().current('notes.index')} className="group gap-2">
-                                    <Notebook className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
-                                    Notes
-                                </NavLink>
-                                <NavLink href={route('analytics.index')} active={route().current('analytics.index')} className="group gap-2">
-                                    <TrendingUp className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('analytics.index') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} />
-                                    Analytics
-                                </NavLink>
-                                <NavLink href={route('notes.archived')} active={route().current('notes.archived')} className="group gap-2">
-                                    <Archive className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.archived') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill={has_archived_notes ? 'currentColor' : 'none'} />
-                                    Archive
-                                </NavLink>
-                                <NavLink href={route('notes.trash')} active={route().current('notes.trash')} className="group gap-2">
-                                    {has_trashed_notes ? (
-                                        <svg className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" />
-                                        </svg>
-                                    ) : (
-                                        <svg className={`w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 ${route().current('notes.trash') ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-primary-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    )}
-                                    Trash
-                                </NavLink>
-                                <Popover className="relative inline-flex h-full">
-                                    <Popover.Button className="inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-700 dark:hover:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 focus:text-gray-700 dark:focus:text-gray-300 group gap-2">
-                                        <Settings className="w-4 h-4 transition-transform duration-300 ease-out group-hover:scale-110 text-gray-400 dark:text-gray-500 group-hover:text-primary-500" />
-                                        Manage
-                                    </Popover.Button>
-                                    <Dropdown.Content align="left" width="48">
-                                        <button onClick={() => setIsFolderManagerOpen(true)} className="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out">
-                                            Manage Folders
-                                        </button>
-                                        <button onClick={() => setIsTagManagerOpen(true)} className="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out">
-                                            Manage Tags
-                                        </button>
-                                        <button onClick={() => setIsTemplateManagerOpen(true)} className="block w-full text-left px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out">
-                                            Manage Templates
-                                        </button>
-                                    </Dropdown.Content>
-                                </Popover>
-                            </div>
+            <div className="flex flex-1 overflow-hidden w-full">
+                {/* Desktop Sidebar */}
+                <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 ${isSidebarExpanded ? 'w-64' : 'w-16'}`}>
+                    <div className={`h-16 flex items-center border-b border-gray-200 dark:border-gray-700/50 shrink-0 ${isSidebarExpanded ? 'px-4 justify-start' : 'justify-center'}`}>
+                        <button onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition focus:outline-none">
+                            <Menu className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="flex-1 py-4 flex flex-col gap-2 px-3 overflow-y-auto hide-scrollbar">
+                        <Link href={route('dashboard')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('dashboard') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
+                            <LayoutDashboard className="w-5 h-5 shrink-0" />
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Dashboard</span>
+                        </Link>
+                        <Link href={route('notes.index')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.index') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
+                            <Notebook className="w-5 h-5 shrink-0" />
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Notes</span>
+                        </Link>
+                        <Link href={route('analytics.index')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('analytics.index') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
+                            <TrendingUp className="w-5 h-5 shrink-0" />
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Analytics</span>
+                        </Link>
+                        <Link href={route('notes.archived')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.archived') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
+                            <Archive className="w-5 h-5 shrink-0" fill={has_archived_notes ? 'currentColor' : 'none'} />
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Archive</span>
+                        </Link>
+                        <Link href={route('notes.trash')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.trash') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
+                            <Trash2 className={`w-5 h-5 shrink-0 ${has_trashed_notes ? 'fill-current' : ''}`} />
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Trash</span>
+                        </Link>
+                        
+                        <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700/50">
+                            {isSidebarExpanded && <div className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage</div>}
+                            <button onClick={() => setIsFolderManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
+                                <Folder className="w-5 h-5 shrink-0" />
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Folders</span>
+                            </button>
+                            <button onClick={() => setIsTagManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
+                                <Tags className="w-5 h-5 shrink-0" />
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Tags</span>
+                            </button>
+                            <button onClick={() => setIsTemplateManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
+                                <LayoutTemplate className="w-5 h-5 shrink-0" />
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Templates</span>
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                    <nav className="shrink-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 dark:border-gray-700/50">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                            <div className="flex justify-between h-16 w-full">
+                                <div className="flex flex-1 min-w-0 items-center">
                             {header && (
                                 <div className={`sm:hidden transition-all duration-300 ease-in-out flex items-center h-full ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
                                     <div className="truncate font-semibold text-gray-800 dark:text-gray-200 [&>h2]:text-lg [&>h2]:truncate [&>h2]:leading-tight [&>h2]:m-0">
@@ -270,6 +273,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 <ChangelogModal show={showChangelog} onClose={closeChangelog} />
                 <main className="pb-6 w-full">{children}</main>
+            </div>
+            </div>
             </div>
 
             {/* Bottom Navigation Bar */}
