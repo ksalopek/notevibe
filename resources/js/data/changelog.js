@@ -1,5 +1,15 @@
 export const changelogData = [
     {
+        "version": "v3.5.2",
+        "date": "2026-07-04",
+        "features": [
+            "chore: bump version to v3.5.2"
+        ],
+        "fixes": [
+            "fix: mobile layout and top nav visibility"
+        ]
+    },
+    {
         "version": "v3.5.1",
         "date": "2026-07-04",
         "features": [],
