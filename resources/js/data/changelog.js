@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.1",
+        "date": "2026-07-04",
+        "features": [],
+        "fixes": [
+            "fix: make sidebar sticky and fix layout offset"
+        ]
+    },
+    {
         "version": "v3.5.0",
         "date": "2026-07-04",
         "features": [
