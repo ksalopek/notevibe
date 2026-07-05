@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.4",
+        "date": "2026-07-05",
+        "features": [
+            "Test Notevibe deployment and storage link"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.5.3",
         "date": "2026-07-05",
         "features": [
