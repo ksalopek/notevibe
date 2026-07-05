@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.3",
+        "date": "2026-07-05",
+        "features": [
+            "Add hourly cron job to refresh GuestUserSeeder data"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.5.2",
         "date": "2026-07-04",
         "features": [
