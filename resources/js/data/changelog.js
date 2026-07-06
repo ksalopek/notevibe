@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.5",
+        "date": "2026-07-06",
+        "features": [],
+        "fixes": [
+            "Fix draggable widgets on admin pages and peak usage widget styling"
+        ]
+    },
+    {
         "version": "v3.5.4",
         "date": "2026-07-05",
         "features": [
