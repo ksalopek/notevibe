@@ -682,7 +682,12 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
                         ) : (
                             <ResponsiveGridLayout
                                 className="layout"
-                                layouts={layouts}
+                                layouts={{
+                                    lg: layouts.lg?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    md: layouts.md?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    sm: layouts.sm?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    xs: layouts.xs?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || []
+                                }}
                                 breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 0 }}
                                 cols={{ lg: 3, md: 3, sm: 2, xs: 1 }}
                                 rowHeight={40}
