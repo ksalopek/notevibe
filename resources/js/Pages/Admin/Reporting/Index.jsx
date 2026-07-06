@@ -601,7 +601,7 @@ const TableGeoDistribution = ({ geoDistribution }) => {
 };
 
 const MetricPeakUsage = ({ peakUsage }) => (
-    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 flex-col justify-between gap-3 sm:gap-0 hover:shadow-2xl transition-shadow duration-300">
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-between gap-3 sm:gap-0 hover:shadow-2xl transition-shadow duration-300">
         <div className="flex flex-col text-gray-500 dark:text-gray-400">
             <p className="text-sm font-medium uppercase tracking-wider">Peak Usage Time</p>
             <p className="text-xs mt-1 opacity-70">Based on 90-day login heatmap</p>
@@ -1022,13 +1022,21 @@ export default function Reporting({
                                 key="desktop"
                                 width={containerWidth}
                                 className="layout pb-12"
-                                layouts={layouts}
+                                layouts={{
+                                    lg: layouts.lg?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    md: layouts.md?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    sm: layouts.sm?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    xs: layouts.xs?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || [],
+                                    xxs: layouts.xxs?.map(item => ({ ...item, isDraggable: false, isResizable: false })) || []
+                                }}
                                 onLayoutChange={handleLayoutChange}
                                 breakpoints={{ lg: 1024, md: 768, sm: 640, xs: 480, xxs: 0 }}
                                 cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
                                 rowHeight={150}
                                 containerPadding={[0, 0]}
                                 margin={[20, 20]}
+                                isDraggable={false}
+                                isResizable={false}
                             >
                             {(layouts.lg || []).map(item => (
                             <div key={item.i} className="h-full">
