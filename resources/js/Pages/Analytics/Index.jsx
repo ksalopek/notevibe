@@ -9,7 +9,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
-import { Flame, PenTool, Type, Zap } from 'lucide-react';
+import { Flame, PenTool, Type, Zap, TrendingUp } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import Tooltip from '@/Components/Tooltip';
@@ -396,16 +396,22 @@ export default function AnalyticsIndex({ streak, totalWords, persona, hourChart,
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full gap-4">
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                        My Analytics
-                    </h2>
+                <div className="flex justify-between items-center w-full gap-4 relative">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                            <TrendingUp className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                            My Analytics
+                        </h2>
+                    </div>
                     <Tooltip content="Customize Layout">
                         <button 
                             onClick={() => setIsCustomizeOpen(true)}
-                            className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
+                            className="group relative p-2.5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500/30 active:scale-95"
                         >
-                            <SlidersIcon />
+                            <SlidersIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" />
+                            <span className="absolute inset-0 rounded-2xl bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         </button>
                     </Tooltip>
                 </div>
