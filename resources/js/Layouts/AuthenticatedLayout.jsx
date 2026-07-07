@@ -116,7 +116,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const hasPerm = (perm) => isSuperAdmin || (permissions && permissions.includes(perm));
 
     return (
-        <div className="h-full bg-transparent flex flex-col sm:min-h-screen">
+        <div className="h-[100dvh] bg-transparent flex flex-col overflow-hidden">
             <MeshGradientBackground />
 
             {global_announcement && (
@@ -287,10 +287,10 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
             </nav>
 
-            <div id="main-scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+            <div id="main-scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden w-full relative">
                 {header && (
-                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow shrink-0">
-                        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-gray-800 dark:text-gray-200">{header}</div>
+                    <header ref={headerRef} className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shrink-0 sm:sticky sm:top-0 z-30 transition-all duration-300 sm:shadow-sm">
+                        <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 text-gray-800 dark:text-gray-200">{header}</div>
                     </header>
                 )}
 
