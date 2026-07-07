@@ -34,8 +34,26 @@ export default function AuthenticatedLayout({ header, children }) {
     const [isFolderManagerOpen, setIsFolderManagerOpen] = useState(false);
     const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
     const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('sidebarExpanded') === 'true';
+        }
+        return false;
+    });
+    const [isSidebarHovered, setIsSidebarHovered] = useState(false);
     const headerRef = useRef(null);
+
+    const isExpanded = isSidebarExpanded || isSidebarHovered;
+
+    const toggleSidebar = () => {
+        setIsSidebarExpanded((prev) => {
+            const next = !prev;
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('sidebarExpanded', String(next));
+            }
+            return next;
+        });
+    };
 
     useEffect(() => {
         if (!headerRef.current) return;
@@ -130,47 +148,51 @@ export default function AuthenticatedLayout({ header, children }) {
             <FlashMessage />
             <div className="flex flex-1 w-full min-h-0">
                 {/* Desktop Sidebar */}
-                <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 sticky top-0 h-screen self-start ${isSidebarExpanded ? 'w-64' : 'w-16'}`}>
-                    <div className={`h-16 flex items-center border-b border-gray-200 dark:border-gray-700/50 shrink-0 ${isSidebarExpanded ? 'px-4 justify-start' : 'justify-center'}`}>
-                        <button onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition focus:outline-none">
+                <aside className={`hidden sm:flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border-r border-gray-200 dark:border-gray-700/50 transition-all duration-300 ease-in-out z-40 sticky top-0 h-screen self-start ${isExpanded ? 'w-64' : 'w-16'}`}>
+                    <div className="h-16 flex items-center border-b border-gray-200 dark:border-gray-700/50 shrink-0 pl-4 justify-start">
+                        <button onClick={toggleSidebar} className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition focus:outline-none">
                             <Menu className="w-5 h-5" />
                         </button>
                     </div>
-                    <div className="flex-1 py-4 flex flex-col gap-2 px-3 overflow-y-auto hide-scrollbar">
+                    <div 
+                        className="flex-1 py-4 flex flex-col gap-2 px-3 overflow-y-auto hide-scrollbar"
+                        onMouseEnter={() => setIsSidebarHovered(true)}
+                        onMouseLeave={() => setIsSidebarHovered(false)}
+                    >
                         <Link href={route('dashboard')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('dashboard') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
                             <LayoutDashboard className="w-5 h-5 shrink-0" />
-                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Dashboard</span>
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Dashboard</span>
                         </Link>
                         <Link href={route('notes.index')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.index') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
                             <Notebook className="w-5 h-5 shrink-0" />
-                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Notes</span>
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Notes</span>
                         </Link>
                         <Link href={route('analytics.index')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('analytics.index') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
                             <TrendingUp className="w-5 h-5 shrink-0" />
-                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Analytics</span>
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Analytics</span>
                         </Link>
                         <Link href={route('notes.archived')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.archived') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
                             <Archive className="w-5 h-5 shrink-0" fill={has_archived_notes ? 'currentColor' : 'none'} />
-                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Archive</span>
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Archive</span>
                         </Link>
                         <Link href={route('notes.trash')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${route().current('notes.trash') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'}`}>
                             <Trash2 className={`w-5 h-5 shrink-0 ${has_trashed_notes ? 'fill-current' : ''}`} />
-                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Trash</span>
+                            <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Trash</span>
                         </Link>
                         
                         <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700/50">
-                            {isSidebarExpanded && <div className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage</div>}
+                            {isExpanded && <div className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage</div>}
                             <button onClick={() => setIsFolderManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
                                 <Folder className="w-5 h-5 shrink-0" />
-                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Folders</span>
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Folders</span>
                             </button>
                             <button onClick={() => setIsTagManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
                                 <Tags className="w-5 h-5 shrink-0" />
-                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Tags</span>
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Tags</span>
                             </button>
                             <button onClick={() => setIsTemplateManagerOpen(true)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100`}>
                                 <LayoutTemplate className="w-5 h-5 shrink-0" />
-                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Templates</span>
+                                <span className={`font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>Manage Templates</span>
                             </button>
                         </div>
                     </div>
