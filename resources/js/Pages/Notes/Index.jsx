@@ -664,7 +664,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                                 <Tooltip content="Unarchive">
                                                     <button 
                                                         onClick={() => toggleArchive(note)} 
-                                                        className="p-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full transition-all duration-200 border border-amber-200 dark:border-amber-800/50 shadow-sm hover:shadow"
+                                                        className="p-1.5 bg-white hover:bg-amber-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-amber-600 dark:text-amber-400 rounded-full transition-all duration-200 border border-amber-200 dark:border-amber-800/50 shadow-md hover:shadow-lg"
                                                     >
                                                         <Archive className="w-4 h-4" />
                                                     </button>
@@ -672,7 +672,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                                 <Tooltip content="Move to Trash">
                                                     <button 
                                                         onClick={() => deleteNote(note.id)} 
-                                                        className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                                        className="p-1.5 bg-white hover:bg-red-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-md hover:shadow-lg"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>

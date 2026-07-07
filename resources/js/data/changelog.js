@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.5.6",
+        "date": "2026-07-06",
+        "features": [
+            "UI: Improve hamburger alignment, NoteCard hover states, and Read More conditional rendering"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.5.5",
         "date": "2026-07-06",
         "features": [],

@@ -365,7 +365,7 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                                             <Tooltip content="Restore">
                                                 <button 
                                                     onClick={() => restoreNote(note.id)} 
-                                                    className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full transition-all duration-200 border border-emerald-200 dark:border-emerald-800/50 shadow-sm hover:shadow"
+                                                    className="p-1.5 bg-white hover:bg-emerald-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-emerald-600 dark:text-emerald-400 rounded-full transition-all duration-200 border border-emerald-200 dark:border-emerald-800/50 shadow-md hover:shadow-lg"
                                                 >
                                                     <RotateCcw className="w-4 h-4" />
                                                 </button>
@@ -373,7 +373,7 @@ export default function Trash({ notes, filters = {}, folders = [], tags = [] }) 
                                             <Tooltip content="Delete Forever">
                                                 <button 
                                                     onClick={() => forceDeleteNote(note.id)} 
-                                                    className="p-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-sm hover:shadow"
+                                                    className="p-1.5 bg-white hover:bg-red-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 rounded-full transition-all duration-200 border border-red-200 dark:border-red-800/50 shadow-md hover:shadow-lg"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
