@@ -123,17 +123,20 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                             'X-Inertia-Version': version
                         }
                     }).then(response => {
-                        const newNotes = response.data.props.notes;
-                        if (newNotes && newNotes.data) {
+                        const newNotes = response.data.props?.notes;
+                        if (newNotes && newNotes.data && newNotes.data.length > 0) {
                             setLocalNotes(prev => {
                                 const existingIds = new Set(prev.map(n => n.id));
                                 const additions = newNotes.data.filter(n => !existingIds.has(n.id));
                                 return [...prev, ...additions];
                             });
                             setNextPageUrl(newNotes.next_page_url);
+                        } else {
+                            setNextPageUrl(null);
                         }
                     }).catch(error => {
                         console.error('Failed to load next page', error);
+                        setNextPageUrl(null);
                     }).finally(() => {
                         setIsFetchingNextPage(false);
                     });
@@ -350,7 +353,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{isArchiveView ? 'Archived Notes' : 'My Notes'}</h2>}
+            header={
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                        {isArchiveView ? <Archive className="w-5 h-5" /> : <Notebook className="w-5 h-5" />}
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                        {isArchiveView ? 'Archived Notes' : 'My Notes'}
+                    </h2>
+                </div>
+            }
         >
             <Head title={isArchiveView ? 'Archived Notes' : 'My Notes'} />
 
@@ -727,16 +739,16 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
                                 )}
                             </AnimatePresence>
                         )}
-                    </div>
-
-                    {/* --- INFINITE SCROLL SENTINEL --- */}
-                    <div ref={observerRef} className="h-4 w-full mt-4 flex items-center justify-center">
-                        {isFetchingNextPage && (
-                            <svg className="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        )}
+                        
+                        {/* --- INFINITE SCROLL SENTINEL --- */}
+                        <div ref={observerRef} className="h-8 w-full pb-8 pt-4 flex items-center justify-center">
+                            {isFetchingNextPage && (
+                                <svg className="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            )}
+                        </div>
                     </div>
                     </div>
                 </div>

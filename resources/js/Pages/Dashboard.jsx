@@ -14,7 +14,7 @@ import CountUp from 'react-countup';
 import useTableColumns from '@/Hooks/useTableColumns';
 import ColumnSelector from '@/Components/ColumnSelector';
 import { downloadCSV } from '@/utils/csvUtils';
-import { Download, List, Table } from 'lucide-react';
+import { Download, List, Table, LayoutDashboard } from 'lucide-react';
 
 // SVG Icons
 const TitleIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
@@ -613,16 +613,22 @@ export default function Dashboard({ recentNotes, stats, allTags, chartData, filt
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center w-full gap-4">
-                    <h2 className="text-2xl font-bold leading-tight text-gray-800 dark:text-gray-200">
-                        Dashboard
-                    </h2>
+                <div className="flex justify-between items-center w-full gap-4 relative">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                            <LayoutDashboard className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                            Dashboard
+                        </h2>
+                    </div>
                     <Tooltip content="Customize Layout">
                         <button 
                             onClick={() => setIsCustomizeOpen(true)}
-                            className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
+                            className="group relative p-2.5 rounded-2xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500/30 active:scale-95"
                         >
-                            <SlidersIcon />
+                            <SlidersIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" />
+                            <span className="absolute inset-0 rounded-2xl bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         </button>
                     </Tooltip>
                 </div>
