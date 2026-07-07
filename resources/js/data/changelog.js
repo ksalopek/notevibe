@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.6.0",
+        "date": "2026-07-07",
+        "features": [
+            "Enhance headers with glassmorphism, sticky positioning, and styling"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.5.6",
         "date": "2026-07-06",
         "features": [
