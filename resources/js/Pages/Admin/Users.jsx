@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
+import { Users as UsersIconComponent } from 'lucide-react';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import { repackLayout } from '@/utils/gridLayoutUtils';
 import Pagination from '@/Components/Pagination';
@@ -629,9 +630,14 @@ export default function Users({ users, filters, metrics, heatmapData, availableR
     return (
         <AuthenticatedLayout header={
             <div className="flex justify-between items-center w-full gap-4">
-                <h2 className="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
-                    Manage Users
-                </h2>
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                        <UsersIconComponent className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                        Manage Users
+                    </h2>
+                </div>
                 <Tooltip content="Customize Layout">
                     <button
                         onClick={() => setIsCustomizeOpen(true)}
