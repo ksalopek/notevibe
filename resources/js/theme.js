@@ -23,7 +23,7 @@ export function generateThemeVariables(hexColor) {
     };
 }
 
-export function applyTheme(themeValue) {
+export function applyTheme(themeValue, typography = 'sans') {
     // Clear any previous custom inline styles from body
     const vars = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
     for (const v of vars) {
@@ -31,13 +31,13 @@ export function applyTheme(themeValue) {
     }
 
     if (themeValue.startsWith('#')) {
-        document.body.className = `font-sans antialiased theme-custom`;
+        document.body.className = `font-${typography} antialiased theme-custom`;
         const generatedVars = generateThemeVariables(themeValue);
         for (const [key, value] of Object.entries(generatedVars)) {
             document.body.style.setProperty(key, value);
         }
     } else {
-        document.body.className = `font-sans antialiased theme-${themeValue}`;
+        document.body.className = `font-${typography} antialiased theme-${themeValue}`;
     }
 
     // Update Favicon

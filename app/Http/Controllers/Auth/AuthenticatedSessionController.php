@@ -69,7 +69,8 @@ class AuthenticatedSessionController extends Controller
             });
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $landingPage = $request->user()->preferences['default_landing_page'] ?? 'dashboard';
+        return redirect()->intended(route($landingPage, absolute: false));
     }
 
     /**

@@ -6,7 +6,6 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import FlashMessage from '@/Components/FlashMessage';
-import ThemeToggle from '@/Components/ThemeToggle';
 import CommandPalette from '@/Components/CommandPalette';
 import Tooltip from '@/Components/Tooltip';
 import { LayoutDashboard, Notebook, TrendingUp, Archive, Sparkles, BookOpen, Trash2, Settings, Menu, X, LogOut, User, Shield, Folder, Tags, LayoutTemplate } from 'lucide-react';
@@ -18,12 +17,15 @@ import TagManagerModal from '@/Components/TagManagerModal';
 import TemplateManagerModal from '@/Components/TemplateManagerModal';
 
 import { applyTheme } from '@/theme';
+import { useTheme } from '@/Contexts/ThemeProvider';
 
 const getAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&color=7F9CF5&background=EBF4FF`;
 
 export default function AuthenticatedLayout({ header, children }) {
     const { user, roles, permissions, is_impersonating, has_trashed_notes, has_archived_notes } = usePage().props.auth;
     const { app_theme, global_announcement, user_library } = usePage().props;
+    const { setTheme } = useTheme();
+    const preferences = user?.preferences || {};
     const folders = user_library?.folders || [];
     const tags = user_library?.tags || [];
     const templates = user_library?.templates || [];
@@ -84,10 +86,19 @@ export default function AuthenticatedLayout({ header, children }) {
     }, []);
 
     useEffect(() => {
-        if (app_theme) {
-            applyTheme(app_theme);
+        const finalAccent = preferences.accent_color || app_theme;
+        const finalTypography = preferences.typography || 'sans';
+        
+        if (finalAccent) {
+            applyTheme(finalAccent, finalTypography);
         }
-    }, [app_theme]);
+    }, [preferences.accent_color, preferences.typography, app_theme]);
+
+    useEffect(() => {
+        if (preferences.theme) {
+            setTheme(preferences.theme);
+        }
+    }, [preferences.theme]);
 
     useEffect(() => {
         const latestVersion = changelogData[0]?.version;
@@ -231,7 +242,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <BookOpen className="w-5 h-5" />
                                 </Link>
                             </Tooltip>
-                            <ThemeToggle />
                             {isAdmin && (
                                 <div className="relative">
                                     <Dropdown>
@@ -369,10 +379,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <BookOpen className="w-6 h-6 text-primary-500" />
                                     <span className="text-sm font-medium text-gray-900 dark:text-white">Help</span>
                                 </Link>
-                                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl space-y-2 col-span-2 sm:col-span-1">
-                                    <ThemeToggle />
-                                    <span className="text-sm font-medium text-gray-900 dark:text-white mt-1">Theme</span>
-                                </div>
                             </div>
                         </div>
 
