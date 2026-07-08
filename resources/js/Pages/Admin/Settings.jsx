@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import { Settings as SettingsIconComponent } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -87,7 +88,16 @@ export default function Settings({ auth, appTheme, settings = {} }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">Platform Settings</h2>}
+            header={
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                        <SettingsIconComponent className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                        Platform Settings
+                    </h2>
+                </div>
+            }
         >
             <Head title="Platform Settings" />
 
