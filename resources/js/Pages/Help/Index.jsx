@@ -1,36 +1,8 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight, Smartphone, PlayCircle } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Notebook, TrendingUp, ShieldAlert, ChevronRight, Smartphone, Folder } from 'lucide-react';
 
-const WebpPlayer = ({ src, poster, alt, className }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-
-    return (
-        <div 
-            className={`relative cursor-pointer group ${className || ''}`} 
-            onClick={() => setIsPlaying(!isPlaying)}
-        >
-            <img 
-                src={isPlaying ? src : poster} 
-                alt={alt} 
-                className="w-full h-auto rounded-xl shadow-md border border-gray-200 dark:border-gray-700 block" 
-            />
-            {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors rounded-xl">
-                    <PlayCircle className="w-16 h-16 text-white opacity-90 group-hover:opacity-100 transition-transform transform group-hover:scale-110 drop-shadow-md" />
-                </div>
-            )}
-            {isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-transparent group-hover:bg-black/20 transition-colors rounded-xl opacity-0 group-hover:opacity-100">
-                    <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm font-medium shadow-lg">
-                        Click to pause
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
 
 const documentation = [
     {
@@ -103,83 +75,20 @@ const documentation = [
         )
     },
     {
-        id: 'video-tutorials',
-        title: 'Video Tutorials',
-        icon: <PlayCircle className="w-5 h-5" />,
-        subItems: [
-            {
-                id: 'video-notes',
-                title: 'Managing Notes',
-                content: (
-                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
-                        <p>Watch this quick guide to master NoteVibe's core note management features.</p>
-                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
-                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Managing Your Notes</h3>
-                            <WebpPlayer 
-                                src="/images/help/notes_management_flow.webp" 
-                                poster="/images/help/notes_management_flow_poster.png" 
-                                alt="Notes Management Flow" 
-                            />
-                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to create, archive, and delete your notes efficiently.</p>
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: 'video-dashboard',
-                title: 'Dashboard Basics',
-                content: (
-                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
-                        <p>Learn how to customize and use your dashboard widgets effectively.</p>
-                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
-                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Dashboard Tour</h3>
-                            <WebpPlayer 
-                                src="/images/help/dashboard_basics_flow.webp" 
-                                poster="/images/help/dashboard_basics_flow_poster.png" 
-                                alt="Dashboard Basics Flow" 
-                            />
-                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to create quick drafts, toggle widgets, and analyze your writing activity.</p>
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: 'video-archive',
-                title: 'Archived Notes',
-                content: (
-                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
-                        <p>Keep your journal clean by archiving notes you no longer actively need.</p>
-                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
-                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Managing Archived Notes</h3>
-                            <WebpPlayer 
-                                src="/images/help/archived_notes_flow.webp" 
-                                poster="/images/help/archived_notes_flow_poster.png" 
-                                alt="Archived Notes Flow" 
-                            />
-                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">See how to view archived notes and easily restore them to your main journal.</p>
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: 'video-trash',
-                title: 'Trash Management',
-                content: (
-                    <div className="space-y-4 text-gray-700 dark:text-gray-300">
-                        <p>Did you accidentally delete a note? Don't worry, the trash can helps you recover it.</p>
-                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
-                            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Trash Workflow</h3>
-                            <WebpPlayer 
-                                src="/images/help/trashed_notes_flow.webp" 
-                                poster="/images/help/trashed_notes_flow_poster.png" 
-                                alt="Trashed Notes Flow" 
-                            />
-                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Learn how to restore deleted notes or permanently remove them from your account.</p>
-                        </div>
-                    </div>
-                )
-            }
-        ]
+        id: 'manage-library',
+        title: 'Manage Library',
+        icon: <Folder className="w-5 h-5" />,
+        content: (
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/manage_library.png" alt="Manage Library" className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md border border-gray-200 dark:border-gray-700" />
+                <p>The "Manage Library" section provides a centralized hub to organize your workspace efficiently, especially when using NoteVibe on mobile.</p>
+                <ul className="list-disc pl-5 space-y-2">
+                    <li><strong>Folders:</strong> Create and manage hierarchical folders to keep your notes perfectly categorized.</li>
+                    <li><strong>Tags:</strong> Manage your global tags. Edit tag names or remove unused ones across your entire library.</li>
+                    <li><strong>Templates:</strong> Build and modify reusable templates to quickly jumpstart common formats like meeting minutes, daily journals, or project specs.</li>
+                </ul>
+            </div>
+        )
     },
     {
         id: 'mobile-app',
@@ -187,6 +96,7 @@ const documentation = [
         icon: <Smartphone className="w-5 h-5" />,
         content: (
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <img src="/images/help/mobile_app.png" alt="Mobile App Interface" className="w-full max-w-sm mx-auto h-auto object-cover rounded-3xl mb-6 shadow-xl border-4 border-gray-800 dark:border-gray-900" />
                 <p>NoteVibe is fully optimized for your mobile device, providing a seamless on-the-go experience.</p>
                 <ul className="list-disc pl-5 space-y-2">
                     <li><strong>Install App (PWA):</strong> NoteVibe can be installed directly to your phone's home screen or your laptop/PC. Open the site in your browser and select "Add to Home Screen" (mobile) or the install icon in your address bar (desktop) to use it like a native app.</li>
@@ -220,7 +130,7 @@ const adminDocumentation = {
             </ul>
 
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 mt-6">Global Settings</h4>
-            <p>Configure platform features, toggle AI integrations, and set a Global Announcement banner that displays at the top of every user's screen.</p>
+            <p>Configure platform features and toggle AI integrations for the entire instance. Use the <strong>Global Announcement</strong> feature to pin an important banner that displays at the top of every user's screen.</p>
         </div>
     )
 };
@@ -236,7 +146,16 @@ export default function HelpIndex() {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl leading-tight">Knowledge Base</h2>}
+            header={
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                        <BookOpen className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                        Knowledge Base
+                    </h2>
+                </div>
+            }
         >
             <Head title="Help Center" />
 
