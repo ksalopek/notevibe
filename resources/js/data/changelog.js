@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.7.0",
+        "date": "2026-07-07",
+        "features": [
+            "Added user preferences and data export features"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.6.2",
         "date": "2026-07-07",
         "features": [
