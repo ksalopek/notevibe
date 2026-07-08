@@ -14,7 +14,8 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     if (auth()->check()) {
-        return redirect()->route('dashboard');
+        $landingPage = auth()->user()->preferences['default_landing_page'] ?? 'dashboard';
+        return redirect()->route($landingPage);
     }
 
     // Check config first (for production), fallback to git command (for local dev)
@@ -98,6 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/widgets', [ProfileController::class, 'updateWidgets'])->name('profile.widgets');
     Route::post('/profile/analytics-widgets', [ProfileController::class, 'updateAnalyticsWidgets'])->name('profile.analytics-widgets');
+    Route::patch('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
 
     // Mobile Manage Library Page
     Route::get('/manage', function () {
