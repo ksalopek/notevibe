@@ -2,15 +2,21 @@ import { Dialog } from '@headlessui/react';
 import Modal from '@/Components/Modal';
 import { changelogData } from '@/data/changelog';
 import PrimaryButton from '@/Components/PrimaryButton';
+import { Sparkles } from 'lucide-react';
 
 export default function ChangelogModal({ show, onClose }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
             <div className="p-6 text-gray-900 dark:text-gray-100">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                        What's New in NoteVibe
-                    </h2>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                            <Sparkles className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                            What's New in NoteVibe
+                        </h2>
+                    </div>
                     <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"

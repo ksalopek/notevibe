@@ -1,5 +1,13 @@
 export const changelogData = [
     {
+        "version": "v3.6.1",
+        "date": "2026-07-07",
+        "features": [
+            "feat: update header styles across Admin and Notes pages"
+        ],
+        "fixes": []
+    },
+    {
         "version": "v3.6.0",
         "date": "2026-07-07",
         "features": [
