@@ -38,6 +38,7 @@ class User extends Authenticatable
         'city',
         'dashboard_widgets',
         'analytics_widgets',
+        'preferences',
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'dashboard_widgets' => 'array',
             'analytics_widgets' => 'array',
+            'preferences' => 'array',
         ];
     }
 

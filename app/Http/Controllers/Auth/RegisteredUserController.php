@@ -76,6 +76,7 @@ class RegisteredUserController extends Controller
 
         \App\Models\LoginHistory::create(['user_id' => $user->id, 'ip_address' => $ip]);
 
-        return redirect(route('dashboard', absolute: false));
+        $landingPage = $user->preferences['default_landing_page'] ?? 'dashboard';
+        return redirect(route($landingPage, absolute: false));
     }
 }
