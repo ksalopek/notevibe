@@ -369,7 +369,7 @@ export default function Index({ notes, filters = {}, isArchiveView = false, fold
             <AnimatePresence>
                 {showFloatingTopBar && (
                     <div 
-                        className="hidden sm:flex fixed top-[80px] z-[100] pointer-events-none justify-center"
+                        className="hidden sm:flex fixed top-[160px] z-[100] pointer-events-none justify-center"
                         style={floatingBarStyles}
                     >
                         <motion.div

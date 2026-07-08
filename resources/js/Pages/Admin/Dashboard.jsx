@@ -8,6 +8,7 @@ import Tooltip from '@/Components/Tooltip';
 import { Responsive as ResponsiveGridLayout, useContainerWidth } from 'react-grid-layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import CountUp from 'react-countup';
+import { Shield } from 'lucide-react';
 import useTableColumns from '@/Hooks/useTableColumns';
 import ColumnSelector from '@/Components/ColumnSelector';
 
@@ -879,9 +880,14 @@ export default function Dashboard({ metrics, recentUsers, latestLogins, filters,
         <AuthenticatedLayout
             header={
                 <div className="flex justify-between items-center w-full gap-4">
-                    <h2 className="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
-                        Admin Command Center
-                    </h2>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg shadow-primary-500/20 text-white">
+                            <Shield className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+                            Admin Command Center
+                        </h2>
+                    </div>
                     <Tooltip content="Customize Layout">
                         <button 
                             onClick={() => setIsCustomizeOpen(true)}
